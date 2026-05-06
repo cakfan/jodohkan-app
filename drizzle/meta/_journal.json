@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1778089919632,
+      "tag": "0000_cultured_kitty_pryde",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778090484713,
+      "tag": "0001_parallel_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778090702386,
+      "tag": "0002_magical_manta",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778099873028,
+      "tag": "0003_nifty_jackal",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778099946724,
+      "tag": "0004_opposite_justin_hammer",
+      "breakpoints": true
+    }
+  ]
+}

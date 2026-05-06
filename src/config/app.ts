@@ -1,0 +1,14 @@
+export const APP_CONFIG = {
+  name: "Pethuk Jodoh",
+  description: "Platform Ta'aruf Islami Modern",
+  version: "0.1.0",
+  routes: {
+    signIn: "/signin",
+    signUp: "/signup",
+    dashboard: "/dashboard",
+    home: "/",
+  },
+  socials: {
+    google: true,
+  },
+};
