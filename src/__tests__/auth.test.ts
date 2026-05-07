@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { signInSchema, signUpSchema } from "@/lib/validations/auth";
+import { signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validations/auth";
 
 describe("Auth Schemas - Comprehensive Tests", () => {
   describe("signInSchema", () => {
@@ -33,8 +33,6 @@ describe("Auth Schemas - Comprehensive Tests", () => {
 
     test("should fail if username is just whitespace", () => {
       const result = signInSchema.safeParse({ username: "   ", password: "password123" });
-      // Depending on if we trim, but usually .min(3) on whitespace passes unless we refine
-      // However, it's good to check current behavior
       expect(result.success).toBe(true); // Default Zod behavior
     });
   });
@@ -82,17 +80,6 @@ describe("Auth Schemas - Comprehensive Tests", () => {
       expect(result.success).toBe(false);
     });
 
-    test("should fail if username has spaces (if restricted later, currently min 3)", () => {
-      // Currently our schema only has .min(3)
-      const result = signUpSchema.safeParse({
-        name: "John Doe",
-        email: "test@test.com",
-        username: "j d",
-        password: "password123",
-      });
-      expect(result.success).toBe(true);
-    });
-
     test("should fail on empty strings", () => {
       const result = signUpSchema.safeParse({
         name: "",
@@ -100,6 +87,75 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         username: "",
         password: "",
       });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("forgotPasswordSchema", () => {
+    test("should pass with valid email", () => {
+      const data = { email: "user@example.com" };
+      const result = forgotPasswordSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
+    test("should fail with invalid email", () => {
+      const invalidEmails = ["invalid", "test@", "@example.com", "test@.com"];
+      invalidEmails.forEach((email) => {
+        const result = forgotPasswordSchema.safeParse({ email });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    test("should fail with empty email", () => {
+      const result = forgotPasswordSchema.safeParse({ email: "" });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe("Email tidak valid.");
+      }
+    });
+  });
+
+  describe("resetPasswordSchema", () => {
+    test("should pass with valid matching passwords", () => {
+      const data = {
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      };
+      const result = resetPasswordSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
+    test("should fail if password is too short (< 8 chars)", () => {
+      const data = {
+        password: "short",
+        confirmPassword: "short",
+      };
+      const result = resetPasswordSchema.safeParse(data);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe("Password minimal 8 karakter.");
+      }
+    });
+
+    test("should fail if passwords do not match", () => {
+      const data = {
+        password: "newpassword123",
+        confirmPassword: "differentpassword",
+      };
+      const result = resetPasswordSchema.safeParse(data);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe("Password dan konfirmasi password tidak cocok.");
+        expect(result.error.issues[0].path).toContain("confirmPassword");
+      }
+    });
+
+    test("should fail with empty passwords", () => {
+      const data = {
+        password: "",
+        confirmPassword: "",
+      };
+      const result = resetPasswordSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
   });

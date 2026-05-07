@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, Mail } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,7 +23,7 @@ import { forgotPasswordSchema, type ForgotPasswordValues } from "@/lib/validatio
 const COOLDOWN_KEY = "forgot-password-cooldown";
 const COOLDOWN_DURATION = 300; // 5 minutes in seconds
 
-function getRemainingCooldown(): number {
+function getInitialCooldown(): number {
   if (typeof window === "undefined") return 0;
   const stored = localStorage.getItem(COOLDOWN_KEY);
   if (!stored) return 0;
@@ -33,17 +32,16 @@ function getRemainingCooldown(): number {
   return remaining > 0 ? remaining : 0;
 }
 
-function setCooldown() {
+function setCooldownStorage() {
   if (typeof window === "undefined") return;
   const endTime = Date.now() + COOLDOWN_DURATION * 1000;
   localStorage.setItem(COOLDOWN_KEY, endTime.toString());
 }
 
 export function ForgotPasswordForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [cooldown, setCooldown] = React.useState<number>(0);
+  const [cooldown, setCooldown] = React.useState<number>(getInitialCooldown);
 
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -51,13 +49,6 @@ export function ForgotPasswordForm() {
       email: searchParams.get("email") || "",
     },
   });
-
-  React.useEffect(() => {
-    const remaining = getRemainingCooldown();
-    if (remaining > 0) {
-      setCooldown(remaining);
-    }
-  }, []);
 
   React.useEffect(() => {
     if (cooldown <= 0) return;
@@ -95,6 +86,7 @@ export function ForgotPasswordForm() {
       }
 
       toast.success("Link reset password telah dikirim ke email Anda.");
+      setCooldownStorage();
       setCooldown(COOLDOWN_DURATION);
     } catch {
       toast.error("Terjadi kesalahan teknis. Silakan coba lagi.");

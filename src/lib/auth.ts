@@ -22,7 +22,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    sendResetPassword: async ({ user, url, token }) => {
+    sendResetPassword: async ({ user, url }) => {
       const from = process.env.RESEND_FROM;
       if (!from) {
         throw new Error("RESEND_FROM belum diset");
