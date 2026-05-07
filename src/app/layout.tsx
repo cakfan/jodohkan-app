@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Figtree } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import NextTopLoader from "nextjs-toploader";
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +32,14 @@ export default function RootLayout({
 }>) {
   const nextTopLoaderColor = "var(--primary)";
   return (
-    <html lang="id" className={cn("h-full antialiased", "font-sans", geist.variable)} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-full font-sans antialiased`}>
+    <html
+      lang="id"
+      className={cn("h-full antialiased", "font-sans", geist.variable)}
+      suppressHydrationWarning
+    >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-full font-sans antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

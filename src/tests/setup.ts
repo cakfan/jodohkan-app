@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, mock } from "bun:test";
+import { beforeAll, afterAll } from "bun:test";
 
 // Mocking global objects if needed
 // Bun.mock() can be used for module mocking if necessary

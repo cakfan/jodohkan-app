@@ -1,0 +1,22 @@
+{
+  "types": [
+    { "type": "feat", "section": "🚀 Features" },
+    { "type": "fix", "section": "🐛 Bug Fixes" },
+    { "type": "docs", "section": "📝 Documentation" },
+    { "type": "style", "section": "💎 Styles" },
+    { "type": "refactor", "section": "🔨 Refactoring" },
+    { "type": "perf", "section": "⚡ Performance" },
+    { "type": "test", "section": "🧪 Testing" },
+    { "type": "build", "section": "🛠️ Build System" },
+    { "type": "ci", "section": "🔧 CI/CD" },
+    { "type": "chore", "section": "📦 Chores", "hidden": true },
+    { "type": "revert", "section": "⏪ Reverts", "hidden": true }
+  ],
+  "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commit/{{hash}}",
+  "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "{{host}}/{{owner}}/{{repository}}/issues/{{id}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "scripts": {
+    "postchangelog": "node -e \"const fs=require('fs'); const content=fs.readFileSync('CHANGELOG.md','utf8'); fs.writeFileSync('CHANGELOG.md', content.replace(/\\(HEAD\\)/g, '(v' + require('./package.json').version + ')'));\""
+  }
+}

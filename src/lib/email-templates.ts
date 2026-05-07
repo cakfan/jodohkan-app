@@ -1,8 +1,4 @@
-export function getVerificationEmailHtml(
-  name: string,
-  userEmail: string,
-  url: string,
-): string {
+export function getVerificationEmailHtml(name: string, userEmail: string, url: string): string {
   return `
 <!DOCTYPE html>
 <html>

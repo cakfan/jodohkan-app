@@ -8,7 +8,12 @@ interface BrandLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
-export function BrandLogo({ className, iconClassName, heartClassName, size = "md" }: BrandLogoProps) {
+export function BrandLogo({
+  className,
+  iconClassName,
+  heartClassName,
+  size = "md",
+}: BrandLogoProps) {
   const sizeClasses = {
     sm: { container: "size-10", icon: "size-5", heart: "size-4", heartIcon: "size-2" },
     md: { container: "size-12", icon: "size-6", heart: "size-5", heartIcon: "size-2.5" },
@@ -20,18 +25,22 @@ export function BrandLogo({ className, iconClassName, heartClassName, size = "md
 
   return (
     <div className={cn("relative", className)}>
-      <div className={cn(
-        "flex items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-2xl shadow-primary/20 transform transition-transform hover:scale-105 duration-300",
-        currentSize.container,
-        iconClassName
-      )}>
+      <div
+        className={cn(
+          "bg-primary text-primary-foreground shadow-primary/20 flex transform items-center justify-center rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-105",
+          currentSize.container,
+          iconClassName
+        )}
+      >
         <User className={currentSize.icon} />
       </div>
-      <div className={cn(
-        "absolute -bottom-1 -right-1 bg-white rounded-full flex items-center justify-center border-2 border-primary shadow-sm",
-        currentSize.heart,
-        heartClassName
-      )}>
+      <div
+        className={cn(
+          "border-primary absolute -right-1 -bottom-1 flex items-center justify-center rounded-full border-2 bg-white shadow-sm",
+          currentSize.heart,
+          heartClassName
+        )}
+      >
         <Heart className={cn("text-primary fill-primary", currentSize.heartIcon)} />
       </div>
     </div>

@@ -5,7 +5,9 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 ---
 
 ## 🏗️ Fase 1: Fondasi & Infrastruktur (Minggu 1)
+
 **Tujuan**: Menyiapkan lingkungan pengembangan dan sistem inti.
+
 - [x] Inisialisasi Project: Next.js (App Router) + Bun.js.
 - [x] Setup Database: Supabase + Drizzle ORM.
 - [x] Autentikasi: Konfigurasi Better-auth (Username & Social Auth).
@@ -15,7 +17,9 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Quality Assurance: Setup Bun Test & Unit Tests dasar.
 
 ## 📝 Fase 2: Manajemen CV Ta'aruf (Minggu 2)
+
 **Tujuan**: Memungkinkan pengguna membuat profil ta'aruf yang komprehensif.
+
 - [ ] Skema Database: Implementasi tabel `users`, `profiles`, dan `mediators`.
 - [ ] Onboarding Flow: Halaman edukasi adab ta'aruf dan pernyataan komitmen.
 - [ ] CV Editor: Form multi-step untuk data diri, visi-misi, dan kriteria pasangan.
@@ -23,7 +27,9 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [ ] Token System Core: Skema database untuk `wallets` dan transaksi token.
 
 ## 🔍 Fase 3: Discovery & Matching (Minggu 3)
+
 **Tujuan**: Memudahkan pencarian calon pasangan berdasarkan kriteria.
+
 - [ ] Katalog Kandidat: Halaman list calon pasangan (Filtered).
 - [ ] Advanced Filtering: Filter berdasarkan kriteria agama, usia, lokasi, dll.
 - [ ] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi.
@@ -32,7 +38,9 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [ ] Wallet UI: Halaman saldo dan riwayat transaksi token bagi pengguna.
 
 ## 💬 Fase 4: Integrasi Chat & Mediator (Minggu 4)
+
 **Tujuan**: Membangun sistem komunikasi yang terjaga (Stream Chat).
+
 - [ ] Setup GetStream.io: Integrasi Stream SDK di Frontend & Backend.
 - [ ] Ta'aruf Room: Logic pembuatan channel chat otomatis yang menyertakan Mediator.
 - [ ] Mediator Dashboard: Panel khusus bagi mediator untuk mengelola permintaan ta'aruf dan memantau chat.
@@ -40,14 +48,18 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [ ] Chat Guard: Bot pengingat adab di dalam ruang obrolan.
 
 ## 🔄 Fase 5: Lifecycle & Nazhar System (Minggu 5)
+
 **Tujuan**: Mengelola alur ta'aruf hingga tahap akhir.
+
 - [ ] State Management: Sistem pelacakan tahapan (Tukar CV -> Nazhar -> Istikharah -> Khitbah).
 - [ ] Nazhar Scheduler: Penjadwalan pertemuan (online/offline) yang difasilitasi mediator.
 - [ ] Feedback System: Pengguna dapat memberikan update status setelah nazhar.
 - [ ] Akumulasi Data: Laporan progres ta'aruf untuk pengguna.
 
 ## 🚀 Fase 6: Polish, Testing & Launch (Minggu 6)
+
 **Tujuan**: Menjamin kualitas dan keamanan sebelum rilis.
+
 - [ ] Security Audit: Memastikan data pribadi (terutama foto dan dokumen) aman di Supabase.
 - [ ] Uji Coba (QA): Simulasi proses ta'aruf end-to-end dengan peran Pria, Wanita, dan Mediator.
 - [ ] Optimization: SEO, Page Speed, dan Responsive Design (Mobile First).
@@ -56,6 +68,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 ---
 
 ## 🛠️ Prioritas Pengembangan (MVP)
+
 1.  Autentikasi & Onboarding.
 2.  Pembuatan CV Ta'aruf.
 3.  Discovery/Listing Kandidat.

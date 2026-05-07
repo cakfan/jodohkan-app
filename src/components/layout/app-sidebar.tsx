@@ -1,14 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  BookOpen,
-  LayoutDashboard,
-  MessageSquare,
-  Search,
-  Settings2,
-  Users,
-} from "lucide-react";
+import { BookOpen, LayoutDashboard, MessageSquare, Search, Settings2, Users } from "lucide-react";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
@@ -63,12 +56,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
             <Users className="size-5" />
           </div>
           <div className="flex flex-col gap-0.5 leading-none">
             <span className="font-semibold">Pethuk Jodoh</span>
-            <span className="text-xs text-muted-foreground">Ta'aruf Islami</span>
+            <span className="text-muted-foreground text-xs">Ta&apos;aruf Islami</span>
           </div>
         </div>
       </SidebarHeader>

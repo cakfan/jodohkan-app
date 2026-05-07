@@ -45,7 +45,7 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         name: "Ahmad Jabir",
         email: "jabir@pethukjodoh.com",
         username: "ahmad_jabir",
-        password: "pethukjodoh2026"
+        password: "pethukjodoh2026",
       };
       const result = signUpSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -58,15 +58,15 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         "@example.com",
         "Joe Smith <email@example.com>",
         "email.example.com",
-        "email@example@example.com"
+        "email@example@example.com",
       ];
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         const result = signUpSchema.safeParse({
           name: "John Doe",
           email,
           username: "johndoe",
-          password: "password123"
+          password: "password123",
         });
         expect(result.success).toBe(false);
       });
@@ -77,7 +77,7 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         name: "A",
         email: "test@test.com",
         username: "testuser",
-        password: "password123"
+        password: "password123",
       });
       expect(result.success).toBe(false);
     });
@@ -88,7 +88,7 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         name: "John Doe",
         email: "test@test.com",
         username: "j d",
-        password: "password123"
+        password: "password123",
       });
       expect(result.success).toBe(true);
     });
@@ -98,7 +98,7 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         name: "",
         email: "",
         username: "",
-        password: ""
+        password: "",
       });
       expect(result.success).toBe(false);
     });

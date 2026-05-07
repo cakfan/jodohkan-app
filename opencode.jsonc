@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "next-devtools": {
+      "type": "local",
+      "enabled": true,
+      "command": ["npx", "-y", "next-devtools-mcp@latest"],
+    },
+    "shadcn": {
+      "type": "local",
+      "enabled": true,
+      "command": ["npx", "shadcn@latest", "mcp"],
+    },
+    "better-auth": {
+      "type": "remote",
+      "enabled": true,
+      "url": "https://mcp.better-auth.com/mcp",
+    },
+  },
+}

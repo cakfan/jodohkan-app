@@ -14,7 +14,6 @@ function getResend() {
   return new Resend(apiKey);
 }
 
-
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -42,10 +41,13 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
   },
-  plugins: [
-    username(),
-    admin(),
-  ],
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    },
+  },
+  plugins: [username(), admin()],
   databaseHooks: {
     user: {
       create: {
