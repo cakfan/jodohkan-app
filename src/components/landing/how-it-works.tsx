@@ -19,7 +19,7 @@ const steps = [
     icon: Heart,
     step: "03",
     title: "Istikharah",
-    description: "Waktu tenang untuk meminta petunjuk kepada Allah SWT.",
+    description: "Waktu tenang untuk meminta petunjuk kepada Allah سُبْحَانَهُ وَتَعَالَىٰ.",
   },
   {
     icon: MessageSquare,

@@ -25,7 +25,7 @@ export default function SetupUsernamePage() {
       }
 
       if (data.user.username) {
-        router.push("/dashboard");
+        router.push("/");
         return;
       }
 

@@ -1,5 +1,6 @@
 import { getServerSession } from "@/lib/get-server-session";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { HeroSection } from "@/components/landing/hero-section";
 import { FeaturesSection } from "@/components/landing/features-section";
@@ -9,7 +10,15 @@ import { CTASection } from "@/components/landing/cta-section";
 export default async function Home() {
   const session = await getServerSession();
 
-  if (session?.user.username) {
+  if (session?.user.id && session.user.username) {
+    const existingProfile = await db.query.profile.findFirst({
+      where: (profile, { eq }) => eq(profile.userId, session.user.id),
+    });
+
+    if (!existingProfile?.onboardingCompleted) {
+      redirect("/onboarding");
+    }
+
     redirect("/dashboard");
   }
 

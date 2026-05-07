@@ -6,6 +6,7 @@ export const APP_CONFIG = {
     signIn: "/signin",
     signUp: "/signup",
     dashboard: "/dashboard",
+    onboarding: "/onboarding",
     home: "/",
   },
   socials: {

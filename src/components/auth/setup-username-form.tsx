@@ -53,7 +53,7 @@ export function SetupUsernameForm() {
       }
 
       toast.success("Username berhasil disimpan!");
-      router.push("/dashboard");
+      router.push("/onboarding");
       router.refresh();
     } catch {
       toast.error("Terjadi kesalahan teknis.");
