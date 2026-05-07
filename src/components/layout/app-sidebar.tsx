@@ -29,7 +29,7 @@ const navMain = [
   },
   {
     title: "CV Ta'aruf",
-    url: "/cv",
+    url: "/dashboard/cv/edit",
     icon: BookOpen,
   },
   {

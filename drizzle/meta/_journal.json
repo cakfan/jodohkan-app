@@ -22,6 +22,20 @@
       "when": 1778158514227,
       "tag": "0002_chilly_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778167804018,
+      "tag": "0003_cold_king_bedlam",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778171621079,
+      "tag": "0004_magical_korvac",
+      "breakpoints": true
     }
   ]
 }
