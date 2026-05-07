@@ -4,7 +4,7 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { username, admin } from "better-auth/plugins";
 import { Resend } from "resend";
-import { getVerificationEmailHtml } from "./email-templates";
+import { getVerificationEmailHtml, getPasswordResetEmailHtml } from "./email-templates";
 
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY;
@@ -22,6 +22,21 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url, token }) => {
+      const from = process.env.RESEND_FROM;
+      if (!from) {
+        throw new Error("RESEND_FROM belum diset");
+      }
+
+      await getResend().emails.send({
+        from,
+        to: user.email,
+        subject: "Reset Password - Pethuk Jodoh",
+        text: `Klik link ini untuk reset password: ${url}`,
+        html: getPasswordResetEmailHtml(user.name, user.email, url),
+      });
+    },
+    resetPasswordTokenExpiresIn: 3600,
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
@@ -61,5 +76,17 @@ export const auth = betterAuth({
         },
       },
     },
+  },
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      "/forget-password": {
+        window: 300,
+        max: 3,
+      },
+    },
+    storage: "database",
   },
 });

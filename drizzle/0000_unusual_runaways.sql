@@ -14,6 +14,14 @@ CREATE TABLE "account" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "rate_limit" (
+	"id" text PRIMARY KEY NOT NULL,
+	"key" text NOT NULL,
+	"count" integer NOT NULL,
+	"last_request" bigint NOT NULL,
+	CONSTRAINT "rate_limit_key_unique" UNIQUE("key")
+);
+--> statement-breakpoint
 CREATE TABLE "session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"expires_at" timestamp NOT NULL,
@@ -31,10 +39,17 @@ CREATE TABLE "user" (
 	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean NOT NULL,
+	"username" text,
+	"display_username" text,
 	"image" text,
+	"role" text DEFAULT 'candidate',
+	"banned" boolean,
+	"ban_reason" text,
+	"ban_expires" timestamp,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
-	CONSTRAINT "user_email_unique" UNIQUE("email")
+	CONSTRAINT "user_email_unique" UNIQUE("email"),
+	CONSTRAINT "user_username_unique" UNIQUE("username")
 );
 --> statement-breakpoint
 CREATE TABLE "verification" (
