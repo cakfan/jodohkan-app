@@ -15,6 +15,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Boilerplate Layout: Setup Navbar, Sidebar, dan Protected Routes.
 - [x] Refactoring: Struktur proyek clean (halaman signin/signup & layout terpusat).
 - [x] Quality Assurance: Setup Bun Test & Unit Tests dasar.
+- [x] Forgot Password: Implementasi fitur lupa password dengan email reset & rate limiting (Anti-spam timer 5 menit).
 
 ## 📝 Fase 2: Manajemen CV Ta'aruf (Minggu 2)
 
@@ -25,6 +26,17 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [ ] CV Editor: Form multi-step untuk data diri, visi-misi, dan kriteria pasangan.
 - [ ] Logic Blur Foto: Implementasi storage Supabase dengan masking/blur otomatis.
 - [ ] Token System Core: Skema database untuk `wallets` dan transaksi token.
+
+## 🔒 Fase 1.5: Fitur Forgot Password (Selesai)
+
+**Tujuan**: Implementasi fitur lupa password dengan proteksi anti-spam.
+
+- [x] Auth Config: Tambah `sendResetPassword` dengan email template (Resend).
+- [x] Rate Limiting: 3 request per 5 menit untuk `/forget-password`.
+- [x] Forgot Password Page: Form email dengan 5-menit cooldown timer (localStorage).
+- [x] Reset Password Page: Form password baru + konfirmasi dengan token validation.
+- [x] Database: Tabel `rate_limit` untuk tracking rate limit.
+- [x] Unit Tests: Test untuk `forgotPasswordSchema`, `resetPasswordSchema`, dan email templates.
 
 ## 🔍 Fase 3: Discovery & Matching (Minggu 3)
 
@@ -69,7 +81,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 ## 🛠️ Prioritas Pengembangan (MVP)
 
-1.  Autentikasi & Onboarding.
+1.  Autentikasi & Onboarding (✅ Selesai - termasuk forgot password).
 2.  Pembuatan CV Ta'aruf.
 3.  Discovery/Listing Kandidat.
 4.  Chat Room Dasar (Pria + Wanita + Mediator).

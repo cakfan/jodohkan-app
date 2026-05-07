@@ -111,6 +111,8 @@ src/app/
 | `(auth)/signin/page.tsx` | Sign-in page |
 | `(auth)/signup/page.tsx` | Sign-up page |
 | `(auth)/setup-username/page.tsx` | Username setup page (post-Google signup flow) |
+| `(auth)/forgot-password/page.tsx` | Forgot password page with spam timer protection |
+| `(auth)/reset-password/page.tsx` | Reset password page with token validation |
 | `(auth)/onboard-username/` | Empty directory (placeholder for onboarding flow) |
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar |
 | `(dashboard)/dashboard/page.tsx` | Dashboard home page |
@@ -150,6 +152,8 @@ src/components/
 | `setup-username-form.tsx` | Form for setting up a username after registration |
 | `user-auth-form.tsx` | Sign-in form component |
 | `user-sign-up-form.tsx` | Sign-up form component |
+| `forgot-password-form.tsx` | Forgot password form with 5-minute cooldown timer |
+| `reset-password-form.tsx` | Reset password form with password confirmation |
 | `username-input.tsx` | Reusable username input field with availability checking |
 
 #### `src/components/layout/`
@@ -198,7 +202,7 @@ src/components/
 | File | Description |
 | :--- | :--- |
 | `index.ts` | Drizzle client setup: PostgreSQL connection via postgres.js, exports `db` and `client` |
-| `schema.ts` | Database schema definitions: user, session, account, verification tables |
+| `schema.ts` | Database schema definitions: user, session, account, verification, rate_limit tables |
 
 ---
 
@@ -228,11 +232,11 @@ src/lib/
 | File | Description |
 | :--- | :--- |
 | `utils.ts` | `cn()` utility — merges Tailwind classes via clsx + tailwind-merge |
-| `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins) |
+| `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins, password reset, rate limiting) |
 | `auth-client.ts` | Client-side Better Auth client: exports useSession, signIn, signUp, signOut |
-| `email-templates.ts` | HTML email template for verification emails |
+| `email-templates.ts` | HTML email templates for verification & password reset emails |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
-| `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema) and TypeScript types |
+| `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
 
 ---
 
@@ -240,8 +244,9 @@ src/lib/
 
 | File | Description |
 | :--- | :--- |
-| `auth.test.ts` | Authentication-related tests |
+| `auth.test.ts` | Authentication-related tests (signIn, signUp, forgotPassword, resetPassword schemas) |
 | `utils.test.ts` | Utility function tests (e.g., cn()) |
+| `email-templates.test.ts` | Email template generation tests (verification & password reset) |
 
 ---
 
@@ -273,8 +278,9 @@ src/lib/
 | `0002_magical_manta.sql` | Migration 0002 |
 | `0003_nifty_jackal.sql` | Migration 0003 |
 | `0004_opposite_justin_hammer.sql` | Migration 0004 |
+| `0005_short_mandroid.sql` | Migration 0005: Add rate_limit table for spam protection |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
-| `meta/0000_snapshot.json` — `meta/0004_snapshot.json` | Schema snapshots for each migration |
+| `meta/0000_snapshot.json` — `meta/0005_snapshot.json` | Schema snapshots for each migration |
 
 ---
 
