@@ -39,6 +39,7 @@ import {
   step5Schema,
 } from "@/lib/validations/profile";
 import { saveProfile, type ProfileData } from "@/app/actions/profile";
+import { computeAge } from "@/lib/utils";
 import { PhotoUpload } from "@/components/photo-upload";
 import { toast } from "sonner";
 
@@ -361,6 +362,8 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
   const [form, setForm] = useState<ProfileData>({
     gender: initialData?.gender ?? "",
     birthDate: initialData?.birthDate ?? "",
+    birthPlace: initialData?.birthPlace ?? "",
+    ethnicity: initialData?.ethnicity ?? "",
     height: initialData?.height ?? null,
     weight: initialData?.weight ?? null,
     skinColor: initialData?.skinColor ?? "",
@@ -508,13 +511,38 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                   { value: "widowed", label: "Cerai Meninggal" },
                 ]}
               />
+              <div className="flex flex-col gap-1.5">
+                <InputField
+                  id="birthDate"
+                  label="Tanggal Lahir"
+                  type="date"
+                  value={form.birthDate ?? ""}
+                  onChange={(v) => updateField("birthDate", v)}
+                  error={errors.birthDate}
+                />
+                {computeAge(form.birthDate) !== null && (
+                  <div className="text-primary flex items-center gap-1 text-xs font-semibold">
+                    <span className="bg-primary/10 rounded-md px-1.5 py-0.5">
+                      Usia: {computeAge(form.birthDate)} tahun
+                    </span>
+                  </div>
+                )}
+              </div>
               <InputField
-                id="birthDate"
-                label="Tanggal Lahir"
-                type="date"
-                value={form.birthDate ?? ""}
-                onChange={(v) => updateField("birthDate", v)}
-                error={errors.birthDate}
+                id="birthPlace"
+                label="Tempat Lahir"
+                placeholder="Contoh: Jakarta"
+                value={form.birthPlace ?? ""}
+                onChange={(v) => updateField("birthPlace", v)}
+                error={errors.birthPlace}
+              />
+              <InputField
+                id="ethnicity"
+                label="Suku"
+                placeholder="Contoh: Jawa, Sunda, Minang"
+                value={form.ethnicity ?? ""}
+                onChange={(v) => updateField("ethnicity", v)}
+                error={errors.ethnicity}
               />
               <InputField
                 id="height"

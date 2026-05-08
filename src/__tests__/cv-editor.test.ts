@@ -35,6 +35,7 @@ describe("Step 1 - Data Diri Validation", () => {
   const validData = {
     gender: "male",
     birthDate: "1995-06-15",
+    birthPlace: "Jakarta",
     height: 170,
     weight: 65,
     skinColor: "tan",
@@ -93,8 +94,8 @@ describe("Step 1 - Data Diri Validation", () => {
 
   test("should pass with optional fields omitted", async () => {
     const { step1Schema } = await import("@/lib/validations/profile");
-    const { gender, birthDate, maritalStatus, country, city, occupation, education } = validData;
-    const result = step1Schema.safeParse({ gender, birthDate, maritalStatus, country, city, occupation, education });
+    const { gender, birthDate, birthPlace, maritalStatus, country, city, occupation, education } = validData;
+    const result = step1Schema.safeParse({ gender, birthDate, birthPlace, maritalStatus, country, city, occupation, education });
     expect(result.success).toBe(true);
   });
 

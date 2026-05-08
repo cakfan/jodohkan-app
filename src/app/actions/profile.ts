@@ -9,6 +9,8 @@ import { eq } from "drizzle-orm";
 export interface ProfileData {
   gender?: string | null;
   birthDate?: string | null;
+  birthPlace?: string | null;
+  ethnicity?: string | null;
   height?: number | null;
   weight?: number | null;
   skinColor?: string | null;

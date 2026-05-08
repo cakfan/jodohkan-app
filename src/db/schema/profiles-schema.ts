@@ -21,6 +21,8 @@ export const profile = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     gender: text("gender"),
     birthDate: date("birth_date"),
+    birthPlace: text("birth_place"),
+    ethnicity: text("ethnicity"),
     height: integer("height"),
     weight: integer("weight"),
     skinColor: text("skin_color"),

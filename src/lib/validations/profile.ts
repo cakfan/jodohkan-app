@@ -8,6 +8,8 @@ const qaItemSchema = z.object({
 export const step1Schema = z.object({
   gender: z.string().min(1, "Pilih jenis kelamin"),
   birthDate: z.string().min(1, "Masukkan tanggal lahir"),
+  birthPlace: z.string().min(1, "Masukkan tempat lahir"),
+  ethnicity: z.string().optional(),
   height: z.number().positive("Tinggi badan tidak valid").nullable().optional(),
   weight: z.number().positive("Berat badan tidak valid").nullable().optional(),
   skinColor: z.string().optional(),
