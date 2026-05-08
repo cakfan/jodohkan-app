@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, User, Check, XCircle } from "lucide-react";
+import { User, Check, XCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Control, FieldValues, Path } from "react-hook-form";
 
 import { FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -39,7 +40,7 @@ export function UsernameInput<TFieldValues extends FieldValues>({
               </InputGroupAddon>
               <InputGroupInput placeholder={placeholder} disabled={disabled} {...field} />
               <InputGroupAddon align="inline-end">
-                {isCheckingUsername && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isCheckingUsername && <Spinner />}
                 {!isCheckingUsername && isUsernameAvailable === true && (
                   <Check className="h-4 w-4 text-green-500" />
                 )}

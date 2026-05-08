@@ -6,7 +6,8 @@ import { SetupUsernameForm } from "@/components/auth/setup-username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
@@ -38,7 +39,7 @@ export default function SetupUsernamePage() {
   if (isLoading) {
     return (
       <div className="bg-background relative flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="text-primary h-8 w-8 animate-spin" />
+        <Spinner className="text-primary size-8" />
       </div>
     );
   }

@@ -11,12 +11,12 @@ import {
   Check,
   ArrowRight,
   ArrowLeft,
-  Loader2,
   Plus,
   Trash2,
   Save,
   Eye,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -161,7 +161,7 @@ function NavButtons({
         disabled={isLoading}
       >
         {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Spinner />
         ) : (
           <>
             {nextLabel}
@@ -762,7 +762,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Spinner />
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
@@ -785,7 +785,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Spinner />
                 ) : (
                   <>
                     <Eye className="h-4 w-4" />

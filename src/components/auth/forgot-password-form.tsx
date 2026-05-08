@@ -4,8 +4,9 @@ import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -132,7 +133,7 @@ export function ForgotPasswordForm() {
           className="h-11 w-full"
           disabled={isLoading || cooldown > 0}
         >
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading && <Spinner className="mr-2" />}
           {cooldown > 0
             ? `Tunggu ${formatTime(cooldown)} untuk kirim ulang`
             : "Kirim Link Reset"}

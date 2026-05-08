@@ -4,9 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { Loader2 } from "lucide-react";
 import { z } from "zod";
 
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
@@ -76,7 +76,7 @@ export function SetupUsernameForm() {
           type="submit"
           disabled={isLoading || isCheckingUsername || isUsernameAvailable === false}
         >
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading && <Spinner className="mr-2" />}
           Simpan & Lanjutkan
         </Button>
       </form>

@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: [
+    "@tensorflow/tfjs",
+    "@tensorflow/tfjs-backend-cpu",
+    "@tensorflow-models/face-detection",
+    "@mediapipe/face_detection",
+    "nsfwjs",
+  ],
 };
 
 export default nextConfig;

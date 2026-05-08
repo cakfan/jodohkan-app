@@ -13,6 +13,7 @@ import {
   removeFromStorage,
 } from "@/lib/supabase-admin";
 import { blurImage } from "@/lib/image-blur";
+import { moderateImage } from "@/lib/image-moderation";
 import crypto from "crypto";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -55,6 +56,11 @@ export async function uploadPhoto(formData: FormData) {
   const blurredPath = buildFilePath(userId, blurredFileName);
 
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  const moderation = await moderateImage(buffer);
+  if (!moderation.passed) {
+    return { error: moderation.message };
+  }
 
   let blurredBuffer: Buffer;
   try {

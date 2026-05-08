@@ -4,8 +4,9 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
 
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -150,7 +151,7 @@ export function ResetPasswordForm() {
         />
 
         <Button type="submit" className="h-11 w-full" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading && <Spinner className="mr-2" />}
           Reset Password
         </Button>
       </form>

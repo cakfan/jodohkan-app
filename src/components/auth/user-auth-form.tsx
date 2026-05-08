@@ -4,8 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, User, Lock } from "lucide-react";
+import { User, Lock } from "lucide-react";
 
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -137,7 +138,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
           />
           <Button className="h-11 w-full" type="submit" disabled={isLoading || isSocialLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <Spinner className="mr-2" />}
             Masuk
           </Button>
         </form>
@@ -158,7 +159,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         onClick={() => handleSocialLogin("google")}
       >
         {isSocialLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Spinner className="mr-2" />
         ) : (
           <svg
             className="mr-2 h-4 w-4"

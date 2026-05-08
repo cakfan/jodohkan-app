@@ -11,8 +11,8 @@ import {
   ArrowRight,
   ArrowLeft,
   ScrollText,
-  Loader2,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -242,7 +242,7 @@ export function OnboardingForm() {
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Spinner />
                   Memproses...
                 </span>
               ) : (
