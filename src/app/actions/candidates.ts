@@ -14,6 +14,8 @@ export interface CandidateFilters {
   username?: string;
 }
 
+import { computeAgeDateBoundary } from "@/lib/utils";
+
 export async function getCandidates(filters: CandidateFilters = {}) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
@@ -41,14 +43,10 @@ export async function getCandidates(filters: CandidateFilters = {}) {
     conditions.push(like(profile.education, `%${filters.education}%`));
   }
   if (filters.ageMin) {
-    const minDate = new Date();
-    minDate.setFullYear(minDate.getFullYear() - filters.ageMin);
-    conditions.push(lte(profile.birthDate, minDate.toISOString().split("T")[0]));
+    conditions.push(lte(profile.birthDate, computeAgeDateBoundary(filters.ageMin, "min")));
   }
   if (filters.ageMax) {
-    const maxDate = new Date();
-    maxDate.setFullYear(maxDate.getFullYear() - filters.ageMax - 1);
-    conditions.push(gte(profile.birthDate, maxDate.toISOString().split("T")[0]));
+    conditions.push(gte(profile.birthDate, computeAgeDateBoundary(filters.ageMax, "max")));
   }
   if (filters.username) {
     conditions.push(like(user.username, `%${filters.username}%`));

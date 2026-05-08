@@ -176,8 +176,8 @@ export function TemukanClient({
       </div>
 
       {/* Filter Sidebar */}
-      <div className={`lg:w-72 lg:shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}>
-        <div className="bg-card border-border/50 sticky top-24 space-y-5 rounded-2xl border p-5 shadow-sm">
+      <div className={`lg:w-72 lg:shrink-0 lg:self-start lg:sticky lg:top-24 ${showFilters ? "block" : "hidden lg:block"}`}>
+        <div className="bg-card border-border/50 space-y-5 rounded-2xl border p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="text-muted-foreground h-4 w-4" />

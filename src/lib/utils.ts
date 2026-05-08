@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function computeAgeDateBoundary(age: number, type: "min" | "max"): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - (type === "min" ? age : age + 1));
+  return d.toISOString().split("T")[0];
+}
+
 export function computeAge(
   birthDate: string | null | undefined,
   today?: Date,
