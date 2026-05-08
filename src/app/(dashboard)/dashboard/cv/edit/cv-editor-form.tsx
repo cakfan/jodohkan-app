@@ -42,6 +42,7 @@ import {
 import { saveProfile, type ProfileData } from "@/app/actions/profile";
 import { computeAge } from "@/lib/utils";
 import { PhotoUpload } from "@/components/photo-upload";
+import { Slider } from "@/components/ui/slider";
 import { KtpUpload } from "@/components/ktp-upload";
 import { toast } from "sonner";
 
@@ -378,6 +379,10 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     vision: initialData?.vision ?? "",
     mission: initialData?.mission ?? "",
     partnerCriteria: initialData?.partnerCriteria ?? "",
+    partnerCity: initialData?.partnerCity ?? "",
+    partnerOccupation: initialData?.partnerOccupation ?? "",
+    partnerAgeMin: initialData?.partnerAgeMin ?? null,
+    partnerAgeMax: initialData?.partnerAgeMax ?? null,
     religiousUnderstanding: initialData?.religiousUnderstanding ?? "",
     manhaj: initialData?.manhaj ?? "",
     memorization: initialData?.memorization ?? "",
@@ -698,14 +703,62 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
             description="Jelaskan kriteria pasangan yang Anda harapkan secara jelas dan realistis."
           />
 
-          <FormCard>
+          <FormCard className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <InputField
+                id="partnerCity"
+                label="Domisili Pasangan"
+                placeholder="Contoh: Jakarta"
+                value={form.partnerCity ?? ""}
+                onChange={(v) => updateField("partnerCity", v)}
+                error={errors.partnerCity}
+              />
+              <InputField
+                id="partnerOccupation"
+                label="Pekerjaan Pasangan"
+                placeholder="Contoh: Software Engineer"
+                value={form.partnerOccupation ?? ""}
+                onChange={(v) => updateField("partnerOccupation", v)}
+                error={errors.partnerOccupation}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">Rentang Usia Pasangan</Label>
+              <Slider
+                value={[
+                  form.partnerAgeMin ?? 17,
+                  form.partnerAgeMax ?? 50,
+                ]}
+                min={17}
+                max={50}
+                step={1}
+                onValueChange={(v: unknown) => {
+                  const arr = Array.isArray(v) ? v : [v, v];
+                  const values = arr.map(Number);
+                  updateField("partnerAgeMin", values[0]);
+                  updateField("partnerAgeMax", values[1] ?? values[0]);
+                }}
+              />
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{form.partnerAgeMin ?? 17} tahun</span>
+                <span>{form.partnerAgeMax ?? 50} tahun</span>
+              </div>
+              {(errors.partnerAgeMin || errors.partnerAgeMax) && (
+                <p className="text-destructive text-xs">
+                  {errors.partnerAgeMin || errors.partnerAgeMax}
+                </p>
+              )}
+            </div>
+
+            <div className="bg-border/50 h-px" />
             <TextareaField
               id="partnerCriteria"
               label="Kriteria Pasangan Idaman"
               placeholder="Sebutkan kriteria pasangan idaman Anda: kepribadian, pemahaman agama, pendidikan, visi hidup, dan hal-hal lain yang menurut Anda penting."
               value={form.partnerCriteria ?? ""}
               onChange={(v) => updateField("partnerCriteria", v)}
-              rows={10}
+              rows={8}
               error={errors.partnerCriteria}
             />
           </FormCard>

@@ -23,6 +23,10 @@ export interface ProfileData {
   vision?: string | null;
   mission?: string | null;
   partnerCriteria?: string | null;
+  partnerCity?: string | null;
+  partnerOccupation?: string | null;
+  partnerAgeMin?: number | null;
+  partnerAgeMax?: number | null;
   religiousUnderstanding?: string | null;
   manhaj?: string | null;
   memorization?: string | null;

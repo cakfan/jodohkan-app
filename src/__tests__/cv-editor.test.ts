@@ -247,29 +247,45 @@ describe("Step 2 - Visi & Misi Validation", () => {
 });
 
 describe("Step 3 - Kriteria Pasangan Validation", () => {
+  const validStep3 = {
+    partnerCriteria: "I am looking for someone who is religious and kind.",
+    partnerCity: "Jakarta",
+    partnerOccupation: "Engineer",
+  };
+
   test("should pass with valid data", async () => {
     const { step3Schema } = await import("@/lib/validations/profile");
-    const result = step3Schema.safeParse({
-      partnerCriteria: "I am looking for someone who is religious and kind.",
-    });
+    const result = step3Schema.safeParse(validStep3);
     expect(result.success).toBe(true);
   });
 
   test("should fail when partnerCriteria is empty", async () => {
     const { step3Schema } = await import("@/lib/validations/profile");
-    const result = step3Schema.safeParse({ partnerCriteria: "" });
+    const result = step3Schema.safeParse({ ...validStep3, partnerCriteria: "" });
+    expect(result.success).toBe(false);
+  });
+
+  test("should fail when partnerCity is empty", async () => {
+    const { step3Schema } = await import("@/lib/validations/profile");
+    const result = step3Schema.safeParse({ ...validStep3, partnerCity: "" });
+    expect(result.success).toBe(false);
+  });
+
+  test("should fail when partnerOccupation is empty", async () => {
+    const { step3Schema } = await import("@/lib/validations/profile");
+    const result = step3Schema.safeParse({ ...validStep3, partnerOccupation: "" });
     expect(result.success).toBe(false);
   });
 
   test("should fail when partnerCriteria exceeds 10000 characters", async () => {
     const { step3Schema } = await import("@/lib/validations/profile");
-    const result = step3Schema.safeParse({ partnerCriteria: "a".repeat(10001) });
+    const result = step3Schema.safeParse({ ...validStep3, partnerCriteria: "a".repeat(10001) });
     expect(result.success).toBe(false);
   });
 
   test("should pass when partnerCriteria is exactly 10000 characters", async () => {
     const { step3Schema } = await import("@/lib/validations/profile");
-    const result = step3Schema.safeParse({ partnerCriteria: "a".repeat(10000) });
+    const result = step3Schema.safeParse({ ...validStep3, partnerCriteria: "a".repeat(10000) });
     expect(result.success).toBe(true);
   });
 });

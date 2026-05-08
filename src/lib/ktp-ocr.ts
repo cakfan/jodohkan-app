@@ -68,6 +68,10 @@ function extractField(text: string, label: string): string | null {
   return null;
 }
 
+function mapStartsWith(raw: string, map: Record<string, string>): string | undefined {
+  return map[raw] ?? map[Object.keys(map).find((k) => raw.startsWith(k)) as string];
+}
+
 function parseKtpText(raw: string): KtpExtractedData {
   const upper = raw.toUpperCase();
 
@@ -138,9 +142,6 @@ function parseKtpText(raw: string): KtpExtractedData {
     extractField(normText, "JENISKELAMIN") ??
     extractField(normText, "KELAMIN")
   );
-  function mapStartsWith(raw: string, map: Record<string, string>): string | undefined {
-    return map[raw] ?? map[Object.keys(map).find((k) => raw.startsWith(k)) as string];
-  }
 
   const gender = genderRaw
     ? mapStartsWith(genderRaw, genderMap)
@@ -269,6 +270,7 @@ export function validateKtpImage(data: KtpExtractedData): KtpValidation {
 }
 
 export { normalizeNik };
+export { parseKtpText, extractField, nikDateMatches, healNik, mapStartsWith };
 
 export async function extractKtpInfo(file: File): Promise<KtpExtractedData> {
   const { data } = await recognize(file, "ind+eng", {

@@ -43,6 +43,22 @@ export const step3Schema = z.object({
     .string()
     .min(1, "Isi kriteria pasangan")
     .max(10000, "Maksimal 10000 karakter"),
+  partnerCity: z.string().min(1, "Masukkan domisili pasangan"),
+  partnerOccupation: z.string().min(1, "Masukkan pekerjaan pasangan"),
+  partnerAgeMin: z
+    .number()
+    .int("Harus bilangan bulat")
+    .min(17, "Minimal 17 tahun")
+    .max(50, "Maksimal 50 tahun")
+    .nullable()
+    .optional(),
+  partnerAgeMax: z
+    .number()
+    .int("Harus bilangan bulat")
+    .min(17, "Minimal 17 tahun")
+    .max(50, "Maksimal 50 tahun")
+    .nullable()
+    .optional(),
 });
 
 export const step4Schema = z.object({
