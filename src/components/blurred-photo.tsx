@@ -50,6 +50,7 @@ export function BlurredPhoto({
           width={dims}
           height={dims}
           className={`${sizeMap[size]} object-cover`}
+          loading="eager"
           unoptimized
         />
         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5" />

@@ -179,6 +179,7 @@ export function PhotoUpload({ photoUrl, onPhotoChange }: PhotoUploadProps) {
                 width={224}
                 height={224}
                 className="h-48 w-48 object-cover md:h-56 md:w-56"
+                loading="eager"
                 unoptimized
               />
               <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5" />
