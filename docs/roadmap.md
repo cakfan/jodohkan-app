@@ -25,7 +25,11 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Onboarding Flow: Halaman edukasi adab ta'aruf dan pernyataan komitmen.
 - [x] CV Editor: Form multi-step untuk data diri, visi-misi, dan kriteria pasangan.
 - [x] Logic Blur Foto: Implementasi storage Supabase dengan masking/blur otomatis (CSS blur → server-side blur via sharp, menyimpan original + blurred version terpisah).
-- [ ] Token System Core: Skema database untuk `wallets` dan transaksi token.
+- [x] Image Moderation: Face detection (MediaPipe) + NSFW classifier (nsfwjs) + face geometry validation (blokir anime/ilustrasi). Prioritas: NSFW → face presence → geometry.
+- [x] Foto Upload UX: Preview langsung sebelum upload, retry button, error state, try/catch network handling.
+- [x] Loading Spinner: Sentralisasi semua spinner ke komponen `<Spinner>` dari shadcn/ui.
+- [x] CV Editor UX: Step indicator clickable, auto-scroll ke error, character count, mobile labels, scroll ke QA card baru.
+- [x] Token System Core: Skema database untuk `wallets` dan transaksi token.
 
 ## 🔒 Fase 1.5: Fitur Forgot Password (Selesai)
 
