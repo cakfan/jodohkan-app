@@ -49,14 +49,7 @@ export default async function CVEditPage() {
     : null;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-8">
-      <div className="mb-10 space-y-1.5">
-        <h1 className="text-2xl font-black tracking-tight md:text-3xl">CV Ta&apos;aruf</h1>
-        <p className="text-muted-foreground max-w-xl text-sm leading-relaxed md:text-base">
-          Lengkapi profil ta&apos;aruf Anda agar calon pasangan dan mediator dapat mengenal Anda
-          lebih baik.
-        </p>
-      </div>
+    <div className="p-4 md:p-6">
       <CVEditorForm initialData={existingProfile} />
     </div>
   );

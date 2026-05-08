@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { profile } from "@/db/schema";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { NavbarPageTitle } from "./navbar-page-title";
 
 const statusLabels: Record<string, { label: string; class: string; dot: string }> = {
   draft: { label: "Draft", class: "text-muted-foreground", dot: "bg-muted-foreground" },
@@ -32,6 +33,7 @@ export async function Navbar() {
     <header className="bg-background/80 supports-backdrop-blur:bg-background/60 sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b px-4 text-sm backdrop-blur-sm md:text-base">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-2 h-4" />
+      <NavbarPageTitle />
       <div className="flex flex-1 items-center justify-end gap-3">
         <div className="flex items-center gap-1.5 rounded-full border px-3 py-1">
           <span className={`size-1.5 rounded-full ${status.dot}`} />

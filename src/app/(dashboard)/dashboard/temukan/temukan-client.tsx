@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap, Heart, User, Calendar } from "lucide-react";
 import { getCandidates, type CandidateFilters } from "@/app/actions/candidates";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { computeAge } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -32,6 +27,7 @@ interface Candidate {
   vision: string | null;
   mission: string | null;
   photoBlurredUrl: string | null;
+  username: string | null;
   religiousUnderstanding: string | null;
   manhaj: string | null;
   memorization: string | null;
@@ -46,32 +42,58 @@ const maritalLabels: Record<string, string> = {
   widowed: "Cerai Meninggal",
 };
 
-export function KatalogClient({
+export function TemukanClient({
   initialCandidates,
   initialError,
-  defaultGender,
 }: {
   initialCandidates: Candidate[];
   initialError?: string;
-  defaultGender: string;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [error, setError] = useState(initialError);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<CandidateFilters>({
-    gender: defaultGender,
-    city: "",
-    education: "",
-    ageMin: undefined,
-    ageMax: undefined,
-  });
+  const [filters, setFilters] = useState<CandidateFilters>(() => ({
+    city: searchParams.get("city") ?? "",
+    education: searchParams.get("education") ?? "",
+    ageMin: searchParams.get("ageMin") ? Number(searchParams.get("ageMin")) : undefined,
+    ageMax: searchParams.get("ageMax") ? Number(searchParams.get("ageMax")) : undefined,
+    username: searchParams.get("username") ?? "",
+  }));
 
-  const hasActiveFilters = filters.gender || filters.city || filters.education || filters.ageMin || filters.ageMax;
+  useEffect(() => {
+    const onPopState = () => {
+      const sp = new URLSearchParams(window.location.search);
+      setFilters({
+        city: sp.get("city") ?? "",
+        education: sp.get("education") ?? "",
+        ageMin: sp.get("ageMin") ? Number(sp.get("ageMin")) : undefined,
+        ageMax: sp.get("ageMax") ? Number(sp.get("ageMax")) : undefined,
+        username: sp.get("username") ?? "",
+      });
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const hasActiveFilters = filters.city || filters.education || filters.ageMin || filters.ageMax || filters.username;
 
   const applyFilters = useCallback(async () => {
     setLoading(true);
     setError(undefined);
+
+    const params = new URLSearchParams();
+    if (filters.city) params.set("city", filters.city);
+    if (filters.education) params.set("education", filters.education);
+    if (filters.ageMin) params.set("ageMin", String(filters.ageMin));
+    if (filters.ageMax) params.set("ageMax", String(filters.ageMax));
+    if (filters.username) params.set("username", filters.username);
+    const qs = params.toString();
+    router.replace(`/dashboard/temukan${qs ? `?${qs}` : ""}`, { scroll: false });
+
     const result = await getCandidates(filters);
     if (result.error) {
       setError(result.error);
@@ -79,11 +101,12 @@ export function KatalogClient({
       setCandidates(result.data ?? []);
     }
     setLoading(false);
-  }, [filters]);
+  }, [filters, router]);
 
   const resetFilters = useCallback(async () => {
-    const empty: CandidateFilters = { gender: "", city: "", education: "", ageMin: undefined, ageMax: undefined };
+    const empty: CandidateFilters = { city: "", education: "", ageMin: undefined, ageMax: undefined, username: "" };
     setFilters(empty);
+    router.replace("/dashboard/temukan", { scroll: false });
     setLoading(true);
     setError(undefined);
     const result = await getCandidates(empty);
@@ -93,10 +116,65 @@ export function KatalogClient({
       setCandidates(result.data ?? []);
     }
     setLoading(false);
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
+      {/* Candidate Grid */}
+      <div className="flex-1">
+        {/* Mobile filter toggle */}
+        <div className="mb-4 flex items-center justify-between lg:hidden">
+          <p className="text-muted-foreground text-sm">
+            {candidates.length} kandidat ditemukan
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-xl text-sm"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filter
+          </Button>
+        </div>
+
+        {/* Desktop count */}
+        <p className="text-muted-foreground mb-6 hidden text-right text-sm lg:block">
+          {candidates.length} kandidat ditemukan
+        </p>
+
+        {error && (
+          <div className="border-destructive/30 bg-destructive/5 mb-6 rounded-xl border p-4 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Spinner className="h-8 w-8" />
+          </div>
+        ) : candidates.length === 0 ? (
+          <div className="bg-card border-border/50 flex flex-col items-center gap-4 rounded-2xl border p-12 text-center shadow-sm">
+            <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-2xl">
+              <Heart className="text-muted-foreground h-8 w-8" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-lg font-semibold">Belum ada kandidat</p>
+              <p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
+                Belum ada kandidat yang sesuai dengan kriteria Anda. Coba ubah filter atau
+                tunggu hingga ada kandidat baru.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {candidates.map((candidate) => (
+              <CandidateCard key={candidate.id} candidate={candidate} />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Filter Sidebar */}
       <div className={`lg:w-72 lg:shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}>
         <div className="bg-card border-border/50 sticky top-24 space-y-5 rounded-2xl border p-5 shadow-sm">
@@ -116,20 +194,13 @@ export function KatalogClient({
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold">Jenis Kelamin</label>
-              <Select
-                value={filters.gender ?? ""}
-                onValueChange={(v) => setFilters((f) => ({ ...f, gender: v || "" }))}
-              >
-                <SelectTrigger className="h-10 rounded-xl text-sm">
-                  <SelectValue placeholder="Semua" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="male">Laki-laki</SelectItem>
-                  <SelectItem value="female">Perempuan</SelectItem>
-                </SelectContent>
-              </Select>
+            <label className="text-xs font-semibold">Username</label>
+            <Input
+              placeholder="Cari username..."
+              className="h-10 rounded-xl text-sm"
+              value={filters.username ?? ""}
+              onChange={(e) => setFilters((f) => ({ ...f, username: e.target.value }))}
+            />
           </div>
 
           <div className="space-y-2">
@@ -190,61 +261,6 @@ export function KatalogClient({
           </Button>
         </div>
       </div>
-
-      {/* Candidate Grid */}
-      <div className="flex-1">
-        {/* Mobile filter toggle */}
-        <div className="mb-4 flex items-center justify-between lg:hidden">
-          <p className="text-muted-foreground text-sm">
-            {candidates.length} kandidat ditemukan
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 rounded-xl text-sm"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </Button>
-        </div>
-
-        {/* Desktop count */}
-        <p className="text-muted-foreground mb-6 hidden text-sm lg:block">
-          {candidates.length} kandidat ditemukan
-        </p>
-
-        {error && (
-          <div className="border-destructive/30 bg-destructive/5 mb-6 rounded-xl border p-4 text-sm text-destructive">
-            {error}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Spinner className="h-8 w-8" />
-          </div>
-        ) : candidates.length === 0 ? (
-          <div className="bg-card border-border/50 flex flex-col items-center gap-4 rounded-2xl border p-12 text-center shadow-sm">
-            <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-2xl">
-              <Heart className="text-muted-foreground h-8 w-8" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-lg font-semibold">Belum ada kandidat</p>
-              <p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
-                Belum ada kandidat yang sesuai dengan kriteria Anda. Coba ubah filter atau
-                tunggu hingga ada kandidat baru.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {candidates.map((candidate) => (
-              <CandidateCard key={candidate.id} candidate={candidate} />
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -257,11 +273,13 @@ function CandidateCard({ candidate }: { candidate: Candidate }) {
       {/* Photo */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {candidate.photoBlurredUrl ? (
-          <img
+          <Image
             src={candidate.photoBlurredUrl}
             alt={candidate.name}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             loading="eager"
+            unoptimized
           />
         ) : (
           <div className="flex h-full items-center justify-center">

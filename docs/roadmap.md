@@ -46,8 +46,8 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 **Tujuan**: Memudahkan pencarian calon pasangan berdasarkan kriteria.
 
-- [ ] Katalog Kandidat: Halaman list calon pasangan (Filtered).
-- [ ] Advanced Filtering: Filter berdasarkan kriteria agama, usia, lokasi, dll.
+- [x] Katalog Kandidat: Halaman list calon pasangan dengan filter (gender, kota, pendidikan, usia).
+- [ ] Advanced Filtering: Filter berdasarkan kriteria agama, lokasi, dll.
 - [ ] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi.
 - [ ] Fitur Request Ta'aruf: Pengajuan proses ta'aruf kepada mediator.
 - [ ] Payment Integration: Integrasi Midtrans/Xendit untuk top-up token.
@@ -86,7 +86,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 ## 🛠️ Prioritas Pengembangan (MVP)
 
 1.  Autentikasi & Onboarding (✅ Selesai - termasuk forgot password).
-2.  Pembuatan CV Ta'aruf.
-3.  Discovery/Listing Kandidat.
+2.  Pembuatan CV Ta'aruf (✅ Selesai - termasuk KTP OCR, partner criteria slider).
+3.  Discovery/Listing Kandidat (✅ Selesai - Katalog Kandidat dengan filter).
 4.  Chat Room Dasar (Pria + Wanita + Mediator).
 5.  Status Tahapan Ta'aruf Sederhana.

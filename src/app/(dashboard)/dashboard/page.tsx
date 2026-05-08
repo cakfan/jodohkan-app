@@ -30,7 +30,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
           <div className="text-muted-foreground text-sm font-medium">Status CV</div>

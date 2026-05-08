@@ -7,25 +7,33 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 export interface CandidateFilters {
-  gender?: string;
   city?: string;
   education?: string;
   ageMin?: number;
   ageMax?: number;
+  username?: string;
 }
 
-export async function getCandidates(filters: CandidateFilters) {
+export async function getCandidates(filters: CandidateFilters = {}) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const myProfile = await db.query.profile.findFirst({
+    where: eq(profile.userId, session.user.id),
+    columns: { gender: true },
+  });
 
   const conditions: ReturnType<typeof eq>[] = [
     eq(profile.cvStatus, "approved"),
     ne(profile.userId, session.user.id),
   ];
 
-  if (filters.gender) {
-    conditions.push(eq(profile.gender, filters.gender));
+  if (myProfile?.gender === "male") {
+    conditions.push(eq(profile.gender, "female"));
+  } else if (myProfile?.gender === "female") {
+    conditions.push(eq(profile.gender, "male"));
   }
+
   if (filters.city) {
     conditions.push(like(profile.city, `%${filters.city}%`));
   }
@@ -41,6 +49,9 @@ export async function getCandidates(filters: CandidateFilters) {
     const maxDate = new Date();
     maxDate.setFullYear(maxDate.getFullYear() - filters.ageMax - 1);
     conditions.push(gte(profile.birthDate, maxDate.toISOString().split("T")[0]));
+  }
+  if (filters.username) {
+    conditions.push(like(user.username, `%${filters.username}%`));
   }
 
   const rows = await db
@@ -61,6 +72,7 @@ export async function getCandidates(filters: CandidateFilters) {
       vision: profile.vision,
       mission: profile.mission,
       photoBlurredUrl: profile.photoBlurredUrl,
+      username: user.username,
       religiousUnderstanding: profile.religiousUnderstanding,
       manhaj: profile.manhaj,
       memorization: profile.memorization,
@@ -73,16 +85,4 @@ export async function getCandidates(filters: CandidateFilters) {
     .where(and(...conditions));
 
   return { data: rows };
-}
-
-export async function getMyProfileGender() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) return null;
-
-  const existing = await db.query.profile.findFirst({
-    where: eq(profile.userId, session.user.id),
-    columns: { gender: true },
-  });
-
-  return existing?.gender ?? null;
 }

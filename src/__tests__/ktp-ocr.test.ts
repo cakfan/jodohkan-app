@@ -1,6 +1,5 @@
 import { describe, it, expect } from "bun:test";
 import {
-  extractKtpInfo,
   validateKtpImage,
   normalizeNik,
   parseKtpText,
@@ -8,7 +7,6 @@ import {
   nikDateMatches,
   healNik,
   mapStartsWith,
-  type KtpExtractedData,
 } from "@/lib/ktp-ocr";
 
 // --- normalizeNik ---

@@ -118,12 +118,17 @@ src/app/
 | `onboarding/layout.tsx` | Onboarding layout wrapper |
 | `onboarding/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar |
-| `(dashboard)/dashboard/page.tsx` | Dashboard home page |
+| `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview |
+| `(dashboard)/dashboard/katalog/page.tsx` | Katalog Kandidat page (server component, fetches candidates + user gender) |
+| `(dashboard)/dashboard/katalog/katalog-client.tsx` | Katalog Kandidat client component (filtering UI, candidate cards grid) |
 | `(dashboard)/cv/edit/page.tsx` | CV Ta'aruf editor page (server component, maps Drizzle data to ProfileData) |
-| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client component, 5 steps, Zod validation) |
+| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client component, 5 steps, Zod validation, partner criteria with slider) |
 | `actions/` | Server actions |
 | `actions/profile.ts` | Profile CRUD server actions: `saveProfile()`, `getProfile()`, `ProfileData` type |
 | `actions/photo.ts` | Photo upload/delete server actions: `uploadPhoto()`, `deletePhoto()` — Supabase Storage + sharp blur |
+| `actions/ktp.ts` | KTP upload/delete server actions: `uploadKtp()`, `deleteKtp()` — profile-photos bucket |
+| `actions/candidates.ts` | Candidate listing server action: `getCandidates(filters)` + `getMyProfileGender()` |
+| `actions/onboarding.ts` | Onboarding server action: `completeOnboarding()` — creates wallet with initial balance |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 
 ---
@@ -153,6 +158,7 @@ src/components/
 | `nav-user.tsx` | User menu/navigation component |
 | `photo-upload.tsx` | Photo upload component with preview, upload/delete (server-side blurred version auto-generated via sharp) |
 | `blurred-photo.tsx` | Blurred photo display component (uses server-side blurred image, optional toggle to original) |
+| `ktp-upload.tsx` | KTP upload component with OCR extraction (tesseract.js) and auto-fill to CV form |
 
 #### `src/components/auth/`
 
@@ -172,7 +178,7 @@ src/components/
 | `app-sidebar.tsx` | Sidebar with navigation for the app layout |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
-| `navbar.tsx` | Top navbar for authenticated layouts |
+| `navbar.tsx` | Top navbar for authenticated layouts — async server component, shows CV status pill badge with colored dot |
 | `theme-toggle.tsx` | Dark/light theme toggle button |
 
 #### `src/components/ui/` — shadcn/ui Primitives
@@ -193,6 +199,7 @@ src/components/
 | `sheet.tsx` | Sheet/slide-over panel component |
 | `sidebar.tsx` | Sidebar container component |
 | `skeleton.tsx` | Loading skeleton placeholder |
+| `slider.tsx` | Range slider component (base-ui) — range mode with two thumbs for partner age |
 | `sonner.tsx` | Toast notification provider (Sonner) |
 | `textarea.tsx` | Multi-line text input |
 | `tooltip.tsx` | Tooltip component |
@@ -247,6 +254,7 @@ src/lib/
 | File | Description |
 | :--- | :--- |
 | `utils.ts` | `cn()` utility + `computeAge(birthDate)` — computes age from date string |
+| `ktp-ocr.ts` | KTP OCR pipeline: tesseract.js text extraction, `parseKtpText()`, `healNik()`, `nikDateMatches()`, `normalizeNik()`, `mapStartsWith()`, `validateKtpImage()` |
 | `supabase-admin.ts` | Supabase admin client (lazy init) for Storage operations: bucket mgmt, upload, delete, public URL |
 | `image-blur.ts` | Server-side image blur utility using sharp (resize 200×200 + blur 50 + JPEG quality 60) |
 | `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins, password reset, rate limiting) |
@@ -263,7 +271,8 @@ src/lib/
 | File | Description |
 | :--- | :--- |
 | `auth.test.ts` | Authentication tests (signIn, signUp, forgotPassword, resetPassword schemas) |
-| `cv-editor.test.ts` | CV Editor Zod validation tests (all 5 step schemas), auth guard tests |
+| `cv-editor.test.ts` | CV Editor Zod validation tests (all 5 step schemas, partner fields), auth guard tests |
+| `ktp-ocr.test.ts` | KTP OCR pipeline tests (normalizeNik, nikDateMatches, healNik, parseKtpText, extractField, mapStartsWith, validateKtpImage) |
 | `onboarding.test.ts` | Onboarding flow tests (adab text, commit state, photo blurring concept) |
 | `utils.test.ts` | Utility function tests (cn(), computeAge()) |
 | `email-templates.test.ts` | Email template generation tests (verification & password reset) |
@@ -302,8 +311,14 @@ src/lib/
 | `0003_cold_king_bedlam.sql` | Migration 0003: drop `age` column from profile |
 | `0004_magical_korvac.sql` | Migration 0004: add `skin_color` column to profile |
 | `0005_illegal_human_cannonball.sql` | Migration 0005: add `photo_blurred_url` column to profile |
+| `0006_mute_ghost_rider.sql` | Migration 0006: add `birth_place` column to profile |
+| `0007_wide_golden_guardian.sql` | Migration 0007: add `ethnicity` column to profile |
+| `0008_whole_gressil.sql` | Migration 0008: add `ktp_url` column to profile |
+| `0009_legal_maelstrom.sql` | Migration 0009: add `cv_status` column to profile |
+| `0010_add_partner_city_occupation.sql` | Migration 0010: add `partner_city`, `partner_occupation` to profile |
+| `0011_add_partner_age_range.sql` | Migration 0011: add `partner_age_min`, `partner_age_max` to profile |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
-| `meta/0000_snapshot.json` — `meta/0005_snapshot.json` | Schema snapshots for each migration |
+| `meta/0000_snapshot.json` — `meta/0011_snapshot.json` | Schema snapshots for each migration |
 
 ---
 
