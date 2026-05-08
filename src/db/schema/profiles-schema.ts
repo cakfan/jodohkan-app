@@ -39,6 +39,7 @@ export const profile = pgTable(
     dailyWorship: text("daily_worship"),
     qa: jsonb("qa"),
     photoUrl: text("photo_url"),
+    photoBlurredUrl: text("photo_blurred_url"),
     photoBlurred: boolean("photo_blurred").default(true),
     isVerified: boolean("is_verified").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),

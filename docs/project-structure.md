@@ -26,7 +26,7 @@ pethuk-jodoh/
 | `drizzle.config.ts` | Drizzle ORM config (PostgreSQL dialect, schema path, migration output) |
 | `eslint.config.mjs` | ESLint flat config with Next.js plugin |
 | `next-env.d.ts` | TypeScript declarations for Next.js types |
-| `next.config.ts` | Next.js 16 config (enables React Compiler) |
+| `next.config.ts` | Next.js 16 config (React Compiler + Supabase Storage image remote pattern) |
 | `opencode.jsonc` | OpenCode configuration for the editor |
 | `package.json` | Project manifest: dependencies, scripts (dev, build, test, db:*, release, etc.) |
 | `postcss.config.mjs` | PostCSS config (uses @tailwindcss/postcss v4) |
@@ -114,9 +114,16 @@ src/app/
 | `(auth)/forgot-password/page.tsx` | Forgot password page with spam timer protection |
 | `(auth)/reset-password/page.tsx` | Reset password page with token validation |
 | `(auth)/onboard-username/` | Empty directory (placeholder for onboarding flow) |
+| `onboarding/page.tsx` | Onboarding page (redirects if no session or already completed) |
+| `onboarding/layout.tsx` | Onboarding layout wrapper |
+| `onboarding/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar |
 | `(dashboard)/dashboard/page.tsx` | Dashboard home page |
-| `actions/` | Server actions directory (empty) |
+| `(dashboard)/cv/edit/page.tsx` | CV Ta'aruf editor page (server component, maps Drizzle data to ProfileData) |
+| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client component, 5 steps, Zod validation) |
+| `actions/` | Server actions |
+| `actions/profile.ts` | Profile CRUD server actions: `saveProfile()`, `getProfile()`, `ProfileData` type |
+| `actions/photo.ts` | Photo upload/delete server actions: `uploadPhoto()`, `deletePhoto()` — Supabase Storage + sharp blur |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 
 ---
@@ -144,6 +151,8 @@ src/components/
 | `navbar.tsx` | Top navigation bar component |
 | `nav-main.tsx` | Main navigation links component |
 | `nav-user.tsx` | User menu/navigation component |
+| `photo-upload.tsx` | Photo upload component with preview, upload/delete (server-side blurred version auto-generated via sharp) |
+| `blurred-photo.tsx` | Blurred photo display component (uses server-side blurred image, optional toggle to original) |
 
 #### `src/components/auth/`
 
@@ -179,6 +188,7 @@ src/components/
 | `input-group.tsx` | Input group wrapper component |
 | `input.tsx` | Text input component |
 | `label.tsx` | Label component |
+| `select.tsx` | Select dropdown component (base-ui) |
 | `separator.tsx` | Visual separator/divider |
 | `sheet.tsx` | Sheet/slide-over panel component |
 | `sidebar.tsx` | Sidebar container component |
@@ -202,7 +212,12 @@ src/components/
 | File | Description |
 | :--- | :--- |
 | `index.ts` | Drizzle client setup: PostgreSQL connection via postgres.js, exports `db` and `client` |
-| `schema.ts` | Database schema definitions: user, session, account, verification, rate_limit tables |
+| `schema/` | Database schema directory |
+| `schema/index.ts` | Re-exports all schema tables |
+| `schema/auth-schema.ts` | Better Auth tables: user, session, account, verification, rate_limit |
+| `schema/profiles-schema.ts` | Profile table: gender, birthDate, height, weight, skinColor, maritalStatus, photoUrl, photoBlurredUrl, photoBlurred, etc. (RLS enabled) |
+| `schema/mediators-schema.ts` | Mediator table |
+| `schema/wallets-schema.ts` | Wallet & token_transaction tables |
 
 ---
 
@@ -231,12 +246,15 @@ src/lib/
 
 | File | Description |
 | :--- | :--- |
-| `utils.ts` | `cn()` utility — merges Tailwind classes via clsx + tailwind-merge |
+| `utils.ts` | `cn()` utility + `computeAge(birthDate)` — computes age from date string |
+| `supabase-admin.ts` | Supabase admin client (lazy init) for Storage operations: bucket mgmt, upload, delete, public URL |
+| `image-blur.ts` | Server-side image blur utility using sharp (resize 200×200 + blur 50 + JPEG quality 60) |
 | `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins, password reset, rate limiting) |
 | `auth-client.ts` | Client-side Better Auth client: exports useSession, signIn, signUp, signOut |
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
+| `validations/profile.ts` | Zod schemas per step for CV Editor (step1Schema–step5Schema). step1Schema includes optional photoUrl, photoBlurredUrl, photoBlurred. |
 
 ---
 
@@ -244,9 +262,13 @@ src/lib/
 
 | File | Description |
 | :--- | :--- |
-| `auth.test.ts` | Authentication-related tests (signIn, signUp, forgotPassword, resetPassword schemas) |
-| `utils.test.ts` | Utility function tests (e.g., cn()) |
+| `auth.test.ts` | Authentication tests (signIn, signUp, forgotPassword, resetPassword schemas) |
+| `cv-editor.test.ts` | CV Editor Zod validation tests (all 5 step schemas), auth guard tests |
+| `onboarding.test.ts` | Onboarding flow tests (adab text, commit state, photo blurring concept) |
+| `utils.test.ts` | Utility function tests (cn(), computeAge()) |
 | `email-templates.test.ts` | Email template generation tests (verification & password reset) |
+| `photo.test.ts` | Photo server action tests (file validation, auth guard) |
+| `blurred-photo.test.tsx` | BlurredPhoto component tests (blurredSrc/originalSrc switching, size variants, file type validation) |
 
 ---
 
@@ -266,6 +288,7 @@ src/lib/
 | `project-structure.md` | This file — project structure documentation |
 | `roadmap.md` | Project development roadmap |
 | `taaruf.md` | Ta'aruf (Islamic matchmaking) domain knowledge / guidelines |
+| `tutorial-supabase-dashboard-2026.md` | Tutorial navigasi dashboard Supabase (API keys, Storage, CORS, RLS policies) |
 
 ---
 
@@ -273,12 +296,12 @@ src/lib/
 
 | File | Description |
 | :--- | :--- |
-| `0000_cultured_kitty_pryde.sql` | Migration 0000: initial schema |
-| `0001_parallel_molly_hayes.sql` | Migration 0001 |
-| `0002_magical_manta.sql` | Migration 0002 |
-| `0003_nifty_jackal.sql` | Migration 0003 |
-| `0004_opposite_justin_hammer.sql` | Migration 0004 |
-| `0005_short_mandroid.sql` | Migration 0005: Add rate_limit table for spam protection |
+| `0000_unusual_runaways.sql` | Migration 0000: initial auth schema |
+| `0001_cloudy_catseye.sql` | Migration 0001 |
+| `0002_chilly_prodigy.sql` | Migration 0002 |
+| `0003_cold_king_bedlam.sql` | Migration 0003: drop `age` column from profile |
+| `0004_magical_korvac.sql` | Migration 0004: add `skin_color` column to profile |
+| `0005_illegal_human_cannonball.sql` | Migration 0005: add `photo_blurred_url` column to profile |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
 | `meta/0000_snapshot.json` — `meta/0005_snapshot.json` | Schema snapshots for each migration |
 
@@ -316,7 +339,8 @@ Default Next.js static assets (SVG icons, logos).
 | **Database** | PostgreSQL via Drizzle ORM |
 | **Auth** | Better Auth (email/password + Google OAuth, username & admin plugins) |
 | **Email** | Resend (for email verification) |
-| **Validation** | Zod (v4) with react-hook-form |
+| **Validation** | Zod (standalone, per-step validation in CV Editor; react-hook-form in auth forms) |
+| **Image Processing** | sharp (server-side blur: resize 200×200 + blur 50 + JPEG quality 60) |
 | **Icons** | Lucide React + HugeIcons |
 | **Code Quality** | ESLint 9, Prettier, commitlint, lint-staged, Husky |
 | **Versioning** | standard-version (semantic versioning with emoji changelog) |

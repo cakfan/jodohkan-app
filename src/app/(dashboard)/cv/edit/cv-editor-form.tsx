@@ -36,6 +36,7 @@ import {
   step5Schema,
 } from "@/lib/validations/profile";
 import { saveProfile, type ProfileData } from "@/app/actions/profile";
+import { PhotoUpload } from "@/components/photo-upload";
 import { toast } from "sonner";
 
 const steps = [
@@ -342,6 +343,9 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     memorization: initialData?.memorization ?? "",
     dailyWorship: initialData?.dailyWorship ?? "",
     qa: initialData?.qa ?? [],
+    photoUrl: initialData?.photoUrl ?? null,
+    photoBlurredUrl: initialData?.photoBlurredUrl ?? null,
+    photoBlurred: initialData?.photoBlurred ?? true,
   });
 
   const updateField = useCallback(<K extends keyof ProfileData>(key: K, value: ProfileData[K]) => {
@@ -409,6 +413,18 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
           />
 
           <FormCard>
+            <div className="mb-8 flex flex-col items-center">
+              <PhotoUpload
+                photoUrl={form.photoUrl}
+                onPhotoChange={({ photoUrl, photoBlurredUrl }) => {
+                  updateField("photoUrl", photoUrl);
+                  updateField("photoBlurredUrl", photoBlurredUrl);
+                }}
+              />
+            </div>
+
+            <div className="mb-6 h-px bg-border/50" />
+
             <div className="grid gap-6 md:grid-cols-2">
               <SelectField
                 id="gender"

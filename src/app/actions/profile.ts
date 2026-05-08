@@ -26,6 +26,9 @@ export interface ProfileData {
   memorization?: string | null;
   dailyWorship?: string | null;
   qa?: { question: string; answer: string }[] | null;
+  photoUrl?: string | null;
+  photoBlurredUrl?: string | null;
+  photoBlurred?: boolean | null;
 }
 
 export async function getProfile() {

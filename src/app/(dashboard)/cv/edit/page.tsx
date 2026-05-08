@@ -34,6 +34,9 @@ export default async function CVEditPage() {
         memorization: raw.memorization,
         dailyWorship: raw.dailyWorship,
         qa: raw.qa as ProfileData["qa"],
+        photoUrl: raw.photoUrl,
+        photoBlurredUrl: raw.photoBlurredUrl,
+        photoBlurred: raw.photoBlurred,
       }
     : null;
 

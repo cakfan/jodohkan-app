@@ -36,6 +36,13 @@
       "when": 1778171621079,
       "tag": "0004_magical_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778198647670,
+      "tag": "0005_illegal_human_cannonball",
+      "breakpoints": true
     }
   ]
 }

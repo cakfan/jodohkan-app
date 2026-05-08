@@ -16,6 +16,9 @@ export const step1Schema = z.object({
   city: z.string().min(1, "Masukkan kota/domisili"),
   occupation: z.string().min(1, "Masukkan pekerjaan"),
   education: z.string().min(1, "Masukkan pendidikan"),
+  photoUrl: z.string().url("URL foto tidak valid").nullable().optional(),
+  photoBlurredUrl: z.string().url("URL foto tidak valid").nullable().optional(),
+  photoBlurred: z.boolean().optional(),
 });
 
 export const step2Schema = z.object({

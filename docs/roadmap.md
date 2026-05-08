@@ -21,10 +21,10 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 **Tujuan**: Memungkinkan pengguna membuat profil ta'aruf yang komprehensif.
 
-- [ ] Skema Database: Implementasi tabel `users`, `profiles`, dan `mediators`.
-- [ ] Onboarding Flow: Halaman edukasi adab ta'aruf dan pernyataan komitmen.
-- [ ] CV Editor: Form multi-step untuk data diri, visi-misi, dan kriteria pasangan.
-- [ ] Logic Blur Foto: Implementasi storage Supabase dengan masking/blur otomatis.
+- [x] Skema Database: Implementasi tabel `users`, `profiles`, dan `mediators`.
+- [x] Onboarding Flow: Halaman edukasi adab ta'aruf dan pernyataan komitmen.
+- [x] CV Editor: Form multi-step untuk data diri, visi-misi, dan kriteria pasangan.
+- [x] Logic Blur Foto: Implementasi storage Supabase dengan masking/blur otomatis (CSS blur → server-side blur via sharp, menyimpan original + blurred version terpisah).
 - [ ] Token System Core: Skema database untuk `wallets` dan transaksi token.
 
 ## 🔒 Fase 1.5: Fitur Forgot Password (Selesai)
