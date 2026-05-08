@@ -86,13 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="p-3 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-        <NavUser
-          user={{
-            name: "User",
-            email: "user@example.com",
-            avatar: "/avatars/user.jpg",
-          }}
-        />
+        <NavUser />
       </SidebarFooter>
 
       <SidebarRail />

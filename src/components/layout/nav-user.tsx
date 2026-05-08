@@ -17,20 +17,29 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
+import { useSession, authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const { data: session } = useSession();
+
+  const user = session?.user ?? {
+    name: "User",
+    email: "user@example.com",
+    image: null,
+  };
+
+  const avatarUrl = user.image ?? "";
+
+  const initials = user.name
+    ?.split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase() ?? "U";
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -49,8 +58,8 @@ export function NavUser({
               >
                 <>
                   <Avatar className="h-8 w-8 shrink-0 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">PJ</AvatarFallback>
+                    <AvatarImage src={avatarUrl} alt={user.name} />
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                     <span className="truncate font-semibold">{user.name}</span>
@@ -71,8 +80,8 @@ export function NavUser({
               <DropdownMenuItem className="p-0 font-normal">
                 <div className="flex w-full items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">PJ</AvatarFallback>
+                    <AvatarImage src={avatarUrl} alt={user.name} />
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{user.name}</span>
