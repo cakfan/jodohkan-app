@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   User,
@@ -15,6 +15,9 @@ import {
   Trash2,
   Save,
   Eye,
+  AlertCircle,
+  ChevronRight,
+  ListChecks,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -40,30 +43,40 @@ import { PhotoUpload } from "@/components/photo-upload";
 import { toast } from "sonner";
 
 const steps = [
-  { number: 1, icon: User, title: "Data Diri" },
-  { number: 2, icon: Target, title: "Visi & Misi" },
-  { number: 3, icon: HeartHandshake, title: "Kriteria Pasangan" },
-  { number: 4, icon: BookOpen, title: "Pemahaman Agama" },
-  { number: 5, icon: MessageCircle, title: "Q&A" },
+  { number: 1, icon: User, title: "Data Diri", shortTitle: "Data" },
+  { number: 2, icon: Target, title: "Visi & Misi", shortTitle: "Visi" },
+  { number: 3, icon: HeartHandshake, title: "Kriteria", shortTitle: "Kriteria" },
+  { number: 4, icon: BookOpen, title: "Agama", shortTitle: "Agama" },
+  { number: 5, icon: MessageCircle, title: "Q&A", shortTitle: "Q&A" },
 ];
 
 function StepIndicator({
   currentStep,
   completedSteps,
+  onStepClick,
 }: {
   currentStep: number;
   completedSteps: Set<number>;
+  onStepClick: (step: number) => void;
 }) {
   return (
-    <div className="mb-12 flex items-center justify-center gap-2 md:gap-4">
+    <div className="mb-12 flex items-center justify-center gap-1 md:gap-4">
       {steps.map((step, i) => {
         const Icon = step.icon;
         const isActive = currentStep === step.number;
         const isCompleted = completedSteps.has(step.number);
+        const isClickable = isCompleted && !isActive;
 
         return (
-          <div key={step.number} className="flex items-center gap-2 md:gap-4">
-            <div className="flex flex-col items-center gap-2">
+          <div key={step.number} className="flex items-center gap-1 md:gap-4">
+            <button
+              type="button"
+              onClick={() => isClickable && onStepClick(step.number)}
+              disabled={!isClickable}
+              className={`flex flex-col items-center gap-2 transition-all duration-300 ${
+                isClickable ? "cursor-pointer" : "cursor-default"
+              }`}
+            >
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 md:h-12 md:w-12 ${
                   isCompleted
@@ -84,14 +97,15 @@ function StepIndicator({
               <span
                 className={`text-center text-[11px] font-semibold tracking-wider whitespace-nowrap uppercase md:text-xs ${
                   isActive || isCompleted ? "text-foreground" : "text-muted-foreground/60"
-                }`}
+                } ${isCompleted ? "decoration-primary/40 underline decoration-dotted underline-offset-2" : ""}`}
               >
-                {step.title}
+                <span className="hidden md:inline">{step.title}</span>
+                <span className="md:hidden">{step.shortTitle}</span>
               </span>
-            </div>
+            </button>
             {i < steps.length - 1 && (
               <div
-                className={`mb-7 h-0.5 w-8 rounded-full transition-colors md:w-12 ${
+                className={`mb-7 h-0.5 w-6 rounded-full transition-colors md:w-12 ${
                   isCompleted ? "bg-primary" : "bg-border"
                 }`}
               />
@@ -264,6 +278,7 @@ function TextareaField({
   value,
   onChange,
   rows = 5,
+  maxLength = 2000,
   error,
 }: {
   id: string;
@@ -272,23 +287,34 @@ function TextareaField({
   value: string | null;
   onChange: (value: string) => void;
   rows?: number;
+  maxLength?: number;
   error?: string;
 }) {
-  const hasValue = value !== null && value !== "";
+  const charCount = (value ?? "").length;
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-sm font-semibold">
-        {label}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label htmlFor={id} className="text-sm font-semibold">
+          {label}
+        </Label>
+        <span
+          className={`text-xs tabular-nums ${
+            charCount > maxLength ? "text-destructive font-semibold" : "text-muted-foreground"
+          }`}
+        >
+          {charCount}/{maxLength}
+        </span>
+      </div>
       <Textarea
         id={id}
         placeholder={placeholder}
         className={`border-border/60 focus-visible:ring-primary/30 min-h-[120px] resize-y rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-offset-2 ${
-          hasValue ? "border-primary/30" : ""
+          charCount > 0 ? "border-primary/30" : ""
         } ${error ? "border-destructive" : ""}`}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
+        maxLength={maxLength + 100}
       />
       {error && <p className="text-destructive text-xs">{error}</p>}
     </div>
@@ -305,6 +331,12 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [, setDirtyFields] = useState<Set<string>>(new Set());
+  const topRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [step]);
 
   function validateStep(step: number): boolean {
     const schemas = [step1Schema, step2Schema, step3Schema, step4Schema, step5Schema];
@@ -317,6 +349,9 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
+      const firstErrorField = document.getElementById(Object.keys(fieldErrors)[0]);
+      firstErrorField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstErrorField?.focus();
       return false;
     }
     setErrors({});
@@ -350,11 +385,24 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
 
   const updateField = useCallback(<K extends keyof ProfileData>(key: K, value: ProfileData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setDirtyFields((prev) => new Set(prev).add(key as string));
+    setErrors((prev) => {
+      if (prev[key as string]) {
+        const next = { ...prev };
+        delete next[key as string];
+        return next;
+      }
+      return prev;
+    });
   }, []);
+
+  function handleStepClick(targetStep: number) {
+    if (!completedSteps.has(targetStep)) return;
+    setStep(targetStep);
+  }
 
   async function handleSave() {
     if (!validateStep(step)) {
-      toast.error("Lengkapi semua field yang wajib diisi");
       return false;
     }
     setIsLoading(true);
@@ -393,6 +441,11 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
 
   function addQA() {
     updateField("qa", [...(form.qa || []), { question: "", answer: "" }]);
+    setTimeout(() => {
+      const qaCards = document.querySelectorAll("[data-qa-card]");
+      const lastCard = qaCards[qaCards.length - 1];
+      lastCard?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   }
 
   function removeQA(index: number) {
@@ -402,11 +455,15 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
   }
 
   return (
-    <div className="space-y-10 pb-16">
-      <StepIndicator currentStep={step} completedSteps={completedSteps} />
+    <div className="space-y-10 pb-16" ref={topRef}>
+      <StepIndicator
+        currentStep={step}
+        completedSteps={completedSteps}
+        onStepClick={handleStepClick}
+      />
 
       {step === 1 && (
-        <div className="animate-fade-in-up space-y-8">
+        <div className="animate-fade-in-up space-y-8" key="step-1">
           <SectionHeading
             title="Data Diri"
             description="Informasi dasar tentang diri Anda untuk diperkenalkan kepada calon pasangan."
@@ -423,7 +480,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
               />
             </div>
 
-            <div className="mb-6 h-px bg-border/50" />
+            <div className="bg-border/50 mb-6 h-px" />
 
             <div className="grid gap-6 md:grid-cols-2">
               <SelectField
@@ -533,7 +590,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       )}
 
       {step === 2 && (
-        <div className="animate-fade-in-up space-y-8">
+        <div className="animate-fade-in-up space-y-8" key="step-2">
           <SectionHeading
             title="Visi & Misi"
             description="Ceritakan visi hidup dan tujuan Anda dalam membangun rumah tangga."
@@ -578,7 +635,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       )}
 
       {step === 3 && (
-        <div className="animate-fade-in-up space-y-8">
+        <div className="animate-fade-in-up space-y-8" key="step-3">
           <SectionHeading
             title="Kriteria Pasangan"
             description="Jelaskan kriteria pasangan yang Anda harapkan secara jelas dan realistis."
@@ -605,7 +662,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       )}
 
       {step === 4 && (
-        <div className="animate-fade-in-up space-y-8">
+        <div className="animate-fade-in-up space-y-8" key="step-4">
           <SectionHeading
             title="Pemahaman Agama"
             description="Informasi tentang pemahaman dan praktik keagamaan Anda sehari-hari."
@@ -655,7 +712,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       )}
 
       {step === 5 && (
-        <div className="animate-fade-in-up space-y-8">
+        <div className="animate-fade-in-up space-y-8" key="step-5">
           <SectionHeading
             title="Pertanyaan & Jawaban"
             description="Buat pertanyaan dan jawaban untuk membantu calon pasangan mengenal pemikiran Anda lebih dalam."
@@ -681,10 +738,15 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
 
             {(form.qa ?? []).map((item, index) => (
               <FormCard key={index}>
-                <div className="space-y-4">
+                <div data-qa-card className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
-                      <MessageCircle className="text-primary h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
+                        <ListChecks className="text-primary h-4 w-4" />
+                      </div>
+                      <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                        Item {index + 1}
+                      </span>
                     </div>
                     <Button
                       variant="ghost"
@@ -698,7 +760,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
 
                   <div className="space-y-2">
                     <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-                      Pertanyaan {index + 1}
+                      Pertanyaan
                     </Label>
                     <Input
                       placeholder="Tulis pertanyaan..."
@@ -724,8 +786,12 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
             ))}
 
             {errors.qa && (
-              <p className="text-destructive text-xs">{errors.qa}</p>
+              <div className="border-destructive/30 bg-destructive/5 flex items-start gap-2 rounded-xl border p-3">
+                <AlertCircle className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
+                <p className="text-destructive text-xs">{errors.qa}</p>
+              </div>
             )}
+
             <Button
               variant="outline"
               className="hover:border-primary/50 hover:bg-primary/5 h-12 w-full gap-2 rounded-2xl border-2 border-dashed text-sm font-semibold transition-all duration-300"
@@ -736,7 +802,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col items-center justify-between gap-4 pt-2 md:flex-row">
             <Button
               variant="ghost"
               className="text-muted-foreground hover:text-foreground gap-1.5 rounded-full px-5"
@@ -746,7 +812,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden md:inline">Kembali</span>
             </Button>
-            <div className="flex gap-3">
+            <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row">
               <Button
                 size="lg"
                 variant="outline"
@@ -754,7 +820,9 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 onClick={async () => {
                   const ok = await handleSave();
                   if (ok) {
-                    toast.success("CV Ta'aruf berhasil disimpan!");
+                    toast.success("CV Ta'aruf berhasil disimpan!", {
+                      description: "Anda dapat melanjutkan pengisian kapan saja.",
+                    });
                     setCompletedSteps((prev) => new Set(prev).add(5));
                   }
                   setIsLoading(false);
@@ -766,7 +834,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    Simpan
+                    Simpan Draft
                   </>
                 )}
               </Button>
@@ -776,7 +844,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 onClick={async () => {
                   const ok = await handleSave();
                   if (ok) {
-                    toast.success("CV berhasil disimpan!");
+                    toast.success("CV Ta'aruf selesai!");
                     setCompletedSteps((prev) => new Set(prev).add(5));
                     router.push("/dashboard");
                   }
@@ -789,7 +857,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 ) : (
                   <>
                     <Eye className="h-4 w-4" />
-                    Selesai
+                    Selesai & Lihat
                   </>
                 )}
               </Button>
@@ -797,6 +865,13 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
           </div>
         </div>
       )}
+
+      <div className="flex items-center justify-center gap-2">
+        <ChevronRight className="text-muted-foreground/30 h-4 w-4" />
+        <span className="text-muted-foreground/30 text-[11px] font-medium tracking-wider uppercase">
+          Step {step} of 5
+        </span>
+      </div>
     </div>
   );
 }
