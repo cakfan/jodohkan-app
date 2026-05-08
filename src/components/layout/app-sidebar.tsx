@@ -2,16 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, MessageSquare, Search, Settings2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Bell, BookOpen, LayoutDashboard, MessageSquare, Search, Settings2 } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { NavUser } from "./nav-user";
-import { SidebarHeaderLogo } from "./sidebar-header";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
@@ -20,98 +19,73 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-const navMain = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-    isActive: true,
-  },
-  {
-    title: "CV Ta'aruf",
-    url: "/dashboard/cv/edit",
-    icon: BookOpen,
-  },
-  {
-    title: "Cari Jodoh",
-    url: "/discovery",
-    icon: Search,
-  },
-  {
-    title: "Pesan & Mediator",
-    url: "/messages",
-    icon: MessageSquare,
-  },
-];
-
-const projects = [
-  {
-    title: "Pengaturan",
-    url: "/settings",
-    icon: Settings2,
-  },
+const navItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "CV Ta'aruf", url: "/dashboard/cv/edit", icon: BookOpen },
+  { title: "Cari Jodoh", url: "/discovery", icon: Search },
+  { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Notifikasi", url: "/notifications", icon: Bell },
+  { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
   return (
-    <Sidebar collapsible="icon" className="border-r" {...props}>
-      <SidebarHeader>
-        <SidebarHeaderLogo />
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader className="px-3 py-5 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+        >
+          <BrandLogo size="sm" className="shrink-0" />
+          <span className="text-base font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+            Pethuk Jodoh
+          </span>
+        </Link>
       </SidebarHeader>
 
-      <SidebarContent className="py-2 px-3 group-data-[collapsible=icon]:px-0">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-bold tracking-[0.2em] uppercase group-data-[collapsible=icon]:hidden">
-            Menu Utama
-          </SidebarGroupLabel>
-          <SidebarMenu className="mt-2 gap-1 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-            {navMain.map((item) => (
-              <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+      <SidebarContent className="px-3 py-1 group-data-[collapsible=icon]:px-0">
+        <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center">
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.url ||
+              (pathname.startsWith(item.url + "/") && item.url !== "/dashboard");
+
+            return (
+              <SidebarMenuItem
+                key={item.title}
+                className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
+              >
                 <SidebarMenuButton
                   render={
-                    <Link href={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:w-auto">
-                      <item.icon className="shrink-0" />
-                      <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
+                    <Link
+                      href={item.url}
+                      className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                    >
+                      <item.icon className="size-5 shrink-0" />
+                      <span className="text-sm group-data-[collapsible=icon]:hidden">
+                        {item.title}
+                      </span>
                     </Link>
                   }
-                  isActive={item.isActive}
+                  isActive={isActive}
                   tooltip={item.title}
                   className={cn(
-                    "h-9 transition-all duration-200",
-                    item.isActive
-                      ? "bg-primary/10 text-primary font-semibold shadow-sm"
-                      : "hover:bg-accent/50 text-muted-foreground hover:text-foreground"
+                    "h-11 rounded-xl text-sm font-medium transition-all duration-200",
+                    "group-data-[collapsible=icon]:p-0!",
+                    isActive
+                      ? "bg-accent text-accent-foreground font-semibold"
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                   )}
                 />
               </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-[10px] font-bold tracking-[0.2em] uppercase group-data-[collapsible=icon]:hidden">
-            Lainnya
-          </SidebarGroupLabel>
-          <SidebarMenu className="mt-2 gap-1 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-            {projects.map((item) => (
-              <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-                <SidebarMenuButton
-                  render={
-                    <Link href={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:w-auto">
-                      <item.icon className="shrink-0" />
-                      <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
-                    </Link>
-                  }
-                  tooltip={item.title}
-                  className="h-9 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-all duration-200"
-                />
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+            );
+          })}
+        </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-3 group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+      <SidebarFooter className="p-3 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
         <NavUser
           user={{
             name: "User",
