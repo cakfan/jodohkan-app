@@ -18,6 +18,7 @@ import {
   AlertCircle,
   ChevronRight,
   ListChecks,
+  IdCard,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ import {
 import { saveProfile, type ProfileData } from "@/app/actions/profile";
 import { computeAge } from "@/lib/utils";
 import { PhotoUpload } from "@/components/photo-upload";
+import { KtpUpload } from "@/components/ktp-upload";
 import { toast } from "sonner";
 
 const steps = [
@@ -384,6 +386,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     photoUrl: initialData?.photoUrl ?? null,
     photoBlurredUrl: initialData?.photoBlurredUrl ?? null,
     photoBlurred: initialData?.photoBlurred ?? true,
+    ktpUrl: initialData?.ktpUrl ?? null,
   });
 
   const updateField = useCallback(<K extends keyof ProfileData>(key: K, value: ProfileData[K]) => {
@@ -483,6 +486,32 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
               />
             </div>
 
+            <div className="bg-border/20 mb-4 h-px" />
+
+            <div className="mb-6">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
+                  <IdCard className="text-primary h-3.5 w-3.5" />
+                </div>
+                <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                  Verifikasi Identitas
+                </span>
+              </div>
+              <KtpUpload
+                ktpUrl={form.ktpUrl}
+                onKtpChange={({ ktpUrl }) => {
+                  updateField("ktpUrl", ktpUrl);
+                }}
+                onExtracted={(data) => {
+                  if (data.birthPlace) updateField("birthPlace", data.birthPlace);
+                  if (data.birthDate && /^\d{4}-\d{2}-\d{2}$/.test(data.birthDate)) updateField("birthDate", data.birthDate);
+                  if (data.gender === "male" || data.gender === "female") updateField("gender", data.gender);
+                  if (data.maritalStatus === "single" || data.maritalStatus === "divorced" || data.maritalStatus === "widowed") updateField("maritalStatus", data.maritalStatus);
+                  if (data.occupation) updateField("occupation", data.occupation);
+                }}
+              />
+            </div>
+
             <div className="bg-border/50 mb-6 h-px" />
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -511,6 +540,14 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                   { value: "widowed", label: "Cerai Meninggal" },
                 ]}
               />
+              <InputField
+                id="birthPlace"
+                label="Tempat Lahir"
+                placeholder="Contoh: Jakarta"
+                value={form.birthPlace ?? ""}
+                onChange={(v) => updateField("birthPlace", v)}
+                error={errors.birthPlace}
+              />
               <div className="flex flex-col gap-1.5">
                 <InputField
                   id="birthDate"
@@ -528,14 +565,6 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                   </div>
                 )}
               </div>
-              <InputField
-                id="birthPlace"
-                label="Tempat Lahir"
-                placeholder="Contoh: Jakarta"
-                value={form.birthPlace ?? ""}
-                onChange={(v) => updateField("birthPlace", v)}
-                error={errors.birthPlace}
-              />
               <InputField
                 id="ethnicity"
                 label="Suku"
@@ -870,13 +899,20 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 size="lg"
                 className="h-12 gap-2 rounded-full px-6 text-sm font-semibold shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md"
                 onClick={async () => {
-                  const ok = await handleSave();
-                  if (ok) {
-                    toast.success("CV Ta'aruf selesai!");
-                    setCompletedSteps((prev) => new Set(prev).add(5));
-                    router.push("/dashboard");
+                  if (!validateStep(step)) return;
+                  setIsLoading(true);
+                  const result = await saveProfile({ ...form, cvStatus: "pending" });
+                  if (result?.error) {
+                    toast.error(result.error);
+                    setIsLoading(false);
+                    return;
                   }
+                  toast.success("CV berhasil dikirim untuk ditinjau admin!", {
+                    description: "Kamu akan mendapat notifikasi setelah CV disetujui.",
+                  });
+                  setCompletedSteps((prev) => new Set(prev).add(5));
                   setIsLoading(false);
+                  router.push("/dashboard");
                 }}
                 disabled={isLoading}
               >
@@ -885,7 +921,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 ) : (
                   <>
                     <Eye className="h-4 w-4" />
-                    Selesai & Lihat
+                    Kirim untuk Review
                   </>
                 )}
               </Button>

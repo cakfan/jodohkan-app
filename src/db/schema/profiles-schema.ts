@@ -43,6 +43,8 @@ export const profile = pgTable(
     photoUrl: text("photo_url"),
     photoBlurredUrl: text("photo_blurred_url"),
     photoBlurred: boolean("photo_blurred").default(true),
+    ktpUrl: text("ktp_url"),
+    cvStatus: text("cv_status").default("draft"),
     isVerified: boolean("is_verified").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -39,6 +39,8 @@ export default async function CVEditPage() {
         photoUrl: raw.photoUrl,
         photoBlurredUrl: raw.photoBlurredUrl,
         photoBlurred: raw.photoBlurred,
+        ktpUrl: raw.ktpUrl,
+        cvStatus: raw.cvStatus,
       }
     : null;
 

@@ -31,6 +31,8 @@ export interface ProfileData {
   photoUrl?: string | null;
   photoBlurredUrl?: string | null;
   photoBlurred?: boolean | null;
+  ktpUrl?: string | null;
+  cvStatus?: string | null;
 }
 
 export async function getProfile() {
