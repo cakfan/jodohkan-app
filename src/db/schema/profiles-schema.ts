@@ -61,6 +61,7 @@ export const profile = pgTable(
     interests: text("interests"),
     ktpUrl: text("ktp_url"),
     cvStatus: text("cv_status").default("draft"),
+    rejectionReason: text("rejection_reason"),
     published: boolean("published").default(false).notNull(),
     isVerified: boolean("is_verified").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),

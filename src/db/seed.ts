@@ -467,7 +467,35 @@ async function seed() {
     });
   }
 
-  console.log(`\n✅ Seeded ${allUsers.length} users successfully!`);
+  const adminId = crypto.randomUUID();
+  console.log("  Creating admin user: Admin Pethuk (@adminpethuk)");
+
+  const adminHashed = await hashPassword(commonPassword);
+
+  await db.insert(user).values({
+    id: adminId,
+    name: "Admin Pethuk",
+    email: "admin@pethukjodoh.com",
+    emailVerified: true,
+    username: "adminpethuk",
+    displayUsername: "Admin Pethuk",
+    gender: "male",
+    role: "admin",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(account).values({
+    id: crypto.randomUUID(),
+    accountId: "admin@pethukjodoh.com",
+    providerId: "credential",
+    userId: adminId,
+    password: adminHashed,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  console.log(`\n✅ Seeded ${allUsers.length + 1} users successfully!`);
   console.log(`   Password untuk semua user: ${commonPassword}`);
   console.log(`   Login dengan email masing-masing.\n`);
 }

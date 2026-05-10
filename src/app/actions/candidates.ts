@@ -16,7 +16,33 @@ export interface CandidateFilters {
   username?: string;
 }
 
+import { ROLES } from "@/lib/constants/auth";
 import { computeAgeDateBoundary } from "@/lib/utils";
+
+export async function getPendingReviews() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id || session.user.role !== ROLES.ADMIN) {
+    return { error: "Unauthorized." };
+  }
+
+  const rows = await db
+    .select({
+      id: profile.id,
+      userId: profile.userId,
+      cvStatus: profile.cvStatus,
+      createdAt: profile.createdAt,
+      rejectionReason: profile.rejectionReason,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+    })
+    .from(profile)
+    .innerJoin(user, eq(profile.userId, user.id))
+    .where(ne(profile.cvStatus, "approved"))
+    .orderBy(profile.createdAt);
+
+  return { data: rows };
+}
 
 export async function getCandidates(filters: CandidateFilters = {}) {
   const session = await auth.api.getSession({ headers: await headers() });

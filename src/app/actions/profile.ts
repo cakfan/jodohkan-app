@@ -84,6 +84,10 @@ export async function saveProfile(formData: ProfileData, step?: number) {
 
   const userId = session.user.id;
 
+  if (formData.cvStatus === "approved") {
+    return { error: "Tidak dapat mengatur status sendiri. Hubungi admin." };
+  }
+
   if (step !== undefined && step >= 1 && step <= 5) {
     const schema = stepSchemas[step - 1];
     const result = schema.safeParse(formData);
@@ -141,6 +145,48 @@ export async function saveProfile(formData: ProfileData, step?: number) {
     return { success: true };
   } catch {
     return { error: "Gagal menyimpan profil. Silakan coba lagi." };
+  }
+}
+
+export async function reviewCv(
+  candidateUserId: string,
+  action: "approve" | "reject",
+  rejectionReason?: string
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    return { error: "Sesi tidak ditemukan." };
+  }
+
+  if (session.user.role !== "admin") {
+    return { error: "Hanya admin yang dapat melakukan review." };
+  }
+
+  try {
+    if (action === "approve") {
+      await db
+        .update(profile)
+        .set({ cvStatus: "approved", rejectionReason: null, updatedAt: new Date() })
+        .where(eq(profile.userId, candidateUserId));
+    } else {
+      await db
+        .update(profile)
+        .set({
+          cvStatus: "rejected",
+          published: false,
+          rejectionReason: rejectionReason ?? null,
+          updatedAt: new Date(),
+        })
+        .where(eq(profile.userId, candidateUserId));
+    }
+
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch {
+    return { error: "Gagal melakukan review." };
   }
 }
 

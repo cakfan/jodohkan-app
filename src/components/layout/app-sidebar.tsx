@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Users } from "lucide-react";
+import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { NavUser } from "./nav-user";
@@ -18,8 +18,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
 
-const navItems = [
+const baseNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "CV Ta'aruf", url: "/dashboard/cv/edit", icon: BookOpen },
   { title: "Temukan", url: "/dashboard/temukan", icon: Users },
@@ -28,8 +29,15 @@ const navItems = [
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
+const adminNavItems = [
+  { title: "Panel Admin", url: "/dashboard/admin/review", icon: Shield },
+];
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "admin";
+  const navItems = isAdmin ? [...baseNavItems, ...adminNavItems] : baseNavItems;
 
   return (
     <Sidebar collapsible="icon" {...props}>
