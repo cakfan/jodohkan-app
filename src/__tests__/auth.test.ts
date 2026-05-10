@@ -44,6 +44,7 @@ describe("Auth Schemas - Comprehensive Tests", () => {
         email: "jabir@pethukjodoh.com",
         username: "ahmad_jabir",
         password: "pethukjodoh2026",
+        gender: "male",
       };
       const result = signUpSchema.safeParse(data);
       expect(result.success).toBe(true);

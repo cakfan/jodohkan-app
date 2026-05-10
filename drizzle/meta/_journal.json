@@ -5,85 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778127583192,
-      "tag": "0000_unusual_runaways",
+      "when": 1778366975401,
+      "tag": "0000_secret_felicia_hardy",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1778128023732,
-      "tag": "0001_cloudy_catseye",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1778158514227,
-      "tag": "0002_chilly_prodigy",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1778167804018,
-      "tag": "0003_cold_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1778171621079,
-      "tag": "0004_magical_korvac",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1778198647670,
-      "tag": "0005_illegal_human_cannonball",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1778223705099,
-      "tag": "0006_fresh_thena",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1778224017542,
-      "tag": "0007_minor_meggan",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1778225339789,
-      "tag": "0008_lumpy_orphan",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1778226595646,
-      "tag": "0009_legal_maelstrom",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1778247268829,
-      "tag": "0010_add_partner_city_occupation",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1778248813314,
-      "tag": "0011_add_partner_age_range",
+      "when": 1778380857939,
+      "tag": "0001_confused_iron_lad",
       "breakpoints": true
     }
   ]

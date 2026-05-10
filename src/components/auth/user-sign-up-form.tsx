@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { Mail, Lock, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, CheckCircle2, Venus, Mars } from "lucide-react";
 
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ export function UserSignUpForm() {
       email: "",
       username: "",
       password: "",
+      gender: undefined,
     },
     mode: "onChange",
   });
@@ -67,12 +68,14 @@ export function UserSignUpForm() {
     setIsLoading(true);
 
     try {
-      const { error } = await authClient.signUp.email({
+      const signUpPayload: Record<string, unknown> = {
         email: data.email,
         password: data.password,
         name: data.name,
         username: data.username,
-      });
+        gender: data.gender,
+      };
+      const { error } = await authClient.signUp.email(signUpPayload as never);
 
       if (error) {
         toast.error(error.message || "Gagal mendaftar. Silakan coba lagi.");
@@ -128,6 +131,44 @@ export function UserSignUpForm() {
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Jenis Kelamin</FormLabel>
+                <FormControl>
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant={field.value === "male" ? "default" : "outline"}
+                      className={`h-11 flex-1 gap-2 ${field.value === "male" ? "" : "border-border/60"}`}
+                      onClick={() => field.onChange("male")}
+                      disabled={isLoading}
+                    >
+                      <Mars className="h-4 w-4" />
+                      Laki-laki
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={field.value === "female" ? "default" : "outline"}
+                      className={`h-11 flex-1 gap-2 ${field.value === "female" ? "" : "border-border/60"}`}
+                      onClick={() => field.onChange("female")}
+                      disabled={isLoading}
+                    >
+                      <Venus className="h-4 w-4" />
+                      Perempuan
+                    </Button>
+                  </div>
+                </FormControl>
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1.5">
+                  <Lock className="h-3 w-3" />
+                  Jenis kelamin tidak dapat diubah setelah pendaftaran
+                </p>
                 <FormMessage />
               </FormItem>
             )}

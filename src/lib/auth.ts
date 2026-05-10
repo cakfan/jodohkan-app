@@ -1,8 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "@/db";
+import { user } from "@/db/schema";
 import * as schema from "@/db/schema";
 import { username, admin } from "better-auth/plugins";
+import { APIError } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { getVerificationEmailHtml, getPasswordResetEmailHtml } from "./email-templates";
 
@@ -62,6 +65,15 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     },
   },
+  user: {
+    additionalFields: {
+      gender: {
+        type: "string",
+        required: true,
+        input: true,
+      },
+    },
+  },
   plugins: [username(), admin()],
   databaseHooks: {
     user: {
@@ -73,6 +85,23 @@ export const auth = betterAuth({
               role: "candidate",
             },
           };
+        },
+      },
+      update: {
+        before: async (data, ctx) => {
+          if (data.gender !== undefined && ctx?.context?.session?.user?.id) {
+            const currentUser = await db
+              .select({ gender: user.gender })
+              .from(user)
+              .where(eq(user.id, ctx.context.session.user.id))
+              .then((rows) => rows[0]);
+            if (currentUser?.gender) {
+              throw new APIError("BAD_REQUEST", {
+                message: "Jenis kelamin tidak dapat diubah setelah pendaftaran.",
+              });
+            }
+          }
+          return { data };
         },
       },
     },

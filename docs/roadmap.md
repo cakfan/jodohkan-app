@@ -30,6 +30,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Loading Spinner: Sentralisasi semua spinner ke komponen `<Spinner>` dari shadcn/ui.
 - [x] CV Editor UX: Step indicator clickable, auto-scroll ke error, character count, mobile labels, scroll ke QA card baru.
 - [x] Token System Core: Skema database untuk `wallets` dan transaksi token.
+- [ ] Admin Review: Panel review CV (pending → approved/rejected) dan penambahan value `"rejected"` ke `cv_status`.
 
 ## 🔒 Fase 1.5: Fitur Forgot Password (Selesai)
 
@@ -48,7 +49,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 - [x] Katalog Kandidat -> Temukan: useSearchParams filter, username filter, sticky filter sidebar, auto gender filter.
 - [x] Advanced Filtering: Filter berdasarkan kriteria kota, pendidikan, usia, username.
-- [ ] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi.
+- [x] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi (route: `/cv/[username]`, pakai `BlurredPhoto`, tabs: Data Diri/Visi & Misi/Kriteria/Spiritual).
 - [ ] Fitur Request Ta'aruf: Pengajuan proses ta'aruf kepada mediator.
 - [ ] Payment Integration: Integrasi Midtrans/Xendit untuk top-up token.
 - [ ] Wallet UI: Halaman saldo dan riwayat transaksi token bagi pengguna.

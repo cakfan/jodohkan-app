@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap, Heart, User, Calendar } from "lucide-react";
 import { getCandidates, type CandidateFilters } from "@/app/actions/candidates";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { computeAge } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
@@ -17,6 +18,7 @@ interface Candidate {
   birthDate: string | null;
   birthPlace: string | null;
   city: string | null;
+  ethnicity: string | null;
   occupation: string | null;
   education: string | null;
   maritalStatus: string | null;
@@ -36,10 +38,23 @@ interface Candidate {
   name: string;
 }
 
+function getDisplayName(name: string, username: string | null): string {
+  const initials = name
+    .split(" ")
+    .map((p) => p.charAt(0).toUpperCase())
+    .join("");
+  return username ? `${initials} (${username})` : initials;
+}
+
 const maritalLabels: Record<string, string> = {
   single: "Belum Menikah",
   divorced: "Pernah Menikah",
   widowed: "Cerai Meninggal",
+};
+
+const getMaritalLabel = (status: string | null | undefined): string => {
+  if (!status) return "-";
+  return maritalLabels[status] || status;
 };
 
 export function TemukanClient({
@@ -59,6 +74,8 @@ export function TemukanClient({
   const [filters, setFilters] = useState<CandidateFilters>(() => ({
     city: searchParams.get("city") ?? "",
     education: searchParams.get("education") ?? "",
+    ethnicity: searchParams.get("ethnicity") ?? "",
+    occupation: searchParams.get("occupation") ?? "",
     ageMin: searchParams.get("ageMin") ? Number(searchParams.get("ageMin")) : undefined,
     ageMax: searchParams.get("ageMax") ? Number(searchParams.get("ageMax")) : undefined,
     username: searchParams.get("username") ?? "",
@@ -70,6 +87,8 @@ export function TemukanClient({
       setFilters({
         city: sp.get("city") ?? "",
         education: sp.get("education") ?? "",
+        ethnicity: sp.get("ethnicity") ?? "",
+        occupation: sp.get("occupation") ?? "",
         ageMin: sp.get("ageMin") ? Number(sp.get("ageMin")) : undefined,
         ageMax: sp.get("ageMax") ? Number(sp.get("ageMax")) : undefined,
         username: sp.get("username") ?? "",
@@ -79,7 +98,7 @@ export function TemukanClient({
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const hasActiveFilters = filters.city || filters.education || filters.ageMin || filters.ageMax || filters.username;
+  const hasActiveFilters = filters.city || filters.education || filters.ethnicity || filters.occupation || filters.ageMin || filters.ageMax || filters.username;
 
   const applyFilters = useCallback(async () => {
     setLoading(true);
@@ -88,6 +107,8 @@ export function TemukanClient({
     const params = new URLSearchParams();
     if (filters.city) params.set("city", filters.city);
     if (filters.education) params.set("education", filters.education);
+    if (filters.ethnicity) params.set("ethnicity", filters.ethnicity);
+    if (filters.occupation) params.set("occupation", filters.occupation);
     if (filters.ageMin) params.set("ageMin", String(filters.ageMin));
     if (filters.ageMax) params.set("ageMax", String(filters.ageMax));
     if (filters.username) params.set("username", filters.username);
@@ -104,7 +125,7 @@ export function TemukanClient({
   }, [filters, router]);
 
   const resetFilters = useCallback(async () => {
-    const empty: CandidateFilters = { city: "", education: "", ageMin: undefined, ageMax: undefined, username: "" };
+    const empty: CandidateFilters = { city: "", education: "", ethnicity: "", occupation: "", ageMin: undefined, ageMax: undefined, username: "" };
     setFilters(empty);
     router.replace("/dashboard/temukan", { scroll: false });
     setLoading(true);
@@ -169,7 +190,11 @@ export function TemukanClient({
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {candidates.map((candidate) => (
-              <CandidateCard key={candidate.id} candidate={candidate} />
+              <div key={candidate.id} className="cursor-pointer">
+                <Link href={`/cv/${candidate.username ?? candidate.id}`}>
+                  <CandidateCard candidate={candidate} />
+                </Link>
+              </div>
             ))}
           </div>
         )}
@@ -220,6 +245,26 @@ export function TemukanClient({
               className="h-10 rounded-xl text-sm"
               value={filters.education ?? ""}
               onChange={(e) => setFilters((f) => ({ ...f, education: e.target.value }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold">Suku</label>
+            <Input
+              placeholder="Cari suku..."
+              className="h-10 rounded-xl text-sm"
+              value={filters.ethnicity ?? ""}
+              onChange={(e) => setFilters((f) => ({ ...f, ethnicity: e.target.value }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold">Pekerjaan</label>
+            <Input
+              placeholder="Cari pekerjaan..."
+              className="h-10 rounded-xl text-sm"
+              value={filters.occupation ?? ""}
+              onChange={(e) => setFilters((f) => ({ ...f, occupation: e.target.value }))}
             />
           </div>
 
@@ -275,7 +320,7 @@ function CandidateCard({ candidate }: { candidate: Candidate }) {
         {candidate.photoBlurredUrl ? (
           <Image
             src={candidate.photoBlurredUrl}
-            alt={candidate.name}
+            alt={getDisplayName(candidate.name, candidate.username)}
             fill
             className="object-cover"
             loading="eager"
@@ -291,7 +336,7 @@ function CandidateCard({ candidate }: { candidate: Candidate }) {
       {/* Info */}
       <div className="space-y-3 p-4">
         <div>
-          <h3 className="text-base font-bold tracking-tight">{candidate.name}</h3>
+          <h3 className="text-base font-bold tracking-tight">{getDisplayName(candidate.name, candidate.username)}</h3>
           {age !== null && (
             <p className="text-muted-foreground text-sm">{age} tahun</p>
           )}
@@ -316,12 +361,12 @@ function CandidateCard({ candidate }: { candidate: Candidate }) {
               {candidate.education}
             </span>
           )}
-          {candidate.maritalStatus && (
-            <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
-              <Calendar className="h-3 w-3" />
-              {maritalLabels[candidate.maritalStatus] ?? candidate.maritalStatus}
-            </span>
-          )}
+              {candidate.maritalStatus && (
+                <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
+                  <Calendar className="h-3 w-3" />
+                  {getMaritalLabel(candidate.maritalStatus)}
+                </span>
+              )}
         </div>
 
         {candidate.bio && (

@@ -167,34 +167,34 @@ describe("parseKtpText", () => {
   it("extracts name and handles # → F mapping", () => {
     const text = `NAMA: #ATAHILLAH`;
     const result = parseKtpText(text);
-    expect(result.name).toBe("FATAHILLAH");
+    expect(result.name).toBe("Fatahillah");
   });
 
   it("extracts birth place and date from TTL format with commas", () => {
     const text = `TTL: Jakarta, 15-08-1995`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
     expect(result.birthDate).toBe("1995-08-15");
   });
 
   it("extracts birth place and date from TEMPAT/TGL LAHIR format", () => {
     const text = `TEMPAT TGL LAHIR: Jakarta, 15-08-1995`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
     expect(result.birthDate).toBe("1995-08-15");
   });
 
   it("extracts birth place only when no date in TTL", () => {
     const text = `TTL: Jakarta`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
     expect(result.birthDate).toBeUndefined();
   });
 
   it("extracts birth date from LAHIR line when TTL not present", () => {
     const text = `LAHIR: Jakarta, 15-08-1995`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
     expect(result.birthDate).toBe("1995-08-15");
   });
 
@@ -243,7 +243,7 @@ describe("parseKtpText", () => {
   it("extracts occupation from PEKERJAAN field", () => {
     const text = `PEKERJAAN: KARYAWAN SWASTA`;
     const result = parseKtpText(text);
-    expect(result.occupation).toBe("KARYAWAN SWASTA");
+    expect(result.occupation).toBe("Karyawan Swasta");
   });
 
   it("maps CERAI HIDUP → divorced", () => {
@@ -269,30 +269,30 @@ STATUS PERKAWINAN: BELUM KAWIN
 PEKERJAAN: KARYAWAN SWASTA`;
     const result = parseKtpText(text);
     expect(result.nik).toBe("3512345678901234");
-    expect(result.name).toBe("TAUFAN ATAHILLAH");
-    expect(result.birthPlace).toBe("SURABAYA");
+    expect(result.name).toBe("Taufan Atahillah");
+    expect(result.birthPlace).toBe("Surabaya");
     expect(result.birthDate).toBe("1995-08-15");
     expect(result.gender).toBe("male");
     expect(result.maritalStatus).toBe("single");
-    expect(result.occupation).toBe("KARYAWAN SWASTA");
+    expect(result.occupation).toBe("Karyawan Swasta");
   });
 
   it("handles OCR with # → F in name", () => {
     const text = `NAMA: #ATNAH #ATAHILLAH`;
     const result = parseKtpText(text);
-    expect(result.name).toBe("FATNAH FATAHILLAH");
+    expect(result.name).toBe("Fatnah Fatahillah");
   });
 
   it("handles NANA match for name (OCR noise)", () => {
     const text = `NANA: TAUFAN`;
     const result = parseKtpText(text);
-    expect(result.name).toBe("TAUFAN");
+    expect(result.name).toBe("Taufan");
   });
 
   it("cleans leading dashes from birth place", () => {
     const text = `TTL: - Jakarta, 15-08-1995`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
   });
 
   it("handles TTL without place (only date)", () => {
@@ -304,7 +304,7 @@ PEKERJAAN: KARYAWAN SWASTA`;
   it("handles TTL with long dash separator in date", () => {
     const text = `TTL: Jakarta, 15\u201408\u20141995`;
     const result = parseKtpText(text);
-    expect(result.birthPlace).toBe("JAKARTA");
+    expect(result.birthPlace).toBe("Jakarta");
     expect(result.birthDate).toBe("1995-08-15");
   });
 });
@@ -407,7 +407,7 @@ describe("OCR normalization integration", () => {
   it("#→F fix in name", () => {
     const text = `NAMA: #ATAHILLAH`;
     const result = parseKtpText(text);
-    expect(result.name).toBe("FATAHILLAH");
+    expect(result.name).toBe("Fatahillah");
   });
 });
 

@@ -11,6 +11,7 @@ const statusLabels: Record<string, { label: string; class: string; dot: string }
   draft: { label: "Draft", class: "text-muted-foreground", dot: "bg-muted-foreground" },
   pending: { label: "Menunggu Review", class: "text-amber-600", dot: "bg-amber-600" },
   approved: { label: "Disetujui", class: "text-emerald-600", dot: "bg-emerald-600" },
+  published: { label: "Published", class: "text-emerald-600", dot: "bg-emerald-600" },
   rejected: { label: "Ditolak", class: "text-red-600", dot: "bg-red-600" },
 };
 
@@ -19,15 +20,18 @@ export async function Navbar() {
   const userId = session?.user?.id;
 
   let cvStatus = "draft";
+  let published = false;
   if (userId) {
     const existing = await db.query.profile.findFirst({
       where: eq(profile.userId, userId),
-      columns: { cvStatus: true },
+      columns: { cvStatus: true, published: true },
     });
     cvStatus = existing?.cvStatus ?? "draft";
+    published = existing?.published ?? false;
   }
 
-  const status = statusLabels[cvStatus] ?? statusLabels.draft;
+  const badgeKey = cvStatus === "approved" && published ? "published" : cvStatus;
+  const status = statusLabels[badgeKey] ?? statusLabels.draft;
 
   return (
     <header className="bg-background/80 supports-backdrop-blur:bg-background/60 sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b px-4 text-sm backdrop-blur-sm md:text-base">

@@ -15,7 +15,8 @@ export default async function CVEditPage() {
 
   const existingProfile: ProfileData | null = raw
     ? {
-        gender: raw.gender,
+        name: session?.user?.name,
+        gender: session?.user?.gender ?? raw.gender,
         birthDate: raw.birthDate,
         birthPlace: raw.birthPlace,
         ethnicity: raw.ethnicity,
@@ -23,6 +24,18 @@ export default async function CVEditPage() {
         weight: raw.weight,
         skinColor: raw.skinColor,
         maritalStatus: raw.maritalStatus,
+        childCount: raw.childCount,
+        hairColor: raw.hairColor,
+        hairType: raw.hairType,
+        hijabStatus: raw.hijabStatus,
+        faceAppearance: raw.faceAppearance,
+        otherPhysicalTraits: raw.otherPhysicalTraits,
+        marriageTarget: raw.marriageTarget,
+        polygamyView: raw.polygamyView,
+        parentsInvolvement: raw.parentsInvolvement,
+        smokingStatus: raw.smokingStatus,
+        personalityTraits: raw.personalityTraits,
+        interests: raw.interests,
         country: raw.country,
         city: raw.city,
         occupation: raw.occupation,
@@ -45,6 +58,7 @@ export default async function CVEditPage() {
         photoBlurred: raw.photoBlurred,
         ktpUrl: raw.ktpUrl,
         cvStatus: raw.cvStatus,
+        published: raw.published,
       }
     : null;
 

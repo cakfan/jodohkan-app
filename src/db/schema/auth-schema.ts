@@ -14,6 +14,7 @@ export const user = pgTable("user", {
     .notNull(),
   username: text("username").unique(),
   displayUsername: text("display_username"),
+  gender: text("gender"),
   role: text("role"),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),

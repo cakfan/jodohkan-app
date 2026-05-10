@@ -77,7 +77,7 @@ function parseKtpText(raw: string): KtpExtractedData {
 
   const nik = cleanText(extractField(upper, "NIK"));
   const nameRaw = extractField(upper, "NAMA") ?? extractField(upper, "NANA");
-  const name = cleanText(nameRaw?.replace(/#/g, "F"));
+  const name = nameRaw ? toTitleCase(cleanText(nameRaw?.replace(/#/g, "F")) ?? "") : undefined;
 
   function cleanBirthPlace(raw: string | null | undefined): string | undefined {
     const cleaned = cleanText(raw);
@@ -163,7 +163,15 @@ function parseKtpText(raw: string): KtpExtractedData {
 
   const occupation = cleanText(extractField(upper, "PEKERJAAN"));
 
-  return { nik, name, birthPlace, birthDate, gender, maritalStatus, occupation };
+  return {
+    nik,
+    name,
+    birthPlace: birthPlace ? toTitleCase(birthPlace) : undefined,
+    birthDate,
+    gender,
+    maritalStatus,
+    occupation: occupation ? toTitleCase(occupation) : undefined,
+  };
 }
 
 function normalizeNik(raw: string): string {
@@ -231,6 +239,14 @@ function cleanText(raw: string | null | undefined): string | undefined {
     .replace(/[^\p{L}\p{N}\s-]/gu, "")
     .replace(/\s+/g, " ")
     .trim() || undefined;
+}
+
+function toTitleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .split(/(\s+|-)/)
+    .map((part) => /^[a-z]/.test(part) ? part.charAt(0).toUpperCase() + part.slice(1) : part)
+    .join("");
 }
 
 export function validateKtpImage(data: KtpExtractedData): KtpValidation {

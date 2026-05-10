@@ -5,10 +5,18 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
+import { Venus, Mars, Lock } from "lucide-react";
 
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { UsernameInput } from "@/components/auth/username-input";
@@ -20,6 +28,7 @@ const setupUsernameSchema = z.object({
     .min(3, "Username minimal 3 karakter")
     .max(30, "Username maksimal 30 karakter")
     .regex(/^[a-zA-Z0-9_.]+$/, "Username hanya boleh berisi huruf, angka, underscore, dan titik"),
+  gender: z.enum(["male", "female"], { message: "Pilih jenis kelamin." }),
 });
 
 type FormData = z.infer<typeof setupUsernameSchema>;
@@ -32,6 +41,7 @@ export function SetupUsernameForm() {
     resolver: zodResolver(setupUsernameSchema),
     defaultValues: {
       username: "",
+      gender: undefined,
     },
     mode: "onChange",
   });
@@ -43,16 +53,18 @@ export function SetupUsernameForm() {
     setIsLoading(true);
 
     try {
-      const { error } = await authClient.updateUser({
+      const updatePayload: Record<string, unknown> = {
         username: data.username,
-      });
+        gender: data.gender,
+      };
+      const { error } = await authClient.updateUser(updatePayload as never);
 
       if (error) {
-        toast.error(error.message || "Gagal menyimpan username. Silakan coba lagi.");
+        toast.error(error.message || "Gagal menyimpan data. Silakan coba lagi.");
         return;
       }
 
-      toast.success("Username berhasil disimpan!");
+      toast.success("Data berhasil disimpan!");
       router.push("/onboarding");
       router.refresh();
     } catch {
@@ -70,6 +82,44 @@ export function SetupUsernameForm() {
           disabled={isLoading}
           isCheckingUsername={isCheckingUsername}
           isUsernameAvailable={isUsernameAvailable}
+        />
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Jenis Kelamin</FormLabel>
+              <FormControl>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant={field.value === "male" ? "default" : "outline"}
+                    className={`h-11 flex-1 gap-2 ${field.value === "male" ? "" : "border-border/60"}`}
+                    onClick={() => field.onChange("male")}
+                    disabled={isLoading}
+                  >
+                    <Mars className="h-4 w-4" />
+                    Laki-laki
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={field.value === "female" ? "default" : "outline"}
+                    className={`h-11 flex-1 gap-2 ${field.value === "female" ? "" : "border-border/60"}`}
+                    onClick={() => field.onChange("female")}
+                    disabled={isLoading}
+                  >
+                    <Venus className="h-4 w-4" />
+                    Perempuan
+                  </Button>
+                </div>
+              </FormControl>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1.5">
+                <Lock className="h-3 w-3" />
+                Jenis kelamin tidak dapat diubah setelah ini
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
         />
         <Button
           className="h-11 w-full"

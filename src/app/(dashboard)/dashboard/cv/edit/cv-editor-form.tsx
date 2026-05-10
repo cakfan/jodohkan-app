@@ -19,9 +19,15 @@ import {
   ChevronRight,
   ListChecks,
   IdCard,
+  Ruler,
+  Briefcase,
+  Lock,
+  Mars,
+  Venus,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -39,7 +45,7 @@ import {
   step4Schema,
   step5Schema,
 } from "@/lib/validations/profile";
-import { saveProfile, type ProfileData } from "@/app/actions/profile";
+import { saveProfile, togglePublished, type ProfileData } from "@/app/actions/profile";
 import { computeAge } from "@/lib/utils";
 import { PhotoUpload } from "@/components/photo-upload";
 import { Slider } from "@/components/ui/slider";
@@ -363,6 +369,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
   }
 
   const [form, setForm] = useState<ProfileData>({
+    name: initialData?.name ?? "",
     gender: initialData?.gender ?? "",
     birthDate: initialData?.birthDate ?? "",
     birthPlace: initialData?.birthPlace ?? "",
@@ -371,6 +378,18 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     weight: initialData?.weight ?? null,
     skinColor: initialData?.skinColor ?? "",
     maritalStatus: initialData?.maritalStatus ?? "",
+    childCount: initialData?.childCount ?? null,
+    hairColor: initialData?.hairColor ?? "",
+    hairType: initialData?.hairType ?? "",
+    hijabStatus: initialData?.hijabStatus ?? "",
+    faceAppearance: initialData?.faceAppearance ?? "",
+    otherPhysicalTraits: initialData?.otherPhysicalTraits ?? "",
+    marriageTarget: initialData?.marriageTarget ?? "",
+    polygamyView: initialData?.polygamyView ?? "",
+    parentsInvolvement: initialData?.parentsInvolvement ?? "",
+    smokingStatus: initialData?.smokingStatus ?? "",
+    personalityTraits: initialData?.personalityTraits ?? "",
+    interests: initialData?.interests ?? "",
     country: initialData?.country ?? "",
     city: initialData?.city ?? "",
     occupation: initialData?.occupation ?? "",
@@ -392,6 +411,8 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     photoBlurredUrl: initialData?.photoBlurredUrl ?? null,
     photoBlurred: initialData?.photoBlurred ?? true,
     ktpUrl: initialData?.ktpUrl ?? null,
+    cvStatus: initialData?.cvStatus ?? "draft",
+    published: initialData?.published ?? false,
   });
 
   const updateField = useCallback(<K extends keyof ProfileData>(key: K, value: ProfileData[K]) => {
@@ -417,7 +438,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       return false;
     }
     setIsLoading(true);
-    const result = await saveProfile(form);
+    const result = await saveProfile(form, step);
     if (result?.error) {
       toast.error(result.error);
       setIsLoading(false);
@@ -426,13 +447,15 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     return true;
   }
 
+  const isApproved = form.cvStatus === "approved";
+
   async function handleSaveAndContinue(nextStep: number) {
     if (!validateStep(step)) {
       toast.error("Lengkapi semua field yang wajib diisi");
       return;
     }
     setIsLoading(true);
-    const result = await saveProfile(form);
+    const result = await saveProfile(form, step);
     if (result?.error) {
       toast.error(result.error);
       setIsLoading(false);
@@ -473,6 +496,27 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
         onStepClick={handleStepClick}
       />
 
+      <div className={`bg-card border-border/50 flex items-center justify-between rounded-xl border p-4 shadow-sm ${!isApproved ? "opacity-60" : ""}`}>
+        <div className="space-y-0.5">
+          <p className="text-sm font-medium">Tampilkan di Pencarian</p>
+          <p className="text-muted-foreground text-xs">
+            {!isApproved
+              ? "CV perlu disetujui admin sebelum dapat ditampilkan di pencarian"
+              : form.published
+                ? "CV Anda muncul di halaman temukan — Anda siap ta'aruf"
+                : "CV Anda tidak muncul di halaman temukan"}
+          </p>
+        </div>
+        <Switch
+          checked={form.published ?? false}
+          disabled={!isApproved}
+          onCheckedChange={async (checked) => {
+            updateField("published", checked);
+            await togglePublished();
+          }}
+        />
+      </div>
+
       {step === 1 && (
         <div className="animate-fade-in-up space-y-8" key="step-1">
           <SectionHeading
@@ -490,60 +534,63 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 }}
               />
             </div>
+          </FormCard>
 
-            <div className="bg-border/20 mb-4 h-px" />
-
-            <div className="mb-6">
-              <div className="mb-3 flex items-center gap-2">
-                <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
-                  <IdCard className="text-primary h-3.5 w-3.5" />
-                </div>
-                <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
-                  Verifikasi Identitas
-                </span>
+          <FormCard>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
+                <IdCard className="text-primary h-3.5 w-3.5" />
               </div>
-              <KtpUpload
-                ktpUrl={form.ktpUrl}
-                onKtpChange={({ ktpUrl }) => {
-                  updateField("ktpUrl", ktpUrl);
-                }}
-                onExtracted={(data) => {
-                  if (data.birthPlace) updateField("birthPlace", data.birthPlace);
-                  if (data.birthDate && /^\d{4}-\d{2}-\d{2}$/.test(data.birthDate)) updateField("birthDate", data.birthDate);
-                  if (data.gender === "male" || data.gender === "female") updateField("gender", data.gender);
-                  if (data.maritalStatus === "single" || data.maritalStatus === "divorced" || data.maritalStatus === "widowed") updateField("maritalStatus", data.maritalStatus);
-                  if (data.occupation) updateField("occupation", data.occupation);
-                }}
-              />
+              <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                Verifikasi Identitas
+              </span>
             </div>
+            <KtpUpload
+              ktpUrl={form.ktpUrl}
+              onKtpChange={({ ktpUrl }) => {
+                updateField("ktpUrl", ktpUrl);
+              }}
+              onExtracted={(data) => {
+                if (data.name) updateField("name", data.name);
+                if (data.birthPlace) updateField("birthPlace", data.birthPlace);
+                if (data.birthDate && /^\d{4}-\d{2}-\d{2}$/.test(data.birthDate)) updateField("birthDate", data.birthDate);
+                if (data.maritalStatus === "single" || data.maritalStatus === "divorced" || data.maritalStatus === "widowed") updateField("maritalStatus", data.maritalStatus);
+                if (data.occupation) updateField("occupation", data.occupation);
+              }}
+            />
+          </FormCard>
 
-            <div className="bg-border/50 mb-6 h-px" />
-
+          <FormCard>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
+                <User className="text-primary h-3.5 w-3.5" />
+              </div>
+              <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                Info Dasar
+              </span>
+            </div>
+            <div className="mb-4 flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                {form.gender === "female" ? <Venus className="text-primary h-4 w-4" /> : <Mars className="text-primary h-4 w-4" />}
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground">
+                  {form.gender === "female" ? "Perempuan" : form.gender === "male" ? "Laki-laki" : "-"}
+                </p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Lock className="h-3 w-3" />
+                  Jenis kelamin ditetapkan saat pendaftaran dan tidak dapat diubah
+                </p>
+              </div>
+            </div>
             <div className="grid gap-6 md:grid-cols-2">
-              <SelectField
-                id="gender"
-                label="Jenis Kelamin"
-                value={form.gender ?? ""}
-                onChange={(v) => updateField("gender", v)}
-                error={errors.gender}
-                options={[
-                  { value: "", label: "Pilih jenis kelamin" },
-                  { value: "male", label: "Laki-laki" },
-                  { value: "female", label: "Perempuan" },
-                ]}
-              />
-              <SelectField
-                id="maritalStatus"
-                label="Status Pernikahan"
-                value={form.maritalStatus ?? ""}
-                onChange={(v) => updateField("maritalStatus", v)}
-                error={errors.maritalStatus}
-                options={[
-                  { value: "", label: "Pilih status" },
-                  { value: "single", label: "Belum Menikah" },
-                  { value: "divorced", label: "Pernah Menikah (Duda/Janda)" },
-                  { value: "widowed", label: "Cerai Meninggal" },
-                ]}
+              <InputField
+                id="name"
+                label="Nama Lengkap (sesuai KTP)"
+                placeholder="Contoh: Ahmad Fauzi"
+                value={form.name ?? ""}
+                onChange={(v) => updateField("name", v)}
+                error={errors.name}
               />
               <InputField
                 id="birthPlace"
@@ -578,6 +625,42 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 onChange={(v) => updateField("ethnicity", v)}
                 error={errors.ethnicity}
               />
+              <SelectField
+                id="maritalStatus"
+                label="Status Pernikahan"
+                value={form.maritalStatus ?? ""}
+                onChange={(v) => updateField("maritalStatus", v)}
+                error={errors.maritalStatus}
+                options={[
+                  { value: "", label: "Pilih status" },
+                  { value: "single", label: "Belum Menikah" },
+                  { value: "divorced", label: "Pernah Menikah (Duda/Janda)" },
+                  { value: "widowed", label: "Cerai Meninggal" },
+                ]}
+              />
+              {(form.maritalStatus === "divorced" || form.maritalStatus === "widowed") && (
+                <InputField
+                  id="childCount"
+                  label="Jumlah Anak"
+                  type="number"
+                  placeholder="0"
+                  value={form.childCount}
+                  onChange={(v) => updateField("childCount", v ? Number(v) : null)}
+                />
+              )}
+            </div>
+          </FormCard>
+
+          <FormCard>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
+                <Ruler className="text-primary h-3.5 w-3.5" />
+              </div>
+              <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                Ciri Fisik
+              </span>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
               <InputField
                 id="height"
                 label="Tinggi Badan (cm)"
@@ -594,6 +677,37 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 value={form.weight}
                 onChange={(v) => updateField("weight", v ? Number(v) : null)}
               />
+              <InputField
+                id="hairColor"
+                label="Warna Rambut"
+                placeholder="Contoh: Hitam, Coklat"
+                value={form.hairColor ?? ""}
+                onChange={(v) => updateField("hairColor", v)}
+              />
+              <SelectField
+                id="hairType"
+                label="Tipe Rambut"
+                value={form.hairType ?? ""}
+                onChange={(v) => updateField("hairType", v)}
+                options={[
+                  { value: "", label: "Pilih tipe rambut" },
+                  { value: "lurus", label: "Lurus" },
+                  { value: "bergelombang", label: "Bergelombang" },
+                  { value: "keriting", label: "Keriting" },
+                  { value: "ikal", label: "Ikal" },
+                ]}
+              />
+              {form.gender === "female" && (
+                <div className="md:col-span-2">
+                  <InputField
+                    id="hijabStatus"
+                    label="Hijab"
+                    placeholder="Contoh: Ya, Tidak, Kadang-kadang"
+                    value={form.hijabStatus ?? ""}
+                    onChange={(v) => updateField("hijabStatus", v)}
+                  />
+                </div>
+              )}
               <SelectField
                 id="skinColor"
                 label="Warna Kulit"
@@ -609,13 +723,35 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 ]}
               />
               <InputField
-                id="occupation"
-                label="Pekerjaan"
-                placeholder="Contoh: Software Engineer"
-                value={form.occupation ?? ""}
-                onChange={(v) => updateField("occupation", v)}
-                error={errors.occupation}
+                id="faceAppearance"
+                label="Penampilan Wajah"
+                placeholder="Contoh: Bulat, Oval, Lonjong"
+                value={form.faceAppearance ?? ""}
+                onChange={(v) => updateField("faceAppearance", v)}
               />
+              <div className="md:col-span-2">
+                <TextareaField
+                  id="otherPhysicalTraits"
+                  label="Ciri Fisik Lainnya"
+                  placeholder="Ciri khas fisik lainnya yang perlu diketahui..."
+                  value={form.otherPhysicalTraits ?? ""}
+                  onChange={(v) => updateField("otherPhysicalTraits", v)}
+                  rows={3}
+                />
+              </div>
+            </div>
+          </FormCard>
+
+          <FormCard>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
+                <Briefcase className="text-primary h-3.5 w-3.5" />
+              </div>
+              <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                Pendidikan & Domisili
+              </span>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
               <InputField
                 id="education"
                 label="Pendidikan Terakhir"
@@ -623,6 +759,14 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 value={form.education ?? ""}
                 onChange={(v) => updateField("education", v)}
                 error={errors.education}
+              />
+              <InputField
+                id="occupation"
+                label="Pekerjaan"
+                placeholder="Contoh: Software Engineer"
+                value={form.occupation ?? ""}
+                onChange={(v) => updateField("occupation", v)}
+                error={errors.occupation}
               />
               <InputField
                 id="country"
@@ -668,6 +812,24 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
               rows={4}
               error={errors.bio}
             />
+            <div className="bg-border/50 h-px" />
+            <TextareaField
+              id="personalityTraits"
+              label="Sifat & Karakter"
+              placeholder="Jelaskan sifat dan karakter Anda: kepribadian, kebiasaan, kelebihan, kekurangan..."
+              value={form.personalityTraits ?? ""}
+              onChange={(v) => updateField("personalityTraits", v)}
+              rows={4}
+            />
+            <TextareaField
+              id="interests"
+              label="Minat & Hobi"
+              placeholder="Apa hobi dan minat Anda? Kegiatan apa yang Anda nikmati di waktu luang?"
+              value={form.interests ?? ""}
+              onChange={(v) => updateField("interests", v)}
+              rows={4}
+            />
+            <div className="bg-border/50 h-px" />
             <TextareaField
               id="vision"
               label="Visi Hidup"
@@ -686,6 +848,52 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
               rows={4}
               error={errors.mission}
             />
+            <TextareaField
+              id="marriageTarget"
+              label="Target Pernikahan"
+              placeholder="Kapan Anda berencana menikah? Apa target Anda dalam waktu dekat setelah menikah?"
+              value={form.marriageTarget ?? ""}
+              onChange={(v) => updateField("marriageTarget", v)}
+              rows={3}
+            />
+            <div className="bg-border/50 h-px" />
+            <div className="grid gap-6 md:grid-cols-2">
+              {form.gender === "female" && (
+                <InputField
+                  id="polygamyView"
+                  label="Pandangan tentang Poligami"
+                  placeholder="Contoh: Setuju, Tidak Setuju, Bersyarat"
+                  value={form.polygamyView ?? ""}
+                  onChange={(v) => updateField("polygamyView", v)}
+                />
+              )}
+              {form.gender === "female" && (
+                <SelectField
+                  id="parentsInvolvement"
+                  label="Sepengetahuan Orang Tua"
+                  value={form.parentsInvolvement ?? ""}
+                  onChange={(v) => updateField("parentsInvolvement", v)}
+                  options={[
+                    { value: "", label: "Pilih" },
+                    { value: "ya", label: "Ya, orang tua tahu" },
+                    { value: "tidak", label: "Tidak, orang tua tidak tahu" },
+                    { value: "wali", label: "Via wali saja" },
+                  ]}
+                />
+              )}
+              <SelectField
+                id="smokingStatus"
+                label="Status Merokok"
+                value={form.smokingStatus ?? ""}
+                onChange={(v) => updateField("smokingStatus", v)}
+                options={[
+                  { value: "", label: "Pilih" },
+                  { value: "ya", label: "Ya, merokok" },
+                  { value: "tidak", label: "Tidak, tidak merokok" },
+                  { value: "proses_berhenti", label: "Proses berhenti" },
+                ]}
+              />
+            </div>
           </FormCard>
 
           <NavButtons
@@ -954,7 +1162,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                 onClick={async () => {
                   if (!validateStep(step)) return;
                   setIsLoading(true);
-                  const result = await saveProfile({ ...form, cvStatus: "pending" });
+                  const result = await saveProfile({ ...form, cvStatus: "pending" }, step);
                   if (result?.error) {
                     toast.error(result.error);
                     setIsLoading(false);
@@ -965,6 +1173,7 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
                   });
                   setCompletedSteps((prev) => new Set(prev).add(5));
                   setIsLoading(false);
+                  router.refresh();
                   router.push("/dashboard");
                 }}
                 disabled={isLoading}

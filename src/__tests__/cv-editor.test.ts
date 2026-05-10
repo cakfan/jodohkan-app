@@ -36,10 +36,15 @@ describe("Step 1 - Data Diri Validation", () => {
     gender: "male",
     birthDate: "1995-06-15",
     birthPlace: "Jakarta",
+    ethnicity: "Jawa",
     height: 170,
     weight: 65,
     skinColor: "tan",
+    hairColor: "Hitam",
+    hairType: "lurus",
     maritalStatus: "single",
+    faceAppearance: "Bulat",
+    otherPhysicalTraits: "Berkacamata",
     country: "Indonesia",
     city: "Jakarta",
     occupation: "Engineer",
@@ -94,8 +99,8 @@ describe("Step 1 - Data Diri Validation", () => {
 
   test("should pass with optional fields omitted", async () => {
     const { step1Schema } = await import("@/lib/validations/profile");
-    const { gender, birthDate, birthPlace, maritalStatus, country, city, occupation, education } = validData;
-    const result = step1Schema.safeParse({ gender, birthDate, birthPlace, maritalStatus, country, city, occupation, education });
+    const { gender, birthDate, birthPlace, ethnicity, hairColor, faceAppearance, otherPhysicalTraits, maritalStatus, country, city, occupation, education } = validData;
+    const result = step1Schema.safeParse({ gender, birthDate, birthPlace, ethnicity, hairColor, faceAppearance, otherPhysicalTraits, maritalStatus, country, city, occupation, education });
     expect(result.success).toBe(true);
   });
 
@@ -105,13 +110,11 @@ describe("Step 1 - Data Diri Validation", () => {
     expect(result.success).toBe(true);
   });
 
-  test("should fail when gender is empty", async () => {
+  test("should pass when gender is omitted (optional)", async () => {
     const { step1Schema } = await import("@/lib/validations/profile");
-    const result = step1Schema.safeParse({ ...validData, gender: "" });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toContain("gender");
-    }
+    const { gender, ...rest } = validData;
+    const result = step1Schema.safeParse(rest);
+    expect(result.success).toBe(true);
   });
 
   test("should fail when birthDate is empty", async () => {
