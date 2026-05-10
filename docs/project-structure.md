@@ -90,13 +90,21 @@ src/app/
   globals.css
   favicon.ico
   (auth)/
-    signin/page.tsx
-    signup/page.tsx
-    setup-username/page.tsx
-    onboard-username/
+    signin/
+    signup/
+    setup-username/
+    forgot-password/
+    reset-password/
+    onboard-username/           (empty — placeholder)
   (dashboard)/
-    layout.tsx
-    dashboard/page.tsx
+    layout.tsx                  (dashboard layout with sidebar)
+    dashboard/page.tsx          (/dashboard)
+    cv/edit/                    (/cv/edit)
+    temukan/                    (/temukan)
+    admin/review/               (/admin/review — admin only)
+  cv/
+    [username]/                 (/cv/[username] — public)
+  onboarding/
   actions/
   api/
     auth/[...all]/route.ts
@@ -118,17 +126,21 @@ src/app/
 | `onboarding/layout.tsx` | Onboarding layout wrapper |
 | `onboarding/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar |
-| `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview |
-| `(dashboard)/dashboard/temukan/page.tsx` | Temukan Kandidat page (server component, fetches candidates from searchParams) |
-| `(dashboard)/dashboard/temukan/temukan-client.tsx` | Temukan Kandidat client component (useSearchParams filter, username filter, sticky sidebar) |
-| `(dashboard)/cv/edit/page.tsx` | CV Ta'aruf editor page (server component, maps Drizzle data to ProfileData) |
-| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client component, 5 steps, Zod validation, partner criteria with slider) |
+| `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview → `/dashboard` |
+| `(dashboard)/cv/edit/page.tsx` | CV Editor server component → `/cv/edit` |
+| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider) |
+| `(dashboard)/temukan/page.tsx` | Temukan Kandidat server component → `/temukan` |
+| `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
+| `(dashboard)/admin/review/page.tsx` | Admin review panel → `/admin/review` |
+| `(dashboard)/admin/review/review-client.tsx` | Admin review client (approve/reject actions) |
+| `cv/[username]/page.tsx` | Public CV detail → `/cv/[username]` |
+| `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic) |
 | `actions/` | Server actions |
-| `actions/profile.ts` | Profile CRUD server actions: `saveProfile()`, `getProfile()`, `ProfileData` type |
-| `actions/photo.ts` | Photo upload/delete server actions: `uploadPhoto()`, `deletePhoto()` — Supabase Storage + sharp blur |
-| `actions/ktp.ts` | KTP upload/delete server actions: `uploadKtp()`, `deleteKtp()` — profile-photos bucket |
-| `actions/candidates.ts` | Candidate listing server action: `getCandidates(filters)` — auto gender filter + username filter |
-| `actions/onboarding.ts` | Onboarding server action: `completeOnboarding()` — creates wallet with initial balance |
+| `actions/profile.ts` | Profile CRUD: `saveProfile()`, `getProfile()`, `reviewCv()`, `togglePublished()` |
+| `actions/photo.ts` | Photo upload/delete (Supabase Storage + sharp blur) |
+| `actions/ktp.ts` | KTP upload/delete |
+| `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` |
+| `actions/onboarding.ts` | Onboarding: `completeOnboarding()` — creates wallet with initial balance |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 
 ---
@@ -150,7 +162,7 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Application sidebar component (may duplicate layout/app-sidebar.tsx) |
+| `app-sidebar.tsx` | **DEPRECATED** — moved to `layout/app-sidebar.tsx` |
 | `brand-logo.tsx` | Brand logo component |
 | `theme-provider.tsx` | Theme provider wrapper (next-themes: system default, class-based) |
 | `navbar.tsx` | Top navigation bar component |
@@ -175,11 +187,12 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Sidebar with navigation for the app layout |
+| `app-sidebar.tsx` | Sidebar with navigation for the app layout (routes: `/dashboard`, `/cv/edit`, `/temukan`, `/admin/review`) |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
-| `navbar.tsx` | Top navbar for authenticated layouts — async server component, shows CV status pill badge with colored dot |
-| `navbar-page-title.tsx` | Client component — `usePathname()` maps path to title+description in navbar |
+| `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge with colored dot |
+| `navbar-page-title.tsx` | Client — `usePathname()` maps path to title+description in navbar |
+| `sidebar-header.tsx` | Sidebar logo/brand header with Pethuk Jodoh branding |
 | `theme-toggle.tsx` | Dark/light theme toggle button |
 
 #### `src/components/ui/` — shadcn/ui Primitives
@@ -220,6 +233,7 @@ src/components/
 | File | Description |
 | :--- | :--- |
 | `index.ts` | Drizzle client setup: PostgreSQL connection via postgres.js, exports `db` and `client` |
+| `seed.ts` | Seed script: 10 dummy users (5 male, 5 female) + 1 admin, all with approved CVs |
 | `schema/` | Database schema directory |
 | `schema/index.ts` | Re-exports all schema tables |
 | `schema/auth-schema.ts` | Better Auth tables: user, session, account, verification, rate_limit |
@@ -243,13 +257,16 @@ src/components/
 ```
 src/lib/
   utils.ts
+  utils-cv-detail.ts
   auth.ts
   auth-client.ts
   email-templates.ts
+  get-server-session.ts
   constants/
     auth.ts
   validations/
     auth.ts
+    profile.ts
 ```
 
 | File | Description |
@@ -261,6 +278,8 @@ src/lib/
 | `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins, password reset, rate limiting) |
 | `auth-client.ts` | Client-side Better Auth client: exports useSession, signIn, signUp, signOut |
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
+| `get-server-session.ts` | Helper: `getServerSession()` — wraps `auth.api.getSession()` with headers |
+| `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner) |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
 | `validations/profile.ts` | Zod schemas per step for CV Editor (step1Schema–step5Schema). step1Schema includes optional photoUrl, photoBlurredUrl, photoBlurred. |
@@ -307,20 +326,11 @@ src/lib/
 
 | File | Description |
 | :--- | :--- |
-| `0000_unusual_runaways.sql` | Migration 0000: initial auth schema |
-| `0001_cloudy_catseye.sql` | Migration 0001 |
-| `0002_chilly_prodigy.sql` | Migration 0002 |
-| `0003_cold_king_bedlam.sql` | Migration 0003: drop `age` column from profile |
-| `0004_magical_korvac.sql` | Migration 0004: add `skin_color` column to profile |
-| `0005_illegal_human_cannonball.sql` | Migration 0005: add `photo_blurred_url` column to profile |
-| `0006_mute_ghost_rider.sql` | Migration 0006: add `birth_place` column to profile |
-| `0007_wide_golden_guardian.sql` | Migration 0007: add `ethnicity` column to profile |
-| `0008_whole_gressil.sql` | Migration 0008: add `ktp_url` column to profile |
-| `0009_legal_maelstrom.sql` | Migration 0009: add `cv_status` column to profile |
-| `0010_add_partner_city_occupation.sql` | Migration 0010: add `partner_city`, `partner_occupation` to profile |
-| `0011_add_partner_age_range.sql` | Migration 0011: add `partner_age_min`, `partner_age_max` to profile |
+| `0000_secret_felicia_hardy.sql` | Migration 0000: initial auth + profile schema (+ gender) |
+| `0001_confused_iron_lad.sql` | Migration 0001: add `smoking_status` to profile |
+| `0002_add_rejection_reason.sql` | Migration 0002: add `rejection_reason` to profile |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
-| `meta/0000_snapshot.json` — `meta/0011_snapshot.json` | Schema snapshots for each migration |
+| `meta/0000_snapshot.json` — `meta/0002_snapshot.json` | Schema snapshots for each migration |
 
 ---
 

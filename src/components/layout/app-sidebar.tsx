@@ -22,15 +22,15 @@ import { useSession } from "@/lib/auth-client";
 
 const baseNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "CV Ta'aruf", url: "/dashboard/cv/edit", icon: BookOpen },
-  { title: "Temukan", url: "/dashboard/temukan", icon: Users },
+  { title: "CV Ta'aruf", url: "/cv/edit", icon: BookOpen },
+  { title: "Temukan", url: "/temukan", icon: Users },
   { title: "Pesan", url: "/messages", icon: MessageSquare },
   { title: "Notifikasi", url: "/notifications", icon: Bell },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
 const adminNavItems = [
-  { title: "Panel Admin", url: "/dashboard/admin/review", icon: Shield },
+  { title: "Panel Admin", url: "/admin/review", icon: Shield },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

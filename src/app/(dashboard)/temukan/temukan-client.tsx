@@ -113,7 +113,7 @@ export function TemukanClient({
     if (filters.ageMax) params.set("ageMax", String(filters.ageMax));
     if (filters.username) params.set("username", filters.username);
     const qs = params.toString();
-    router.replace(`/dashboard/temukan${qs ? `?${qs}` : ""}`, { scroll: false });
+    router.replace(`/temukan${qs ? `?${qs}` : ""}`, { scroll: false });
 
     const result = await getCandidates(filters);
     if (result.error) {
@@ -127,7 +127,7 @@ export function TemukanClient({
   const resetFilters = useCallback(async () => {
     const empty: CandidateFilters = { city: "", education: "", ethnicity: "", occupation: "", ageMin: undefined, ageMax: undefined, username: "" };
     setFilters(empty);
-    router.replace("/dashboard/temukan", { scroll: false });
+    router.replace("/temukan", { scroll: false });
     setLoading(true);
     setError(undefined);
     const result = await getCandidates(empty);

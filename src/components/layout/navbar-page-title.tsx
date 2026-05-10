@@ -4,8 +4,8 @@ import { usePathname } from "next/navigation";
 
 const pageInfo: Record<string, { title: string; description: string }> = {
   "/dashboard": { title: "Dashboard", description: "Overview aktivitas ta'aruf Anda" },
-  "/dashboard/cv/edit": { title: "CV Ta'aruf", description: "Lengkapi profil ta'aruf Anda" },
-  "/dashboard/temukan": { title: "Temukan Pasangan", description: "Cari calon pasangan sesuai kriteria Anda" },
+  "/cv/edit": { title: "CV Ta'aruf", description: "Lengkapi profil ta'aruf Anda" },
+  "/temukan": { title: "Temukan Pasangan", description: "Cari calon pasangan sesuai kriteria Anda" },
 };
 
 export function NavbarPageTitle() {

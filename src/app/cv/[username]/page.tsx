@@ -61,7 +61,7 @@ export default async function CandidateDetailPage({ params }: PageProps) {
                   <p className="text-muted-foreground text-sm leading-relaxed">{result.error}</p>
                 </div>
                 <Button variant="outline" className="mt-2 rounded-xl">
-                  <Link href="/dashboard/temukan" className="inline-flex items-center gap-1.5">
+                  <Link href="/temukan" className="inline-flex items-center gap-1.5">
                     <ArrowLeft className="h-4 w-4" />
                     Kembali ke daftar kandidat
                   </Link>

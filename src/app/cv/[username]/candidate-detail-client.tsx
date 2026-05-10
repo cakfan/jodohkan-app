@@ -136,7 +136,7 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
     <div className="mx-auto max-w-3xl space-y-8">
       {/* Back */}
       <button
-        onClick={() => router.push("/dashboard/temukan")}
+        onClick={() => router.push("/temukan")}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
