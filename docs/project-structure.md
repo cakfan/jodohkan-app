@@ -310,6 +310,7 @@ src/lib/
 | `email-templates.test.ts` | Email template generation tests (verification & password reset) |
 | `photo.test.ts` | Photo server action tests (file validation, auth guard) |
 | `blurred-photo.test.tsx` | BlurredPhoto component tests (blurredSrc/originalSrc switching, size variants, file type validation) |
+| `taaruf.test.ts` | Ta'aruf request server action tests (auth guard, boolean guard, self-send guard, exports) |
 
 ---
 

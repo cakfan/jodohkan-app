@@ -55,7 +55,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Katalog Kandidat -> Temukan: useSearchParams filter, username filter, sticky filter sidebar, auto gender filter.
 - [x] Advanced Filtering: Filter berdasarkan kriteria kota, pendidikan, usia, username.
 - [x] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi (route: `/cv/[username]`, pakai `BlurredPhoto`, tabs: Data Diri/Visi & Misi/Kriteria/Spiritual).
-- [ ] Fitur Request Ta'aruf: Pengajuan proses ta'aruf kepada mediator.
+- [x] Fitur Request Ta'aruf: Pengajuan proses ta'aruf antar pengguna (kirim, terima/tolak, 24h expiry, auto-expire, active ta'aruf guard).
 - [ ] Payment Integration: Integrasi Midtrans/Xendit untuk top-up token.
 - [ ] Wallet UI: Halaman saldo dan riwayat transaksi token bagi pengguna.
 
@@ -94,5 +94,6 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 1.  Autentikasi & Onboarding (✅ Selesai - termasuk forgot password).
 2.  Pembuatan CV Ta'aruf (✅ Selesai - termasuk KTP OCR, partner criteria slider).
 3.  Discovery/Listing Kandidat (✅ Selesai - Temukan dengan filter username, usia, kota, sticky sidebar, useSearchParams).
-4.  Chat Room Dasar (Pria + Wanita + Mediator).
-5.  Status Tahapan Ta'aruf Sederhana.
+4.  Request Ta'aruf (✅ Selesai - kirim/terima/tolak, 24h expiry, active ta'aruf guard, sidebar badge).
+5.  Chat Room Dasar (Pria + Wanita + Mediator).
+6.  Status Tahapan Ta'aruf Sederhana.
