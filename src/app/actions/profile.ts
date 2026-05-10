@@ -84,7 +84,12 @@ export async function saveProfile(formData: ProfileData, step?: number) {
 
   const userId = session.user.id;
 
-  if (formData.cvStatus === "approved") {
+  const currentProfile = await db.query.profile.findFirst({
+    where: (profile, { eq }) => eq(profile.userId, userId),
+    columns: { cvStatus: true },
+  });
+
+  if (formData.cvStatus === "approved" && currentProfile?.cvStatus !== "approved") {
     return { error: "Tidak dapat mengatur status sendiri. Hubungi admin." };
   }
 
@@ -126,6 +131,10 @@ export async function saveProfile(formData: ProfileData, step?: number) {
     }
 
     if (existing) {
+      if (existing.cvStatus === "approved") {
+        (profileFields as Record<string, unknown>).cvStatus = "pending";
+      }
+
       await db
         .update(profile)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,16 +211,24 @@ export async function togglePublished() {
   try {
     const existing = await db.query.profile.findFirst({
       where: eq(profile.userId, session.user.id),
-      columns: { published: true },
+      columns: { published: true, cvStatus: true },
     });
 
     const newValue = !existing?.published;
 
+    const updateData: Record<string, unknown> = { published: newValue, updatedAt: new Date() };
+
+    if (newValue === false) {
+      updateData.cvStatus = "pending";
+    }
+
     await db
       .update(profile)
-      .set({ published: newValue, updatedAt: new Date() })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set(updateData as any)
       .where(eq(profile.userId, session.user.id));
 
+    revalidatePath("/", "layout");
     return { success: true, published: newValue };
   } catch {
     return { error: "Gagal mengubah status publikasi." };

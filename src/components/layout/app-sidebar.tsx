@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 
-const baseNavItems = [
+const candidateNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "CV Ta'aruf", url: "/cv/edit", icon: BookOpen },
   { title: "Temukan", url: "/temukan", icon: Users },
@@ -30,14 +30,17 @@ const baseNavItems = [
 ];
 
 const adminNavItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Panel Admin", url: "/admin/review", icon: Shield },
+  { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "admin";
-  const navItems = isAdmin ? [...baseNavItems, ...adminNavItems] : baseNavItems;
+  const navItems = isAdmin ? adminNavItems : candidateNavItems;
 
   return (
     <Sidebar collapsible="icon" {...props}>

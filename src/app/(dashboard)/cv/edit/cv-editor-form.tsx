@@ -24,6 +24,7 @@ import {
   Lock,
   Mars,
   Venus,
+  EyeOff,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ import { saveProfile, togglePublished, type ProfileData } from "@/app/actions/pr
 import { computeAge } from "@/lib/utils";
 import { PhotoUpload } from "@/components/photo-upload";
 import { Slider } from "@/components/ui/slider";
+import { Card, CardContent } from "@/components/ui/card";
 import { KtpUpload } from "@/components/ktp-upload";
 import { toast } from "sonner";
 
@@ -438,7 +440,9 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       return false;
     }
     setIsLoading(true);
-    const result = await saveProfile(form, step);
+    const { cvStatus: _, ...formWithoutStatus } = form;
+    const result = await saveProfile(formWithoutStatus, step);
+    void _;
     if (result?.error) {
       toast.error(result.error);
       setIsLoading(false);
@@ -448,6 +452,18 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
   }
 
   const isApproved = form.cvStatus === "approved";
+  const isPublished = form.published === true && isApproved;
+
+  async function handleUnpublishAndEdit() {
+    const result = await togglePublished();
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    updateField("published", false);
+    updateField("cvStatus", "pending");
+    router.refresh();
+  }
 
   async function handleSaveAndContinue(nextStep: number) {
     if (!validateStep(step)) {
@@ -455,7 +471,9 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
       return;
     }
     setIsLoading(true);
-    const result = await saveProfile(form, step);
+    const { cvStatus: _, ...formWithoutStatus } = form;
+    const result = await saveProfile(formWithoutStatus, step);
+    void _;
     if (result?.error) {
       toast.error(result.error);
       setIsLoading(false);
@@ -486,6 +504,33 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     const items = [...(form.qa || [])];
     items.splice(index, 1);
     updateField("qa", items);
+  }
+
+  if (isPublished) {
+    return (
+      <div className="mx-auto max-w-lg pt-16">
+        <Card className="border-border/60 text-center shadow-sm">
+          <CardContent className="flex flex-col items-center gap-4 py-16">
+            <div className="bg-primary/10 text-primary flex size-16 items-center justify-center rounded-full">
+              <EyeOff className="size-8" />
+            </div>
+            <h2 className="text-xl font-semibold">CV Sedang Dipublikasikan</h2>
+            <p className="text-muted-foreground max-w-sm text-sm">
+              CV Anda sedang tampil di halaman temukan. Untuk mengedit, unpublish terlebih dahulu.
+              Setelah diedit, CV perlu disetujui admin sebelum bisa dipublikasikan kembali.
+            </p>
+            <Button
+              size="lg"
+              className="mt-2"
+              onClick={handleUnpublishAndEdit}
+            >
+              <Lock className="size-4" />
+              Unpublish & Edit
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

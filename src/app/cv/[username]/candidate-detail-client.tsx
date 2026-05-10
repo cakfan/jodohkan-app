@@ -120,6 +120,8 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
 
   const age = computeAge(candidate.birthDate);
   const isOwnProfile = session?.user?.id === candidate.userId;
+  const isAdmin = session?.user?.role === "admin";
+  const showFullProfile = isOwnProfile || isAdmin;
   const canRequestTaaruf = !isOwnProfile;
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -149,14 +151,14 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           <BlurredPhoto
             blurredSrc={candidate.photoBlurredUrl}
             originalSrc={candidate.photoUrl}
-            alt={getDisplayName(candidate.name, candidate.username, isOwnProfile)}
+            alt={getDisplayName(candidate.name, candidate.username, showFullProfile)}
             size="lg"
-            canToggle={isOwnProfile}
+            canToggle={showFullProfile}
           />
         </div>
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{getDisplayName(candidate.name, candidate.username, isOwnProfile)}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{getDisplayName(candidate.name, candidate.username, showFullProfile)}</h1>
             <button
               onClick={() => setQrOpen(true)}
               className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg p-1.5 transition-colors"
@@ -166,7 +168,7 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
             </button>
           </div>
             <p className="text-muted-foreground mt-0.5 text-sm">
-              {[age !== null && `${age} tahun`, isOwnProfile && candidate.gender === "male" ? "Laki-laki" : isOwnProfile && candidate.gender === "female" ? "Perempuan" : null]
+              {[age !== null && `${age} tahun`, showFullProfile && candidate.gender === "male" ? "Laki-laki" : showFullProfile && candidate.gender === "female" ? "Perempuan" : null]
                 .filter(Boolean)
                 .join(" • ")}
             </p>
@@ -228,10 +230,10 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
             </h2>
             <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
               <div className="grid gap-6 sm:grid-cols-2">
-                {isOwnProfile && (
+                {showFullProfile && (
                   <InfoItem label="Jenis Kelamin" value={candidate.gender === "male" ? "Laki-laki" : candidate.gender === "female" ? "Perempuan" : "-"} />
                 )}
-                {isOwnProfile && (
+                {showFullProfile && (
                   <InfoItem
                     label="Tempat, Tanggal Lahir"
                     value={candidate.birthPlace && candidate.birthDate ? `${candidate.birthPlace}, ${candidate.birthDate}` : "-"}
@@ -519,14 +521,14 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
         <SheetContent side="bottom" className="rounded-t-2xl">
           <SheetHeader className="items-center pb-2">
             <SheetTitle>Bagikan Profil</SheetTitle>
-            <SheetDescription>Scan QR Code untuk melihat profil {getDisplayName(candidate.name, candidate.username, isOwnProfile)}</SheetDescription>
+            <SheetDescription>Scan QR Code untuk melihat profil {getDisplayName(candidate.name, candidate.username, showFullProfile)}</SheetDescription>
           </SheetHeader>
           <div className="flex flex-col items-center gap-5 py-6">
             <div className="rounded-2xl border bg-white p-4 shadow-sm">
               <QRCodeSVG value={profileUrl} size={180} level="M" />
             </div>
             <div className="space-y-1 text-center">
-              <p className="text-sm font-medium">{getDisplayName(candidate.name, candidate.username, isOwnProfile)}</p>
+              <p className="text-sm font-medium">{getDisplayName(candidate.name, candidate.username, showFullProfile)}</p>
               <p className="text-muted-foreground text-xs">{profileUrl}</p>
             </div>
             <Button variant="outline" className="gap-2 rounded-xl" onClick={copyLink}>

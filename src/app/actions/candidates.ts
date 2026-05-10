@@ -212,16 +212,17 @@ export async function getCandidateByUsername(username: string) {
   if (!targetUser) return { error: "Profil tidak ditemukan atau tidak tersedia." };
 
   const isOwnProfile = session?.user?.id === targetUser.id;
+  const isAdmin = session?.user?.role === "admin";
 
   const conditions: ReturnType<typeof eq>[] = [
     eq(user.username, username),
   ];
 
-  if (!isOwnProfile) {
+  if (!isOwnProfile && !isAdmin) {
     conditions.push(eq(profile.cvStatus, "approved"));
   }
 
-  if (!isOwnProfile && session?.user?.id) {
+  if (!isOwnProfile && !isAdmin && session?.user?.id) {
     const myProfile = await db.query.profile.findFirst({
       where: eq(profile.userId, session.user.id),
       columns: { gender: true },
@@ -288,6 +289,11 @@ export async function getCandidateByUsername(username: string) {
     .then((rows) => rows[0]);
 
   if (!row) return { error: "Profil tidak ditemukan atau tidak tersedia." };
+
+  if (!isOwnProfile && !isAdmin) {
+    row.photoUrl = null;
+    row.ktpUrl = null;
+  }
 
   return { data: row };
 }

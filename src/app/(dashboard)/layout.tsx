@@ -20,12 +20,16 @@ export default async function DashboardLayout({
     redirect("/setup-username");
   }
 
-  const existingProfile = await db.query.profile.findFirst({
-    where: (profile, { eq }) => eq(profile.userId, session.user.id),
-  });
+  const isAdmin = session.user.role === "admin";
 
-  if (!existingProfile?.onboardingCompleted) {
-    redirect("/onboarding");
+  if (!isAdmin) {
+    const existingProfile = await db.query.profile.findFirst({
+      where: (profile, { eq }) => eq(profile.userId, session.user.id),
+    });
+
+    if (!existingProfile?.onboardingCompleted) {
+      redirect("/onboarding");
+    }
   }
 
   return (

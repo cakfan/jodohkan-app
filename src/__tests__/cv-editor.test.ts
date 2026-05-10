@@ -112,7 +112,8 @@ describe("Step 1 - Data Diri Validation", () => {
 
   test("should pass when gender is omitted (optional)", async () => {
     const { step1Schema } = await import("@/lib/validations/profile");
-    const { gender, ...rest } = validData;
+    const { gender: _, ...rest } = validData;
+    void _;
     const result = step1Schema.safeParse(rest);
     expect(result.success).toBe(true);
   });
