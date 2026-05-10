@@ -30,7 +30,12 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Loading Spinner: Sentralisasi semua spinner ke komponen `<Spinner>` dari shadcn/ui.
 - [x] CV Editor UX: Step indicator clickable, auto-scroll ke error, character count, mobile labels, scroll ke QA card baru.
 - [x] Token System Core: Skema database untuk `wallets` dan transaksi token.
-- [x] Admin Review: Panel review CV (pending → approved/rejected) di `/admin/review`, rejection reason, dan seed admin user.
+- [x] Admin Review: Panel review CV (pending → approved/rejected) di `/admin/review`, rejection reason, dan seed admin user (via Better Auth API).
+- [x] Admin Sidebar: Admin mendapat navigasi sederhana (Dashboard, Panel Admin, Pesan, Pengaturan) — tanpa CV/Temukan.
+- [x] Admin Skip Onboarding: Admin langsung ke dashboard tanpa redirect ke onboarding.
+- [x] Admin CV Access: Admin bisa lihat CV apapun di `/cv/[username]` tanpa filter status/gender + lihat info lengkap (foto asli, nama, gender, TTL).
+- [x] Published CV Lock: CV yang dipublikasikan tidak bisa diedit langsung — user harus unpublish dulu; setiap edit reset `cvStatus` ke `"pending"`.
+- [x] Security: Server-side stripping `photoUrl`/`ktpUrl` untuk non-admin/non-owner.
 
 ## 🔒 Fase 1.5: Fitur Forgot Password (Selesai)
 

@@ -125,21 +125,21 @@ src/app/
 | `onboarding/page.tsx` | Onboarding page (redirects if no session or already completed) |
 | `onboarding/layout.tsx` | Onboarding layout wrapper |
 | `onboarding/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
-| `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar |
+| `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar; admin skips onboarding check |
 | `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview → `/dashboard` |
 | `(dashboard)/cv/edit/page.tsx` | CV Editor server component → `/cv/edit` |
-| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider) |
+| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider, locked card when published, strips cvStatus from form data) |
 | `(dashboard)/temukan/page.tsx` | Temukan Kandidat server component → `/temukan` |
 | `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
 | `(dashboard)/admin/review/page.tsx` | Admin review panel → `/admin/review` |
 | `(dashboard)/admin/review/review-client.tsx` | Admin review client (approve/reject actions) |
 | `cv/[username]/page.tsx` | Public CV detail → `/cv/[username]` |
-| `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic) |
+| `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic via `showFullProfile` — owner/admin lihat info lengkap) |
 | `actions/` | Server actions |
-| `actions/profile.ts` | Profile CRUD: `saveProfile()`, `getProfile()`, `reviewCv()`, `togglePublished()` |
+| `actions/profile.ts` | Profile CRUD: `saveProfile()` (guard: block self-approval, reset to pending on edit), `getProfile()`, `reviewCv()`, `togglePublished()` (reset cvStatus to pending on unpublish) |
 | `actions/photo.ts` | Photo upload/delete (Supabase Storage + sharp blur) |
 | `actions/ktp.ts` | KTP upload/delete |
-| `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` |
+| `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` (admin bypasses status/gender filter; strips photoUrl/ktpUrl for public) |
 | `actions/onboarding.ts` | Onboarding: `completeOnboarding()` — creates wallet with initial balance |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 
@@ -187,7 +187,7 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Sidebar with navigation for the app layout (routes: `/dashboard`, `/cv/edit`, `/temukan`, `/admin/review`) |
+| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Pesan, Pengaturan) |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
 | `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge with colored dot |
@@ -233,7 +233,8 @@ src/components/
 | File | Description |
 | :--- | :--- |
 | `index.ts` | Drizzle client setup: PostgreSQL connection via postgres.js, exports `db` and `client` |
-| `seed.ts` | Seed script: 10 dummy users (5 male, 5 female) + 1 admin, all with approved CVs |
+| `seed.ts` | Seed script: 10 dummy users (5 male, 5 female), all with approved CVs |
+| `seed-admin.ts` | Standalone admin seeder — tries Better Auth API `signUpEmail()` first, falls back to direct DB insert |
 | `schema/` | Database schema directory |
 | `schema/index.ts` | Re-exports all schema tables |
 | `schema/auth-schema.ts` | Better Auth tables: user, session, account, verification, rate_limit |
@@ -279,7 +280,7 @@ src/lib/
 | `auth-client.ts` | Client-side Better Auth client: exports useSession, signIn, signUp, signOut |
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
 | `get-server-session.ts` | Helper: `getServerSession()` — wraps `auth.api.getSession()` with headers |
-| `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner) |
+| `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner/admin) |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
 | `validations/profile.ts` | Zod schemas per step for CV Editor (step1Schema–step5Schema). step1Schema includes optional photoUrl, photoBlurredUrl, photoBlurred. |
