@@ -402,16 +402,8 @@ describe("Step 5 - Q&A Validation", () => {
 
 describe("Profile Server Action - Auth Guard", () => {
   test("getProfile should return error when no session", async () => {
-    mock.module("@/lib/auth", () => ({
-      auth: {
-        api: {
-          getSession: async () => null,
-        },
-      },
-    }));
-
-    mock.module("next/headers", () => ({
-      headers: async () => new Headers(),
+    mock.module("@/lib/get-server-session", () => ({
+      getServerSession: async () => null,
     }));
 
     const { getProfile } = await import("@/app/actions/profile");
@@ -421,16 +413,8 @@ describe("Profile Server Action - Auth Guard", () => {
   });
 
   test("saveProfile should return error when no session", async () => {
-    mock.module("@/lib/auth", () => ({
-      auth: {
-        api: {
-          getSession: async () => null,
-        },
-      },
-    }));
-
-    mock.module("next/headers", () => ({
-      headers: async () => new Headers(),
+    mock.module("@/lib/get-server-session", () => ({
+      getServerSession: async () => null,
     }));
 
     const { saveProfile } = await import("@/app/actions/profile");

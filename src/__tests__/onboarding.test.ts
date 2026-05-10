@@ -94,16 +94,8 @@ describe("Commitment Text Integrity", () => {
 
 describe("completeOnboarding - Auth Guard", () => {
   test("should return error when session is null", async () => {
-    mock.module("@/lib/auth", () => ({
-      auth: {
-        api: {
-          getSession: async () => null,
-        },
-      },
-    }));
-
-    mock.module("next/headers", () => ({
-      headers: async () => new Headers(),
+    mock.module("@/lib/get-server-session", () => ({
+      getServerSession: async () => null,
     }));
 
     const { completeOnboarding } = await import("@/app/actions/onboarding");
@@ -115,19 +107,8 @@ describe("completeOnboarding - Auth Guard", () => {
   });
 
   test("should return error when session user has no id", async () => {
-    mock.module("@/lib/auth", () => ({
-      auth: {
-        api: {
-          getSession: async () => ({
-            user: { id: null },
-            session: {},
-          }),
-        },
-      },
-    }));
-
-    mock.module("next/headers", () => ({
-      headers: async () => new Headers(),
+    mock.module("@/lib/get-server-session", () => ({
+      getServerSession: async () => ({ user: { id: null }, session: {} }),
     }));
 
     const { completeOnboarding } = await import("@/app/actions/onboarding");

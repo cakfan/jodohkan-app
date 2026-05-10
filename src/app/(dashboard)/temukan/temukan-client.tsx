@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { computeAge } from "@/lib/utils";
+import { getMaritalLabel } from "@/lib/constants/profile";
 import { Spinner } from "@/components/ui/spinner";
 
 interface Candidate {
@@ -45,17 +46,6 @@ function getDisplayName(name: string, username: string | null): string {
     .join("");
   return username ? `${initials} (${username})` : initials;
 }
-
-const maritalLabels: Record<string, string> = {
-  single: "Belum Menikah",
-  divorced: "Pernah Menikah",
-  widowed: "Cerai Meninggal",
-};
-
-const getMaritalLabel = (status: string | null | undefined): string => {
-  if (!status) return "-";
-  return maritalLabels[status] || status;
-};
 
 export function TemukanClient({
   initialCandidates,

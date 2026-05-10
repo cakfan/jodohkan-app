@@ -1,7 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { profile } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -15,14 +14,8 @@ import {
 import { blurImage } from "@/lib/image-blur";
 import { moderateImage } from "@/lib/image-moderation";
 import crypto from "crypto";
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-function extractStoragePath(url: string): string | null {
-  const match = url.match(/profile-photos\/(.+)/);
-  return match ? match[1] : null;
-}
+import { validateImageFile } from "@/lib/constants/upload";
+import { extractStoragePath } from "@/lib/supabase-admin";
 
 async function deletePhotoFromStorage(photoUrl: string | null) {
   if (!photoUrl) return;
@@ -31,20 +24,15 @@ async function deletePhotoFromStorage(photoUrl: string | null) {
 }
 
 export async function uploadPhoto(formData: FormData) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const userId = session.user.id;
   const file = formData.get("photo") as File | null;
   if (!file) return { error: "Tidak ada file yang dipilih." };
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return { error: "Format file tidak didukung. Gunakan JPEG, PNG, atau WebP." };
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return { error: "Ukuran file maksimal 2MB." };
-  }
+  const validationError = validateImageFile(file);
+  if (validationError) return { error: validationError };
 
   const bucketError = await ensureBucketExists();
   if (bucketError) return { error: bucketError };
@@ -128,7 +116,7 @@ export async function uploadPhoto(formData: FormData) {
 }
 
 export async function deletePhoto() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const userId = session.user.id;

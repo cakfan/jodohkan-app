@@ -33,8 +33,13 @@ export function getPublicUrl(filePath: string): string {
   return data.publicUrl;
 }
 
-export function buildFilePath(userId: string, fileName: string): string {
-  return `profiles/${userId}/${fileName}`;
+export function buildFilePath(userId: string, fileName: string, prefix = "profiles"): string {
+  return `${prefix}/${userId}/${fileName}`;
+}
+
+export function extractStoragePath(url: string): string | null {
+  const match = url.match(/profile-photos\/(.+)/);
+  return match ? match[1] : null;
 }
 
 export async function uploadToStorage(filePath: string, buffer: Buffer, contentType: string) {
@@ -50,9 +55,4 @@ export async function removeFromStorage(filePath: string) {
   return supabase.storage.from(BUCKET_NAME).remove([filePath]);
 }
 
-export async function listBuckets() {
-  const supabase = getAdminClient();
-  return supabase.storage.listBuckets();
-}
 
-export { BUCKET_NAME };

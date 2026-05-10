@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { reviewCv } from "@/app/actions/profile";
@@ -26,11 +27,7 @@ interface PendingProfile {
   email: string | null;
 }
 
-const statusConfig: Record<string, { label: string; class: string }> = {
-  draft: { label: "Draft", class: "text-muted-foreground" },
-  pending: { label: "Menunggu Review", class: "text-amber-600" },
-  rejected: { label: "Ditolak", class: "text-red-600" },
-};
+
 
 export function ReviewClient({ initialData }: { initialData: PendingProfile[] }) {
   const [profiles, setProfiles] = useState(initialData);
@@ -105,11 +102,11 @@ export function ReviewClient({ initialData }: { initialData: PendingProfile[] })
                     <Badge
                       variant="outline"
                       className={
-                        statusConfig[profile.cvStatus ?? ""]?.class ??
+                        CV_STATUS_LABELS[profile.cvStatus ?? ""]?.class ??
                         "text-muted-foreground"
                       }
                     >
-                      {statusConfig[profile.cvStatus ?? ""]?.label ??
+                      {CV_STATUS_LABELS[profile.cvStatus ?? ""]?.label ??
                         profile.cvStatus}
                     </Badge>
                   </div>

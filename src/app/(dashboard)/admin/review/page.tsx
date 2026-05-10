@@ -1,13 +1,10 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { getPendingReviews } from "@/app/actions/candidates";
 import { ReviewClient } from "./review-client";
 
 export default async function AdminReviewPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user?.id || session.user.role !== "admin") {
     redirect("/dashboard");

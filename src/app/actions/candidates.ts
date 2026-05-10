@@ -3,8 +3,8 @@
 import { db } from "@/db";
 import { profile, user } from "@/db/schema";
 import { eq, and, like, gte, lte, ne } from "drizzle-orm";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
+import { candidateFullSelect, candidateListSelect } from "@/db/selects";
 
 export interface CandidateFilters {
   city?: string;
@@ -20,7 +20,7 @@ import { ROLES } from "@/lib/constants/auth";
 import { computeAgeDateBoundary } from "@/lib/utils";
 
 export async function getPendingReviews() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id || session.user.role !== ROLES.ADMIN) {
     return { error: "Unauthorized." };
   }
@@ -45,7 +45,7 @@ export async function getPendingReviews() {
 }
 
 export async function getCandidates(filters: CandidateFilters = {}) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const myProfile = await db.query.profile.findFirst({
@@ -88,32 +88,7 @@ export async function getCandidates(filters: CandidateFilters = {}) {
   }
 
   const rows = await db
-    .select({
-      id: profile.id,
-      userId: profile.userId,
-      gender: profile.gender,
-      birthDate: profile.birthDate,
-      birthPlace: profile.birthPlace,
-      city: profile.city,
-      occupation: profile.occupation,
-      education: profile.education,
-      maritalStatus: profile.maritalStatus,
-      skinColor: profile.skinColor,
-      height: profile.height,
-      weight: profile.weight,
-      bio: profile.bio,
-      vision: profile.vision,
-      mission: profile.mission,
-      photoBlurredUrl: profile.photoBlurredUrl,
-      ethnicity: profile.ethnicity,
-      username: user.username,
-      religiousUnderstanding: profile.religiousUnderstanding,
-      manhaj: profile.manhaj,
-      memorization: profile.memorization,
-      dailyWorship: profile.dailyWorship,
-      createdAt: profile.createdAt,
-      name: user.name,
-    })
+    .select(candidateListSelect)
     .from(profile)
     .innerJoin(user, eq(profile.userId, user.id))
     .where(and(...conditions));
@@ -122,7 +97,7 @@ export async function getCandidates(filters: CandidateFilters = {}) {
 }
 
 export async function getCandidateById(id: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const myProfile = await db.query.profile.findFirst({
@@ -143,53 +118,7 @@ export async function getCandidateById(id: string) {
   }
 
   const row = await db
-    .select({
-      id: profile.id,
-      userId: profile.userId,
-      gender: profile.gender,
-      birthDate: profile.birthDate,
-      birthPlace: profile.birthPlace,
-      ethnicity: profile.ethnicity,
-      city: profile.city,
-      occupation: profile.occupation,
-      education: profile.education,
-      maritalStatus: profile.maritalStatus,
-      skinColor: profile.skinColor,
-      height: profile.height,
-      weight: profile.weight,
-      childCount: profile.childCount,
-      hairColor: profile.hairColor,
-      hairType: profile.hairType,
-      hijabStatus: profile.hijabStatus,
-      faceAppearance: profile.faceAppearance,
-      otherPhysicalTraits: profile.otherPhysicalTraits,
-      marriageTarget: profile.marriageTarget,
-      polygamyView: profile.polygamyView,
-      parentsInvolvement: profile.parentsInvolvement,
-      smokingStatus: profile.smokingStatus,
-      personalityTraits: profile.personalityTraits,
-      interests: profile.interests,
-      bio: profile.bio,
-      vision: profile.vision,
-      mission: profile.mission,
-      qa: profile.qa,
-      partnerCriteria: profile.partnerCriteria,
-      partnerCity: profile.partnerCity,
-      partnerOccupation: profile.partnerOccupation,
-      partnerAgeMin: profile.partnerAgeMin,
-      partnerAgeMax: profile.partnerAgeMax,
-      religiousUnderstanding: profile.religiousUnderstanding,
-      manhaj: profile.manhaj,
-      memorization: profile.memorization,
-      dailyWorship: profile.dailyWorship,
-      photoUrl: profile.photoUrl,
-      photoBlurredUrl: profile.photoBlurredUrl,
-      photoBlurred: profile.photoBlurred,
-      ktpUrl: profile.ktpUrl,
-      username: user.username,
-      name: user.name,
-      createdAt: profile.createdAt,
-    })
+    .select(candidateFullSelect)
     .from(profile)
     .innerJoin(user, eq(profile.userId, user.id))
     .where(and(...conditions))
@@ -202,7 +131,7 @@ export async function getCandidateById(id: string) {
 }
 
 export async function getCandidateByUsername(username: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
 
   const targetUser = await db.query.user.findFirst({
     where: eq(user.username, username),
@@ -235,53 +164,7 @@ export async function getCandidateByUsername(username: string) {
   }
 
   const row = await db
-    .select({
-      id: profile.id,
-      userId: profile.userId,
-      gender: profile.gender,
-      birthDate: profile.birthDate,
-      birthPlace: profile.birthPlace,
-      ethnicity: profile.ethnicity,
-      city: profile.city,
-      occupation: profile.occupation,
-      education: profile.education,
-      maritalStatus: profile.maritalStatus,
-      skinColor: profile.skinColor,
-      height: profile.height,
-      weight: profile.weight,
-      childCount: profile.childCount,
-      hairColor: profile.hairColor,
-      hairType: profile.hairType,
-      hijabStatus: profile.hijabStatus,
-      faceAppearance: profile.faceAppearance,
-      otherPhysicalTraits: profile.otherPhysicalTraits,
-      marriageTarget: profile.marriageTarget,
-      polygamyView: profile.polygamyView,
-      parentsInvolvement: profile.parentsInvolvement,
-      smokingStatus: profile.smokingStatus,
-      personalityTraits: profile.personalityTraits,
-      interests: profile.interests,
-      bio: profile.bio,
-      vision: profile.vision,
-      mission: profile.mission,
-      qa: profile.qa,
-      partnerCriteria: profile.partnerCriteria,
-      partnerCity: profile.partnerCity,
-      partnerOccupation: profile.partnerOccupation,
-      partnerAgeMin: profile.partnerAgeMin,
-      partnerAgeMax: profile.partnerAgeMax,
-      religiousUnderstanding: profile.religiousUnderstanding,
-      manhaj: profile.manhaj,
-      memorization: profile.memorization,
-      dailyWorship: profile.dailyWorship,
-      photoUrl: profile.photoUrl,
-      photoBlurredUrl: profile.photoBlurredUrl,
-      photoBlurred: profile.photoBlurred,
-      ktpUrl: profile.ktpUrl,
-      username: user.username,
-      name: user.name,
-      createdAt: profile.createdAt,
-    })
+    .select(candidateFullSelect)
     .from(profile)
     .innerJoin(user, eq(profile.userId, user.id))
     .where(and(...conditions))

@@ -1,7 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { profile } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -11,38 +10,23 @@ import {
   removeFromStorage,
 } from "@/lib/supabase-admin";
 import crypto from "crypto";
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-function extractStoragePath(url: string): string | null {
-  const match = url.match(/profile-photos\/(.+)/);
-  return match ? match[1] : null;
-}
-
-function buildKtpPath(userId: string, fileName: string): string {
-  return `ktp/${userId}/${fileName}`;
-}
+import { validateImageFile } from "@/lib/constants/upload";
+import { extractStoragePath, buildFilePath } from "@/lib/supabase-admin";
 
 export async function uploadKtp(formData: FormData) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const userId = session.user.id;
   const file = formData.get("ktp") as File | null;
   if (!file) return { error: "Tidak ada file yang dipilih." };
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return { error: "Format file tidak didukung. Gunakan JPEG, PNG, atau WebP." };
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return { error: "Ukuran file maksimal 2MB." };
-  }
+  const validationError = validateImageFile(file);
+  if (validationError) return { error: validationError };
 
   const ext = "jpg";
   const fileName = `${crypto.randomUUID()}.${ext}`;
-  const storagePath = buildKtpPath(userId, fileName);
+  const storagePath = buildFilePath(userId, fileName, "ktp");
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -91,7 +75,7 @@ export async function uploadKtp(formData: FormData) {
 }
 
 export async function deleteKtp() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
   const userId = session.user.id;

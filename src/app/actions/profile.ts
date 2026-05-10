@@ -1,65 +1,17 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { profile, user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { step1Schema, step2Schema, step3Schema, step4Schema, step5Schema } from "@/lib/validations/profile";
 import { revalidatePath } from "next/cache";
+import type { InferProfileData } from "@/lib/types";
 
-export interface ProfileData {
-  name?: string | null;
-  gender?: string | null;
-  birthDate?: string | null;
-  birthPlace?: string | null;
-  ethnicity?: string | null;
-  height?: number | null;
-  weight?: number | null;
-  skinColor?: string | null;
-  maritalStatus?: string | null;
-  childCount?: number | null;
-  hairColor?: string | null;
-  hairType?: string | null;
-  hijabStatus?: string | null;
-  faceAppearance?: string | null;
-  otherPhysicalTraits?: string | null;
-  marriageTarget?: string | null;
-  polygamyView?: string | null;
-  parentsInvolvement?: string | null;
-  smokingStatus?: string | null;
-  personalityTraits?: string | null;
-  interests?: string | null;
-  country?: string | null;
-  city?: string | null;
-  occupation?: string | null;
-  education?: string | null;
-  bio?: string | null;
-  vision?: string | null;
-  mission?: string | null;
-  partnerCriteria?: string | null;
-  partnerCity?: string | null;
-  partnerOccupation?: string | null;
-  partnerAgeMin?: number | null;
-  partnerAgeMax?: number | null;
-  religiousUnderstanding?: string | null;
-  manhaj?: string | null;
-  memorization?: string | null;
-  dailyWorship?: string | null;
-  qa?: { question: string; answer: string }[] | null;
-  photoUrl?: string | null;
-  photoBlurredUrl?: string | null;
-  photoBlurred?: boolean | null;
-  ktpUrl?: string | null;
-  cvStatus?: string | null;
-  published?: boolean | null;
-}
+export type ProfileData = InferProfileData;
 
 export async function getProfile() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getServerSession();
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan." };
   }
@@ -74,10 +26,7 @@ export async function getProfile() {
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema, step5Schema];
 
 export async function saveProfile(formData: ProfileData, step?: number) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getServerSession();
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan." };
   }
@@ -162,10 +111,7 @@ export async function reviewCv(
   action: "approve" | "reject",
   rejectionReason?: string
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getServerSession();
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan." };
   }
@@ -200,10 +146,7 @@ export async function reviewCv(
 }
 
 export async function togglePublished() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getServerSession();
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan." };
   }

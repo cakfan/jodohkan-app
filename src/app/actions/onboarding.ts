@@ -1,15 +1,12 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { profile, wallet } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function completeOnboarding() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan. Silakan masuk kembali." };

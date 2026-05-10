@@ -1,20 +1,11 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { profile } from "@/db/schema";
-
-const statusLabels: Record<string, { label: string; class: string }> = {
-  draft: { label: "Draft", class: "text-muted-foreground" },
-  pending: { label: "Menunggu Review", class: "text-amber-600" },
-  approved: { label: "Disetujui", class: "text-emerald-600" },
-  rejected: { label: "Ditolak", class: "text-red-600" },
-};
+import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
   const userId = session?.user?.id;
 
   let cvStatus = "draft";
@@ -26,7 +17,7 @@ export default async function DashboardPage() {
     cvStatus = existing?.cvStatus ?? "draft";
   }
 
-  const status = statusLabels[cvStatus] ?? statusLabels.draft;
+  const status = CV_STATUS_LABELS[cvStatus] ?? CV_STATUS_LABELS.draft;
 
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">

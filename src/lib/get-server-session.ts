@@ -6,3 +6,9 @@ export async function getServerSession() {
     headers: await headers(),
   });
 }
+
+export async function requireAuth() {
+  const session = await getServerSession();
+  if (!session?.user?.id) return null;
+  return session as NonNullable<typeof session>;
+}
