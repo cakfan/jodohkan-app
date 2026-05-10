@@ -2,9 +2,10 @@
 
 import { db } from "@/db";
 import { profile, user } from "@/db/schema";
-import { eq, and, like, gte, lte, ne } from "drizzle-orm";
+import { eq, and, like, gte, lte, ne, notInArray } from "drizzle-orm";
 import { getServerSession } from "@/lib/get-server-session";
 import { candidateFullSelect, candidateListSelect } from "@/db/selects";
+import { getActiveTaarufUserIds, isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
 export interface CandidateFilters {
   city?: string;
@@ -48,6 +49,10 @@ export async function getCandidates(filters: CandidateFilters = {}) {
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
+  if (await isUserInActiveTaaruf(session.user.id)) {
+    return { data: [] };
+  }
+
   const myProfile = await db.query.profile.findFirst({
     where: eq(profile.userId, session.user.id),
     columns: { gender: true },
@@ -85,6 +90,11 @@ export async function getCandidates(filters: CandidateFilters = {}) {
   }
   if (filters.occupation) {
     conditions.push(like(profile.occupation, `%${filters.occupation}%`));
+  }
+
+  const activeUserIds = await getActiveTaarufUserIds();
+  if (activeUserIds.length > 0) {
+    conditions.push(notInArray(profile.userId, activeUserIds));
   }
 
   const rows = await db

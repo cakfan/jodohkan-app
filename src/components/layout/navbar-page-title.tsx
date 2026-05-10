@@ -6,6 +6,7 @@ const pageInfo: Record<string, { title: string; description: string }> = {
   "/dashboard": { title: "Dashboard", description: "Overview aktivitas ta'aruf Anda" },
   "/cv/edit": { title: "CV Ta'aruf", description: "Lengkapi profil ta'aruf Anda" },
   "/temukan": { title: "Temukan Pasangan", description: "Cari calon pasangan sesuai kriteria Anda" },
+  "/taaruf": { title: "Ta'aruf", description: "Kelola permintaan ta'aruf masuk dan keluar" },
 };
 
 export function NavbarPageTitle() {

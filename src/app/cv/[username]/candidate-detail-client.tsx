@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { BlurredPhoto } from "@/components/blurred-photo";
 import { computeAge } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { sendTaarufRequest, hasSentTaarufRequest, getPendingTaarufRequestFromSource, respondToTaarufRequest, isInActiveTaarufWith } from "@/app/actions/taaruf";
 import {
   ArrowLeft,
   MapPin,
@@ -29,6 +32,9 @@ import {
   Check,
   HeartHandshake,
   Puzzle,
+  Send,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 export interface CandidateDetail {
@@ -104,6 +110,29 @@ function getDisplayName(name: string, username: string | null, showFull: boolean
 
 const isFallback = (v: string) => v === "-" || v.startsWith("Belum") || v === "Tidak mempersyaratkan";
 
+function ExpiryCountdown({ expiresAt }: { expiresAt: Date | null }) {
+  const [remaining, setRemaining] = useState("");
+  useEffect(() => {
+    if (!expiresAt) return;
+    const update = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) return setRemaining("Kadaluwarsa");
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setRemaining(`${h}j ${m}m`);
+    };
+    update();
+    const id = setInterval(update, 60000);
+    return () => clearInterval(id);
+  }, [expiresAt]);
+  if (!remaining) return null;
+  return (
+    <p className="text-muted-foreground text-xs">
+      {remaining === "Kadaluwarsa" ? "Permintaan telah kadaluwarsa" : `Batas respons: ${remaining}`}
+    </p>
+  );
+}
+
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1.5">
@@ -125,6 +154,38 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
   const canRequestTaaruf = !isOwnProfile;
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [taarufOpen, setTaarufOpen] = useState(false);
+  const [taarufMessage, setTaarufMessage] = useState("");
+  const [sendingTaaruf, setSendingTaaruf] = useState(false);
+  const [taarufSent, setTaarufSent] = useState(false);
+  const [incomingRequestId, setIncomingRequestId] = useState<string | null>(null);
+  const [incomingExpiresAt, setIncomingExpiresAt] = useState<Date | null>(null);
+  const [activeTaaruf, setActiveTaaruf] = useState(false);
+  const [responding, setResponding] = useState(false);
+
+  useEffect(() => {
+    if (canRequestTaaruf) {
+      hasSentTaarufRequest(candidate.userId).then(setTaarufSent);
+      getPendingTaarufRequestFromSource(candidate.userId).then((r) => {
+        setIncomingRequestId(r?.id ?? null);
+        setIncomingExpiresAt(r?.expiresAt ?? null);
+      });
+      isInActiveTaarufWith(candidate.userId).then(setActiveTaaruf);
+    }
+  }, [canRequestTaaruf, candidate.userId]);
+
+  const handleTaarufResponse = async (action: "accept" | "decline") => {
+    if (!incomingRequestId) return;
+    setResponding(true);
+    const result = await respondToTaarufRequest(incomingRequestId, action);
+    setResponding(false);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(action === "accept" ? "Ta'aruf diterima!" : "Ta'aruf ditolak.");
+      setIncomingRequestId(null);
+    }
+  };
 
   const profileUrl = typeof window !== "undefined" ? `${window.location.origin}/cv/${candidate.username}` : "";
 
@@ -196,10 +257,42 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
             )}
           </div>
         </div>
-        {canRequestTaaruf && (
-          <Button className="shrink-0 gap-2 rounded-xl px-5">
-            <Heart className="h-4 w-4" />
-            Ajak Ta&apos;aruf
+        {canRequestTaaruf && activeTaaruf && (
+          <Button className="shrink-0 gap-2 rounded-xl px-5" disabled>
+            <HeartHandshake className="h-4 w-4" /> Ta&apos;aruf sedang berjalan
+          </Button>
+        )}
+        {canRequestTaaruf && !activeTaaruf && incomingRequestId && (
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="gap-2 rounded-xl"
+                onClick={() => handleTaarufResponse("decline")}
+                disabled={responding}
+              >
+                <XCircle className="h-4 w-4" />
+                Tolak
+              </Button>
+              <Button
+                className="gap-2 rounded-xl"
+                onClick={() => handleTaarufResponse("accept")}
+                disabled={responding}
+              >
+                {responding ? <Spinner className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                Terima
+              </Button>
+            </div>
+            <ExpiryCountdown expiresAt={incomingExpiresAt} />
+          </div>
+        )}
+        {canRequestTaaruf && !activeTaaruf && !incomingRequestId && (
+          <Button className="shrink-0 gap-2 rounded-xl px-5" onClick={() => setTaarufOpen(true)} disabled={taarufSent}>
+            {taarufSent ? (
+              <><Send className="h-4 w-4" /> Ta&apos;aruf Terkirim</>
+            ) : (
+              <><Heart className="h-4 w-4" /> Ajak Ta&apos;aruf</>
+            )}
           </Button>
         )}
       </section>
@@ -535,6 +628,63 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
               {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               {copied ? "Tersalin" : "Salin tautan"}
             </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Ta'aruf Request Sheet */}
+      <Sheet open={taarufOpen} onOpenChange={setTaarufOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="items-center pb-2">
+            <SheetTitle>Ajukan Ta&apos;aruf</SheetTitle>
+            <SheetDescription>
+              Kirim permintaan ta&apos;aruf ke {getDisplayName(candidate.name, candidate.username, showFullProfile)}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-5 py-6">
+            <textarea
+              placeholder="Tulis pesan singkat (opsional)..."
+              className="border-border/50 bg-background min-h-[120px] w-full resize-none rounded-xl border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              value={taarufMessage}
+              onChange={(e) => setTaarufMessage(e.target.value)}
+              disabled={sendingTaaruf}
+            />
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl"
+                onClick={() => {
+                  setTaarufOpen(false);
+                  setTaarufMessage("");
+                }}
+                disabled={sendingTaaruf}
+              >
+                Batal
+              </Button>
+              <Button
+                className="flex-1 gap-2 rounded-xl"
+                onClick={async () => {
+                  setSendingTaaruf(true);
+                  const result = await sendTaarufRequest(candidate.userId, taarufMessage || undefined);
+                  setSendingTaaruf(false);
+                  if (result.error) {
+                    toast.error(result.error);
+                  } else {
+                    toast.success("Permintaan ta'aruf berhasil dikirim!");
+                    setTaarufOpen(false);
+                    setTaarufMessage("");
+                  }
+                }}
+                disabled={sendingTaaruf}
+              >
+                {sendingTaaruf ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                Kirim
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>

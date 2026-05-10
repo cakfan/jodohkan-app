@@ -101,6 +101,7 @@ src/app/
     dashboard/page.tsx          (/dashboard)
     cv/edit/                    (/cv/edit)
     temukan/                    (/temukan)
+    taaruf/                     (/taaruf)
     admin/review/               (/admin/review — admin only)
   cv/
     [username]/                 (/cv/[username] — public)
@@ -131,16 +132,19 @@ src/app/
 | `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider, locked card when published, strips cvStatus from form data) |
 | `(dashboard)/temukan/page.tsx` | Temukan Kandidat server component → `/temukan` |
 | `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
+| `(dashboard)/taaruf/page.tsx` | Ta'aruf request page → `/taaruf` |
+| `(dashboard)/taaruf/taaruf-client.tsx` | Ta'aruf client: tabs (Diterima/Dikirim), accept/decline actions, expiry countdown |
 | `(dashboard)/admin/review/page.tsx` | Admin review panel → `/admin/review` |
 | `(dashboard)/admin/review/review-client.tsx` | Admin review client (approve/reject actions) |
 | `cv/[username]/page.tsx` | Public CV detail → `/cv/[username]` |
-| `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic via `showFullProfile` — owner/admin lihat info lengkap) |
+| `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic via `showFullProfile` — owner/admin lihat info lengkap; tombol "Ajak Ta'aruf" dengan sheet untuk mengirim permintaan) |
 | `actions/` | Server actions |
 | `actions/profile.ts` | Profile CRUD: `saveProfile()` (guard: block self-approval, reset to pending on edit), `getProfile()`, `reviewCv()`, `togglePublished()` (reset cvStatus to pending on unpublish) |
 | `actions/photo.ts` | Photo upload/delete (Supabase Storage + sharp blur) |
 | `actions/ktp.ts` | KTP upload/delete |
 | `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` (admin bypasses status/gender filter; strips photoUrl/ktpUrl for public) |
 | `actions/onboarding.ts` | Onboarding: `completeOnboarding()` — creates wallet with initial balance |
+| `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()` (validates published CV, 24h expiry), `respondToTaarufRequest()` (accept/decline), `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()` |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 
 ---
@@ -149,7 +153,6 @@ src/app/
 
 ```
 src/components/
-  app-sidebar.tsx
   brand-logo.tsx
   theme-provider.tsx
   navbar.tsx
@@ -162,7 +165,6 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | **DEPRECATED** — moved to `layout/app-sidebar.tsx` |
 | `brand-logo.tsx` | Brand logo component |
 | `theme-provider.tsx` | Theme provider wrapper (next-themes: system default, class-based) |
 | `navbar.tsx` | Top navigation bar component |
@@ -187,7 +189,7 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Pesan, Pengaturan) |
+| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/taaruf`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Pesan, Pengaturan) |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
 | `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge with colored dot |
@@ -233,6 +235,7 @@ src/components/
 | File | Description |
 | :--- | :--- |
 | `index.ts` | Drizzle client setup: PostgreSQL connection via postgres.js, exports `db` and `client` |
+| `selects.ts` | Shared select objects: `candidateFullSelect` (46 cols), `candidateListSelect` (25 cols) — eliminates duplicate .select() blocks |
 | `seed.ts` | Seed script: 10 dummy users (5 male, 5 female), all with approved CVs |
 | `seed-admin.ts` | Standalone admin seeder — tries Better Auth API `signUpEmail()` first, falls back to direct DB insert |
 | `schema/` | Database schema directory |
@@ -241,6 +244,7 @@ src/components/
 | `schema/profiles-schema.ts` | Profile table: gender, birthDate, height, weight, skinColor, maritalStatus, photoUrl, photoBlurredUrl, photoBlurred, etc. (RLS enabled) |
 | `schema/mediators-schema.ts` | Mediator table |
 | `schema/wallets-schema.ts` | Wallet & token_transaction tables |
+| `schema/taaruf-schema.ts` | Ta'aruf requests table: sender, recipient, status, message, 24h expiry |
 
 ---
 
@@ -263,8 +267,11 @@ src/lib/
   auth-client.ts
   email-templates.ts
   get-server-session.ts
+  types.ts
   constants/
     auth.ts
+    profile.ts
+    upload.ts
   validations/
     auth.ts
     profile.ts
@@ -274,14 +281,17 @@ src/lib/
 | :--- | :--- |
 | `utils.ts` | `cn()`, `computeAge(birthDate)`, `computeAgeDateBoundary(age, type)` — age boundary date computation for candidate filters |
 | `ktp-ocr.ts` | KTP OCR pipeline: tesseract.js text extraction, `parseKtpText()`, `healNik()`, `nikDateMatches()`, `normalizeNik()`, `mapStartsWith()`, `validateKtpImage()` |
-| `supabase-admin.ts` | Supabase admin client (lazy init) for Storage operations: bucket mgmt, upload, delete, public URL |
+| `supabase-admin.ts` | Supabase admin client (lazy init) for Storage operations: bucket mgmt, upload, delete, public URL. Also exports `extractStoragePath()`, `buildFilePath()` |
 | `image-blur.ts` | Server-side image blur utility using sharp (resize 200×200 + blur 50 + JPEG quality 60) |
 | `auth.ts` | Server-side Better Auth configuration (Drizzle adapter, email/password, Google OAuth, username & admin plugins, password reset, rate limiting) |
 | `auth-client.ts` | Client-side Better Auth client: exports useSession, signIn, signUp, signOut |
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
-| `get-server-session.ts` | Helper: `getServerSession()` — wraps `auth.api.getSession()` with headers |
+| `get-server-session.ts` | Helpers: `getServerSession()` — wraps `auth.api.getSession()` with headers; `requireAuth()` — returns session or null |
 | `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner/admin) |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
+| `constants/profile.ts` | Shared labels: `CV_STATUS_LABELS`, `MARITAL_LABELS`, `getMaritalLabel()` |
+| `constants/upload.ts` | Shared file validation: `validateImageFile()`, `ALLOWED_IMAGE_TYPES`, `MAX_FILE_SIZE` |
+| `types.ts` | Shared types: `InferProfileData` — derived from Drizzle schema (`typeof profile.$inferSelect`), re-exported as `ProfileData` in profile.ts |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
 | `validations/profile.ts` | Zod schemas per step for CV Editor (step1Schema–step5Schema). step1Schema includes optional photoUrl, photoBlurredUrl, photoBlurred. |
 
@@ -330,8 +340,9 @@ src/lib/
 | `0000_secret_felicia_hardy.sql` | Migration 0000: initial auth + profile schema (+ gender) |
 | `0001_confused_iron_lad.sql` | Migration 0001: add `smoking_status` to profile |
 | `0002_add_rejection_reason.sql` | Migration 0002: add `rejection_reason` to profile |
+| `0003_wealthy_living_tribunal.sql` | Migration 0003: create `taaruf_request` table (sender, recipient, status, message, 24h expiry) |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
-| `meta/0000_snapshot.json` — `meta/0002_snapshot.json` | Schema snapshots for each migration |
+| `meta/0000_snapshot.json` — `meta/0003_snapshot.json` | Schema snapshots for each migration |
 
 ---
 

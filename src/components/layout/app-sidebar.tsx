@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users } from "lucide-react";
+import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users, HeartHandshake } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { NavUser } from "./nav-user";
@@ -13,17 +13,20 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
+import { getTaarufRequestCounts } from "@/app/actions/taaruf";
 
 const candidateNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "CV Ta'aruf", url: "/cv/edit", icon: BookOpen },
   { title: "Temukan", url: "/temukan", icon: Users },
+  { title: "Ta'aruf", url: "/taaruf", icon: HeartHandshake },
   { title: "Pesan", url: "/messages", icon: MessageSquare },
   { title: "Notifikasi", url: "/notifications", icon: Bell },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
@@ -41,6 +44,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "admin";
   const navItems = isAdmin ? adminNavItems : candidateNavItems;
+  const [pendingTaaruf, setPendingTaaruf] = React.useState(0);
+
+  React.useEffect(() => {
+    getTaarufRequestCounts().then((counts) => {
+      if (counts) setPendingTaaruf(counts.pendingIncoming);
+    });
+  }, []);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -62,6 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             const isActive =
               pathname === item.url ||
               (pathname.startsWith(item.url + "/") && item.url !== "/dashboard");
+            const showBadge = item.url === "/taaruf" && pendingTaaruf > 0;
 
             return (
               <SidebarMenuItem
@@ -90,6 +101,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                   )}
                 />
+                {showBadge && (
+                  <SidebarMenuBadge
+                    className={cn(
+                      "right-1.5 top-1/2! -translate-y-1/2!",
+                      "group-data-[collapsible=icon]:flex!",
+                      "group-data-[collapsible=icon]:right-0!",
+                      "group-data-[collapsible=icon]:top-1!",
+                      "group-data-[collapsible=icon]:size-2.5",
+                      "group-data-[collapsible=icon]:min-w-2.5",
+                      "group-data-[collapsible=icon]:rounded-full!",
+                      "group-data-[collapsible=icon]:p-0",
+                      "group-data-[collapsible=icon]:border-2",
+                      "group-data-[collapsible=icon]:border-background",
+                      "group-data-[collapsible=icon]:bg-destructive",
+                      "group-data-[collapsible=icon]:overflow-hidden",
+                      "group-data-[collapsible=icon]:translate-y-0",
+                    )}
+                  >
+                    <span className="group-data-[collapsible=icon]:sr-only">
+                      {pendingTaaruf}
+                    </span>
+                  </SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             );
           })}
