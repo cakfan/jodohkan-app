@@ -102,6 +102,9 @@ src/app/
     cv/edit/                    (/cv/edit)
     temukan/                    (/temukan)
     taaruf/                     (/taaruf)
+    topup/                      (/topup — token top-up with Xendit)
+    topup/success/              (/topup/success)
+    topup/failed/              (/topup/failed)
     admin/review/               (/admin/review — admin only)
   cv/
     [username]/                 (/cv/[username] — public)
@@ -109,6 +112,7 @@ src/app/
   actions/
   api/
     auth/[...all]/route.ts
+    webhooks/xendit/route.ts
 ```
 
 | File/Directory | Description |
@@ -129,7 +133,7 @@ src/app/
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar; admin skips onboarding check |
 | `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview → `/dashboard` |
 | `(dashboard)/cv/edit/page.tsx` | CV Editor server component → `/cv/edit` |
-| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider, locked card when published, strips cvStatus from form data) |
+| `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider, locked card when published, locked when in active ta'aruf, strips cvStatus from form data) |
 | `(dashboard)/temukan/page.tsx` | Temukan Kandidat server component → `/temukan` |
 | `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
 | `(dashboard)/taaruf/page.tsx` | Ta'aruf request page → `/taaruf` |
@@ -144,8 +148,10 @@ src/app/
 | `actions/ktp.ts` | KTP upload/delete |
 | `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` (admin bypasses status/gender filter; strips photoUrl/ktpUrl for public) |
 | `actions/onboarding.ts` | Onboarding: `completeOnboarding()` — creates wallet with initial balance |
-| `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()` (validates published CV, 24h expiry), `respondToTaarufRequest()` (accept/decline), `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()` |
+| `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()` (validates published CV, 24h expiry), `respondToTaarufRequest()` (accept/decline), `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()`, `isUserInActiveTaaruf()`, `getActiveTaarufUserIds()` |
+| `actions/topup.ts` | Token top-up: `getWalletBalance()`, `createTopUpSession()`, `getPaymentStatus()` |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
+| `api/webhooks/xendit/route.ts` | Xendit webhook POST handler: verify `x-callback-token`, update payment to paid, credit wallet, write `token_transaction` |
 
 ---
 
@@ -189,10 +195,10 @@ src/components/
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/taaruf`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Pesan, Pengaturan) |
+| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/taaruf`, `/topup`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Wallet `/topup`, Pesan, Pengaturan) |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
-| `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge with colored dot |
+| `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge (or "Ta'aruf Aktif" badge when in active ta'aruf), token balance with coin icon |
 | `navbar-page-title.tsx` | Client — `usePathname()` maps path to title+description in navbar |
 | `sidebar-header.tsx` | Sidebar logo/brand header with Pethuk Jodoh branding |
 | `theme-toggle.tsx` | Dark/light theme toggle button |
@@ -243,7 +249,7 @@ src/components/
 | `schema/auth-schema.ts` | Better Auth tables: user, session, account, verification, rate_limit |
 | `schema/profiles-schema.ts` | Profile table: gender, birthDate, height, weight, skinColor, maritalStatus, photoUrl, photoBlurredUrl, photoBlurred, etc. (RLS enabled) |
 | `schema/mediators-schema.ts` | Mediator table |
-| `schema/wallets-schema.ts` | Wallet & token_transaction tables |
+| `schema/wallets-schema.ts` | Wallet & token_transaction & payment tables (Xendit invoice tracking) |
 | `schema/taaruf-schema.ts` | Ta'aruf requests table: sender, recipient, status, message, 24h expiry |
 
 ---
@@ -288,8 +294,10 @@ src/lib/
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
 | `get-server-session.ts` | Helpers: `getServerSession()` — wraps `auth.api.getSession()` with headers; `requireAuth()` — returns session or null |
 | `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner/admin) |
+| `xendit.ts` | Xendit client singleton (`Invoice`), `createTopUpInvoice()`, `verifyWebhookToken()` |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `constants/profile.ts` | Shared labels: `CV_STATUS_LABELS`, `MARITAL_LABELS`, `getMaritalLabel()` |
+| `constants/topup.ts` | Top-up pricing tiers (4 options), `INVOICE_DURATION_SECONDS` |
 | `constants/upload.ts` | Shared file validation: `validateImageFile()`, `ALLOWED_IMAGE_TYPES`, `MAX_FILE_SIZE` |
 | `types.ts` | Shared types: `InferProfileData` — derived from Drizzle schema (`typeof profile.$inferSelect`), re-exported as `ProfileData` in profile.ts |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
@@ -311,6 +319,7 @@ src/lib/
 | `photo.test.ts` | Photo server action tests (file validation, auth guard) |
 | `blurred-photo.test.tsx` | BlurredPhoto component tests (blurredSrc/originalSrc switching, size variants, file type validation) |
 | `taaruf.test.ts` | Ta'aruf request server action tests (auth guard, boolean guard, self-send guard, exports) |
+| `topup.test.ts` | Top-up tests: pricing constants, auth guard (3 actions), exports, `verifyWebhookToken` |
 
 ---
 
@@ -342,8 +351,9 @@ src/lib/
 | `0001_confused_iron_lad.sql` | Migration 0001: add `smoking_status` to profile |
 | `0002_add_rejection_reason.sql` | Migration 0002: add `rejection_reason` to profile |
 | `0003_wealthy_living_tribunal.sql` | Migration 0003: create `taaruf_request` table (sender, recipient, status, message, 24h expiry) |
+| `0004_redundant_rafael_vega.sql` | Migration 0004: create `payment` table (amount, tokens, status, externalId, Xendit invoice tracking) |
 | `meta/_journal.json` | Drizzle migration journal (tracks applied migrations) |
-| `meta/0000_snapshot.json` — `meta/0003_snapshot.json` | Schema snapshots for each migration |
+| `meta/0000_snapshot.json` — `meta/0004_snapshot.json` | Schema snapshots for each migration |
 
 ---
 

@@ -29,6 +29,13 @@
       "when": 1778402166299,
       "tag": "0003_wealthy_living_tribunal",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778454784557,
+      "tag": "0004_redundant_rafael_vega",
+      "breakpoints": true
     }
   ]
 }

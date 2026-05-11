@@ -1,11 +1,13 @@
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { profile } from "@/db/schema";
+import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { NavbarPageTitle } from "./navbar-page-title";
+import { Coins, HeartHandshake } from "lucide-react";
+import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
 export async function Navbar() {
   const session = await getServerSession();
@@ -13,13 +15,24 @@ export async function Navbar() {
 
   let cvStatus = "draft";
   let published = false;
+  let walletBalance = 0;
+  let inActiveTaaruf = false;
   if (userId) {
-    const existing = await db.query.profile.findFirst({
-      where: eq(profile.userId, userId),
-      columns: { cvStatus: true, published: true },
-    });
+    const [existing, existingWallet, taarufStatus] = await Promise.all([
+      db.query.profile.findFirst({
+        where: eq(profile.userId, userId),
+        columns: { cvStatus: true, published: true },
+      }),
+      db.query.wallet.findFirst({
+        where: eq(wallet.userId, userId),
+        columns: { balance: true },
+      }),
+      isUserInActiveTaaruf(userId),
+    ]);
     cvStatus = existing?.cvStatus ?? "draft";
     published = existing?.published ?? false;
+    walletBalance = existingWallet?.balance ?? 0;
+    inActiveTaaruf = taarufStatus;
   }
 
   const badgeKey = cvStatus === "approved" && published ? "published" : cvStatus;
@@ -31,10 +44,21 @@ export async function Navbar() {
       <Separator orientation="vertical" className="mr-2 h-4" />
       <NavbarPageTitle />
       <div className="flex flex-1 items-center justify-end gap-3">
-        <div className="flex items-center gap-1.5 rounded-full border px-3 py-1">
-          <span className={`size-1.5 rounded-full ${status.dot}`} />
-          <span className={`text-xs font-medium ${status.class}`}>{status.label}</span>
+        <div className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
+          <Coins className="size-3.5 text-amber-500" />
+          {walletBalance}
         </div>
+        {inActiveTaaruf ? (
+          <div className="flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
+            <HeartHandshake className="size-3.5" />
+            Ta&apos;aruf Aktif
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 rounded-full border px-3 py-1">
+            <span className={`size-1.5 rounded-full ${status.dot}`} />
+            <span className={`text-xs font-medium ${status.class}`}>{status.label}</span>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { getCandidateByUsername } from "@/app/actions/candidates";
 import { CandidateDetailClient, type CandidateDetail } from "./candidate-detail-client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { ArrowLeft, UserX } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -50,24 +51,22 @@ export default async function CandidateDetailPage({ params }: PageProps) {
     <div className="p-4 md:p-6">
       <Suspense fallback={<DetailSkeleton />}>
         {result.error ? (
-          <div className="flex min-h-[60vh] items-center justify-center">
-            <Card className="mx-auto max-w-md border-border/50 shadow-sm">
-              <CardContent className="flex flex-col items-center gap-4 pt-8 pb-8 text-center">
-                <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-2xl">
-                  <ArrowLeft className="text-muted-foreground h-6 w-6" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold">Profil Tidak Ditemukan</h2>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{result.error}</p>
-                </div>
-                <Button variant="outline" className="mt-2 rounded-xl">
-                  <Link href="/temukan" className="inline-flex items-center gap-1.5">
-                    <ArrowLeft className="h-4 w-4" />
-                    Kembali ke daftar kandidat
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="flex min-h-[60vh] items-center justify-center p-4">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <UserX />
+                </EmptyMedia>
+                <EmptyTitle>Profil Tidak Ditemukan</EmptyTitle>
+                <EmptyDescription>{result.error}</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Link href="/temukan" className={cn(buttonVariants({ variant: "outline" }), "inline-flex items-center gap-1.5")}>
+                  <ArrowLeft className="h-4 w-4" />
+                  Kembali ke daftar kandidat
+                </Link>
+              </EmptyContent>
+            </Empty>
           </div>
         ) : (
           <CandidateDetailClient candidate={{ ...result.data!, qa: result.data!.qa as CandidateDetail["qa"] }} />

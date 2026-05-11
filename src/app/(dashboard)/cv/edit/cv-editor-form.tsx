@@ -335,9 +335,10 @@ function TextareaField({
 
 interface CVEditorFormProps {
   initialData: ProfileData | null;
+  isInActiveTaaruf?: boolean;
 }
 
-export function CVEditorForm({ initialData }: CVEditorFormProps) {
+export function CVEditorForm({ initialData, isInActiveTaaruf }: CVEditorFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -504,6 +505,34 @@ export function CVEditorForm({ initialData }: CVEditorFormProps) {
     const items = [...(form.qa || [])];
     items.splice(index, 1);
     updateField("qa", items);
+  }
+
+  if (isInActiveTaaruf) {
+    return (
+      <div className="mx-auto max-w-lg pt-16">
+        <Card className="border-border/60 text-center shadow-sm">
+          <CardContent className="flex flex-col items-center gap-4 py-16">
+            <div className="bg-destructive/10 text-destructive flex size-16 items-center justify-center rounded-full">
+              <HeartHandshake className="size-8" />
+            </div>
+            <h2 className="text-xl font-semibold">Sedang dalam Proses Ta&apos;aruf</h2>
+            <p className="text-muted-foreground max-w-sm text-sm">
+              CV tidak dapat diedit selama proses ta&apos;aruf berlangsung. Silakan selesaikan
+              atau batalkan proses ta&apos;aruf terlebih dahulu.
+            </p>
+            <Button
+              size="lg"
+              variant="outline"
+              className="mt-2"
+              onClick={() => router.push("/taaruf")}
+            >
+              <HeartHandshake className="size-4" />
+              Lihat Status Ta&apos;aruf
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (isPublished) {

@@ -1,7 +1,7 @@
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { profile } from "@/db/schema";
+import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 
 export default async function DashboardPage() {
@@ -9,12 +9,19 @@ export default async function DashboardPage() {
   const userId = session?.user?.id;
 
   let cvStatus = "draft";
+  let walletBalance = 0;
   if (userId) {
     const existing = await db.query.profile.findFirst({
       where: eq(profile.userId, userId),
       columns: { cvStatus: true },
     });
     cvStatus = existing?.cvStatus ?? "draft";
+
+    const existingWallet = await db.query.wallet.findFirst({
+      where: eq(wallet.userId, userId),
+      columns: { balance: true },
+    });
+    walletBalance = existingWallet?.balance ?? 0;
   }
 
   const status = CV_STATUS_LABELS[cvStatus] ?? CV_STATUS_LABELS.draft;
@@ -30,16 +37,16 @@ export default async function DashboardPage() {
           )}
         </div>
         <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
+          <div className="text-muted-foreground text-sm font-medium">Saldo Token</div>
+          <div className="text-2xl font-bold">{walletBalance}</div>
+        </div>
+        <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
           <div className="text-muted-foreground text-sm font-medium">Request Ta&apos;aruf</div>
           <div className="text-2xl font-bold">0</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
           <div className="text-muted-foreground text-sm font-medium">Proses Berjalan</div>
           <div className="text-2xl font-bold">0</div>
-        </div>
-        <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
-          <div className="text-muted-foreground text-sm font-medium">Mediator</div>
-          <div className="text-2xl font-bold">Belum Ada</div>
         </div>
       </div>
     </div>

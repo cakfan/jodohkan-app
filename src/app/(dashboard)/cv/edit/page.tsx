@@ -2,16 +2,20 @@ import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import type { ProfileData } from "@/app/actions/profile";
 import { CVEditorForm } from "./cv-editor-form";
+import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
 export default async function CVEditPage() {
   const session = await getServerSession();
   const userId = session?.user?.id;
 
-  const raw = userId
-    ? await db.query.profile.findFirst({
-        where: (profile, { eq }) => eq(profile.userId, userId),
-      })
-    : null;
+  const [raw, activeTaaruf] = await Promise.all([
+    userId
+      ? db.query.profile.findFirst({
+          where: (profile, { eq }) => eq(profile.userId, userId),
+        })
+      : null,
+    userId ? isUserInActiveTaaruf(userId) : false,
+  ]);
 
   const existingProfile: ProfileData | null = raw
     ? {
@@ -64,7 +68,7 @@ export default async function CVEditPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <CVEditorForm initialData={existingProfile} />
+      <CVEditorForm initialData={existingProfile} isInActiveTaaruf={activeTaaruf} />
     </div>
   );
 }

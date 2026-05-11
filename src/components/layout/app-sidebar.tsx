@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users, HeartHandshake } from "lucide-react";
+import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users, HeartHandshake, Wallet } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { NavUser } from "./nav-user";
@@ -29,6 +29,7 @@ const candidateNavItems = [
   { title: "Ta'aruf", url: "/taaruf", icon: HeartHandshake },
   { title: "Pesan", url: "/messages", icon: MessageSquare },
   { title: "Notifikasi", url: "/notifications", icon: Bell },
+  { title: "Wallet", url: "/topup", icon: Wallet },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
@@ -36,6 +37,7 @@ const adminNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Panel Admin", url: "/admin/review", icon: Shield },
   { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Wallet", url: "/topup", icon: Wallet },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 

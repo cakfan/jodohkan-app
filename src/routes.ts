@@ -6,6 +6,7 @@ export const publicRoutes: (string | RegExp)[] = [
   /^\/\.well-known\/.+/,
   "/oauth/consent",
   /^\/cv\/[^/]+(?:\/.*)?$/,
+  "/api/webhooks/xendit",
 ];
 
 export const authRoutes: string[] = ["/signin", "/signup"];

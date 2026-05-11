@@ -56,8 +56,8 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Advanced Filtering: Filter berdasarkan kriteria kota, pendidikan, usia, username.
 - [x] Detail CV View: Halaman pratinjau CV yang detail namun tetap menjaga privasi (route: `/cv/[username]`, pakai `BlurredPhoto`, tabs: Data Diri/Visi & Misi/Kriteria/Spiritual).
 - [x] Fitur Request Ta'aruf: Pengajuan proses ta'aruf antar pengguna (kirim, terima/tolak, 24h expiry, auto-expire, active ta'aruf guard).
-- [ ] Payment Integration: Integrasi Midtrans/Xendit untuk top-up token.
-- [ ] Wallet UI: Halaman saldo dan riwayat transaksi token bagi pengguna.
+- [x] Payment Integration: Integrasi Xendit Invoice untuk top-up token (4 tier pricing, webhook, verifyWebhookToken).
+- [x] Wallet UI: Saldo Token card di dashboard, balance di navbar, halaman top-up di `/topup` dengan pilihan nominal + redirect Xendit checkout.
 
 ## 💬 Fase 4: Integrasi Chat & Mediator (Minggu 4)
 
@@ -95,5 +95,6 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 2.  Pembuatan CV Ta'aruf (✅ Selesai - termasuk KTP OCR, partner criteria slider).
 3.  Discovery/Listing Kandidat (✅ Selesai - Temukan dengan filter username, usia, kota, sticky sidebar, useSearchParams).
 4.  Request Ta'aruf (✅ Selesai - kirim/terima/tolak, 24h expiry, active ta'aruf guard, sidebar badge).
-5.  Chat Room Dasar (Pria + Wanita + Mediator).
-6.  Status Tahapan Ta'aruf Sederhana.
+5.  Token Top-Up (✅ Selesai - Xendit Invoice, 4 tier pricing, webhook, balance display di navbar & dashboard).
+6.  Chat Room Dasar (Pria + Wanita + Mediator).
+7.  Status Tahapan Ta'aruf Sederhana.

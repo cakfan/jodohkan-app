@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { step1Schema, step2Schema, step3Schema, step4Schema, step5Schema } from "@/lib/validations/profile";
 import { revalidatePath } from "next/cache";
 import type { InferProfileData } from "@/lib/types";
+import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
 export type ProfileData = InferProfileData;
 
@@ -40,6 +41,11 @@ export async function saveProfile(formData: ProfileData, step?: number) {
 
   if (formData.cvStatus === "approved" && currentProfile?.cvStatus !== "approved") {
     return { error: "Tidak dapat mengatur status sendiri. Hubungi admin." };
+  }
+
+  const inActiveTaaruf = await isUserInActiveTaaruf(userId);
+  if (inActiveTaaruf) {
+    return { error: "Tidak dapat mengedit CV selama proses ta'aruf berlangsung." };
   }
 
   if (step !== undefined && step >= 1 && step <= 5) {
@@ -149,6 +155,11 @@ export async function togglePublished() {
   const session = await getServerSession();
   if (!session?.user?.id) {
     return { error: "Sesi tidak ditemukan." };
+  }
+
+  const inActiveTaaruf = await isUserInActiveTaaruf(session.user.id);
+  if (inActiveTaaruf) {
+    return { error: "Tidak dapat mengubah status publikasi selama proses ta'aruf berlangsung." };
   }
 
   try {
