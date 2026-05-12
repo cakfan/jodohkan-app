@@ -102,12 +102,9 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
   );
 }
 
-export function OnboardingForm() {
+export function OnboardingForm({ userName }: { userName: string }) {
   const router = useRouter();
-  const { data: session } = useSession();
   const [step, setStep] = useState(1);
-
-  const userName = session?.user?.name || "Pengguna";
   const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
