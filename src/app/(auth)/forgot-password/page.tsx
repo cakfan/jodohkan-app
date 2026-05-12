@@ -5,9 +5,6 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";

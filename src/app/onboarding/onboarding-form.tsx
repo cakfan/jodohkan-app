@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { completeOnboarding } from "@/app/actions/onboarding";
-import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 
 const adabList = [
