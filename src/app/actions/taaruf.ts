@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { taarufRequest, profile, user } from "@/db/schema";
 import { eq, and, lt, inArray, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createTaarufChannel } from "./stream";
 
 export async function isUserInActiveTaaruf(userId: string): Promise<boolean> {
   const existing = await db.query.taarufRequest.findFirst({
@@ -176,6 +177,29 @@ export async function respondToTaarufRequest(
       updatedAt: now,
     })
     .where(eq(taarufRequest.id, requestId));
+
+  if (action === "accept") {
+    const users = await db
+      .select({ id: user.id, name: user.name })
+      .from(user)
+      .where(inArray(user.id, [request.senderId, request.recipientId]));
+
+    const userMap = new Map(users.map((u) => [u.id, u.name ?? u.id]));
+    const senderName = userMap.get(request.senderId) ?? request.senderId;
+    const recipientName = userMap.get(request.recipientId) ?? request.recipientId;
+
+    const channelResult = await createTaarufChannel(
+      request.id,
+      request.senderId,
+      request.recipientId,
+      senderName,
+      recipientName
+    );
+
+    if (channelResult.error) {
+      return { error: channelResult.error };
+    }
+  }
 
   revalidatePath("/", "layout");
   return { success: true, status: newStatus };

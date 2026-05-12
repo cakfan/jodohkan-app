@@ -8,7 +8,7 @@ export function CTASection() {
     <section className="bg-primary py-24 px-4 text-center">
       <div className="mx-auto max-w-3xl space-y-8">
         <div className="space-y-4">
-          <h2 className="text-3xl font-black tracking-tighter text-primary-foreground md:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-primary-foreground md:text-4xl">
             Siap Memulai Perjalanan?
           </h2>
           <p className="text-primary-foreground/80 mx-auto max-w-2xl text-lg">

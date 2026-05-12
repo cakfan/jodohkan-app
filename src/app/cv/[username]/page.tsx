@@ -16,7 +16,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
   return {
-    title: `Profil ${username} - Pethuk Jodoh`,
+    title: `Profil ${username} - Jodohkan`,
     description: "Profil ta'aruf Islami",
   };
 }

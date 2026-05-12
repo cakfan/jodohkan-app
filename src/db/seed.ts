@@ -2,6 +2,7 @@ import { db, client } from "./index";
 import { user, account } from "./schema/auth-schema";
 import { profile } from "./schema/profiles-schema";
 import { wallet } from "./schema/wallets-schema";
+import bcrypt from "bcryptjs";
 
 const commonPassword = "Password123!";
 
@@ -364,10 +365,7 @@ const femaleUsers = [
 ];
 
 async function hashPassword(password: string): Promise<string> {
-  return await Bun.password.hash(password, {
-    algorithm: "bcrypt",
-    cost: 10,
-  });
+  return await bcrypt.hash(password, 10);
 }
 
 async function seed() {

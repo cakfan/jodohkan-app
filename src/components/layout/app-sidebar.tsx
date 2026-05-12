@@ -41,11 +41,19 @@ const adminNavItems = [
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
+const mediatorNavItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Wallet", url: "/topup", icon: Wallet },
+  { title: "Pengaturan", url: "/settings", icon: Settings2 },
+];
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "admin";
-  const navItems = isAdmin ? adminNavItems : candidateNavItems;
+  const isMediator = session?.user?.role === "mediator";
+  const navItems = isAdmin ? adminNavItems : isMediator ? mediatorNavItems : candidateNavItems;
   const [pendingTaaruf, setPendingTaaruf] = React.useState(0);
 
   React.useEffect(() => {
@@ -63,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         >
           <BrandLogo size="sm" className="shrink-0" />
           <span className="text-base font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-            Pethuk Jodoh
+            Jodohkan
           </span>
         </Link>
       </SidebarHeader>

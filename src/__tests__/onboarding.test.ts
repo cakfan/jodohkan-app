@@ -39,7 +39,7 @@ const adabItems: AdabItem[] = [
 ];
 
 const commitmentText =
-  "Saya berkomitmen untuk mengikuti aturan syar'i dalam proses ta'aruf di platform ini. Saya memahami bahwa Pethuk Jodoh adalah wasilah (perantara) dan keberhasilannya kembali kepada Allah سُبْحَانَهُ وَتَعَالَىٰ. Saya akan menjaga adab, kejujuran, dan keseriusan dalam setiap tahapan.";
+  "Saya berkomitmen untuk mengikuti aturan syar'i dalam proses ta'aruf di platform ini. Saya memahami bahwa Jodohkan adalah wasilah (perantara) dan keberhasilannya kembali kepada Allah سُبْحَانَهُ وَتَعَالَىٰ. Saya akan menjaga adab, kejujuran, dan keseriusan dalam setiap tahapan.";
 
 describe("Adab List Data Integrity", () => {
   test("should have exactly 4 items", () => {

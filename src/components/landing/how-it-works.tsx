@@ -40,7 +40,7 @@ export function HowItWorksSection() {
     <section className="py-24 px-4">
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl font-black tracking-tighter md:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
             Tahapan Ta&apos;aruf
           </h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">

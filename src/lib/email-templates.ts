@@ -23,7 +23,7 @@ export function getVerificationEmailHtml(name: string, userEmail: string, url: s
                 Assalamu'alaikum <strong>${name}</strong>,
               </p>
               <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6;">
-                Terima kasih telah mendaftar di <strong>Pethuk Jodoh</strong>. Untuk mengaktifkan akun Anda dan mulai berikhtiar mencari pasangan ta'aruf, silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:
+                Terima kasih telah mendaftar di <strong>Jodohkan</strong>. Untuk mengaktifkan akun Anda dan mulai berikhtiar mencari pasangan ta'aruf, silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:
               </p>
               
               <table role="presentation" cellspacing="0" cellpadding="0">
@@ -45,7 +45,7 @@ export function getVerificationEmailHtml(name: string, userEmail: string, url: s
           <tr>
             <td style="padding: 24px 32px; background-color: #f9fafb; border-radius: 0 0 12px 12px; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                © ${new Date().getFullYear()} Pethuk Jodoh. All rights reserved.
+                © ${new Date().getFullYear()} Jodohkan. All rights reserved.
               </p>
             </td>
           </tr>
@@ -83,7 +83,7 @@ export function getPasswordResetEmailHtml(name: string, userEmail: string, url: 
                 Assalamu'alaikum <strong>${name}</strong>,
               </p>
               <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6;">
-                Kami menerima permintaan untuk mereset password akun Pethuk Jodoh Anda. Klik tombol di bawah ini untuk membuat password baru:
+                Kami menerima permintaan untuk mereset password akun Jodohkan Anda. Klik tombol di bawah ini untuk membuat password baru:
               </p>
               
               <table role="presentation" cellspacing="0" cellpadding="0">
@@ -109,7 +109,7 @@ export function getPasswordResetEmailHtml(name: string, userEmail: string, url: 
           <tr>
             <td style="padding: 24px 32px; background-color: #f9fafb; border-radius: 0 0 12px 12px; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                © ${new Date().getFullYear()} Pethuk Jodoh. All rights reserved.
+                © ${new Date().getFullYear()} Jodohkan. All rights reserved.
               </p>
             </td>
           </tr>

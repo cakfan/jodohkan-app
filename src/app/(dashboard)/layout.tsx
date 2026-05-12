@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { cookies } from "next/headers";
 
 export default async function DashboardLayout({
   children,
@@ -21,8 +22,10 @@ export default async function DashboardLayout({
   }
 
   const isAdmin = session.user.role === "admin";
+  const isMediator = session.user.role === "mediator";
+  const skipOnboarding = isAdmin || isMediator;
 
-  if (!isAdmin) {
+  if (!skipOnboarding) {
     const existingProfile = await db.query.profile.findFirst({
       where: (profile, { eq }) => eq(profile.userId, session.user.id),
     });
@@ -32,8 +35,12 @@ export default async function DashboardLayout({
     }
   }
 
+  const cookieStore = await cookies();
+  const sidebarCookie = cookieStore.get("sidebar_state");
+  const sidebarOpen = sidebarCookie?.value === "true";
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={sidebarOpen}>
       <AppSidebar />
       <SidebarInset>
         <Navbar />

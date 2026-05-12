@@ -33,7 +33,7 @@ export default async function Home() {
       <footer className="bg-muted/30 border-t px-4 py-12 text-center">
         <div className="mx-auto max-w-6xl space-y-4">
           <p className="text-muted-foreground text-sm">
-            &copy; {new Date().getFullYear()} Pethuk Jodoh. Semua hak dilindungi.
+            &copy; {new Date().getFullYear()} Jodohkan. Semua hak dilindungi.
           </p>
           <p className="text-muted-foreground/70 text-xs max-w-lg mx-auto leading-relaxed">
             Platform Ta&apos;aruf Islami yang aman, terjaga, dan mengikuti kaidah syar&apos;i

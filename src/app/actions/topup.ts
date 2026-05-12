@@ -63,7 +63,7 @@ export async function createTopUpSession(nominal: number) {
       externalId,
       amount: nominal,
       payerEmail: session.user.email ?? undefined,
-      description: `Top-up ${tokens} Token Pethuk Jodoh`,
+      description: `Top-up ${tokens} Token Jodohkan`,
       successRedirectUrl: `${appUrl}/topup/success?external_id=${externalId}`,
       failureRedirectUrl: `${appUrl}/topup/failed?external_id=${externalId}`,
     });

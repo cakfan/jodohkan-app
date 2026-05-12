@@ -16,8 +16,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Daftar | Pethuk Jodoh",
-  description: "Daftar akun Pethuk Jodoh Anda untuk memulai proses Ta'aruf.",
+  title: "Daftar | Jodohkan",
+  description: "Daftar akun Jodohkan Anda untuk memulai proses Ta'aruf.",
 };
 
 export default function SignUpPage() {
@@ -116,7 +116,7 @@ export default function SignUpPage() {
                 >
                   Kebijakan Privasi
                 </Link>{" "}
-                Pethuk Jodoh.
+                Jodohkan.
               </p>
             </div>
           </CardFooter>

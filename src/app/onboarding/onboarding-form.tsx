@@ -52,7 +52,7 @@ const adabList = [
 ];
 
 const commitmentText =
-  "Saya berkomitmen untuk mengikuti aturan syar'i dalam proses ta'aruf di platform ini. Saya memahami bahwa Pethuk Jodoh adalah wasilah (perantara) dan keberhasilannya kembali kepada Allah سُبْحَانَهُ وَتَعَالَىٰ. Saya akan menjaga adab, kejujuran, dan keseriusan dalam setiap tahapan.";
+  "Saya berkomitmen untuk mengikuti aturan syar'i dalam proses ta'aruf di platform ini. Saya memahami bahwa Jodohkan adalah wasilah (perantara) dan keberhasilannya kembali kepada Allah سُبْحَانَهُ وَتَعَالَىٰ. Saya akan menjaga adab, kejujuran, dan keseriusan dalam setiap tahapan.";
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
   return (
@@ -273,7 +273,7 @@ export function OnboardingForm() {
               <span className="hover:text-foreground cursor-pointer underline underline-offset-2 transition-colors">
                 Kebijakan Privasi
               </span>{" "}
-              Pethuk Jodoh
+              Jodohkan
             </p>
           </div>
         </div>

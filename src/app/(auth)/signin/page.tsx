@@ -16,8 +16,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Masuk | Pethuk Jodoh",
-  description: "Masuk ke akun Pethuk Jodoh Anda untuk melanjutkan proses Ta'aruf.",
+  title: "Masuk | Jodohkan",
+  description: "Masuk ke akun Jodohkan Anda untuk melanjutkan proses Ta'aruf.",
 };
 
 export default function SignInPage() {

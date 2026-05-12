@@ -16,8 +16,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Lupa Password | Pethuk Jodoh",
-  description: "Reset password akun Pethuk Jodoh Anda.",
+  title: "Lupa Password | Jodohkan",
+  description: "Reset password akun Jodohkan Anda.",
 };
 
 function ForgotPasswordFallback() {

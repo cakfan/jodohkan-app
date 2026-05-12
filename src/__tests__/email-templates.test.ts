@@ -14,14 +14,14 @@ describe("Email Templates", () => {
       expect(html).toContain("Ahmad Jabir");
       expect(html).toContain("https://example.com/verify?token=abc123");
       expect(html).toContain("Verifikasi Email");
-      expect(html).toContain("Pethuk Jodoh");
+      expect(html).toContain("Jodohkan");
     });
 
     test("should include correct year in footer", () => {
       const currentYear = new Date().getFullYear();
       const html = getVerificationEmailHtml("Test", "test@test.com", "https://example.com");
 
-      expect(html).toContain(`© ${currentYear} Pethuk Jodoh`);
+      expect(html).toContain(`© ${currentYear} Jodohkan`);
     });
   });
 
@@ -37,7 +37,7 @@ describe("Email Templates", () => {
       expect(html).toContain("Siti Aisyah");
       expect(html).toContain("https://example.com/reset?token=xyz789");
       expect(html).toContain("Reset Password");
-      expect(html).toContain("Pethuk Jodoh");
+      expect(html).toContain("Jodohkan");
     });
 
     test("should include expiration notice", () => {

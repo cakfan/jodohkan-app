@@ -62,6 +62,7 @@ src/
   db/
   hooks/
   lib/
+  types/
   __tests__/
   tests/
 ```
@@ -76,6 +77,7 @@ src/
 | `db/` | Database layer (Drizzle ORM client & schema) |
 | `hooks/` | Custom React hooks |
 | `lib/` | Shared utilities, auth setup, validations, constants |
+| `types/` | TypeScript type declarations & module augmentations |
 | `__tests__/` | Unit/integration tests (Bun test runner) |
 | `tests/` | Test setup & configuration |
 
@@ -102,6 +104,7 @@ src/app/
     cv/edit/                    (/cv/edit)
     temukan/                    (/temukan)
     taaruf/                     (/taaruf)
+    messages/                   (/messages — Stream Chat integration)
     topup/                      (/topup — token top-up with Xendit)
     topup/success/              (/topup/success)
     topup/failed/              (/topup/failed)
@@ -112,6 +115,7 @@ src/app/
   actions/
   api/
     auth/[...all]/route.ts
+    token/route.ts
     webhooks/xendit/route.ts
 ```
 
@@ -138,11 +142,14 @@ src/app/
 | `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
 | `(dashboard)/taaruf/page.tsx` | Ta'aruf request page → `/taaruf` |
 | `(dashboard)/taaruf/taaruf-client.tsx` | Ta'aruf client: tabs (Diterima/Dikirim), accept/decline actions, expiry countdown |
+| `(dashboard)/messages/page.tsx` | Stream Chat messages page: ChannelList, MessageList, MessageComposer, ChannelHeaderGroup, custom ChatAvatar (link to `/cv/[username]`) |
+| `(dashboard)/messages/chat-theme.css` | Stream Chat theme overrides mapping to shadcn design tokens |
 | `(dashboard)/admin/review/page.tsx` | Admin review panel → `/admin/review` |
 | `(dashboard)/admin/review/review-client.tsx` | Admin review client (approve/reject actions) |
 | `cv/[username]/page.tsx` | Public CV detail → `/cv/[username]` |
 | `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic via `showFullProfile` — owner/admin lihat info lengkap; tombol "Ajak Ta'aruf" dengan sheet untuk mengirim permintaan) |
 | `actions/` | Server actions |
+| `actions/stream.ts` | Stream Chat server actions: `getStreamToken()` (auth + upsert user with username/image), `createTaarufChannel()` (auto-create channel, assign mediator as `channel_moderator`, set up grant overrides, upsert users with `taaruf_user` role), `deleteTaarufChannel()` (mediator-only channel deletion) |
 | `actions/profile.ts` | Profile CRUD: `saveProfile()` (guard: block self-approval, reset to pending on edit), `getProfile()`, `reviewCv()`, `togglePublished()` (reset cvStatus to pending on unpublish) |
 | `actions/photo.ts` | Photo upload/delete (Supabase Storage + sharp blur) |
 | `actions/ktp.ts` | KTP upload/delete |
@@ -151,6 +158,7 @@ src/app/
 | `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()` (validates published CV, 24h expiry), `respondToTaarufRequest()` (accept/decline), `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()`, `isUserInActiveTaaruf()`, `getActiveTaarufUserIds()` |
 | `actions/topup.ts` | Token top-up: `getWalletBalance()`, `createTopUpSession()`, `getPaymentStatus()` |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
+| `api/token/route.ts` | Stream Chat token endpoint (`GET /api/token`) — generates chat token via server-side Stream client |
 | `api/webhooks/xendit/route.ts` | Xendit webhook POST handler: verify `x-callback-token`, update payment to paid, credit wallet, write `token_transaction` |
 
 ---
@@ -294,6 +302,7 @@ src/lib/
 | `email-templates.ts` | HTML email templates for verification & password reset emails |
 | `get-server-session.ts` | Helpers: `getServerSession()` — wraps `auth.api.getSession()` with headers; `requireAuth()` — returns session or null |
 | `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner/admin) |
+| `stream.ts` | Stream Chat server-side client singleton (`StreamChat.getInstance(apiKey, apiSecret)`) |
 | `xendit.ts` | Xendit client singleton (`Invoice`), `createTopUpInvoice()`, `verifyWebhookToken()` |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `constants/profile.ts` | Shared labels: `CV_STATUS_LABELS`, `MARITAL_LABELS`, `getMaritalLabel()` |
@@ -302,6 +311,14 @@ src/lib/
 | `types.ts` | Shared types: `InferProfileData` — derived from Drizzle schema (`typeof profile.$inferSelect`), re-exported as `ProfileData` in profile.ts |
 | `validations/auth.ts` | Zod schemas for auth forms (signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema) and TypeScript types |
 | `validations/profile.ts` | Zod schemas per step for CV Editor (step1Schema–step5Schema). step1Schema includes optional photoUrl, photoBlurredUrl, photoBlurred. |
+
+---
+
+### `src/types/` — TypeScript Declarations
+
+| File | Description |
+| :--- | :--- |
+| `stream-chat.d.ts` | Stream Chat module augmentation — declares `CustomChannelData` with optional `name` property |
 
 ---
 
@@ -390,6 +407,7 @@ Default Next.js static assets (SVG icons, logos).
 | **Auth** | Better Auth (email/password + Google OAuth, username & admin plugins) |
 | **Email** | Resend (for email verification) |
 | **Validation** | Zod (standalone, per-step validation in CV Editor; react-hook-form in auth forms) |
+| **Chat** | Stream Chat (`stream-chat` server SDK + `stream-chat-react` client SDK), auto-created ta'aruf channels with mediator as `channel_moderator`, custom `taaruf_user` role (no `mute-user`), grant overrides to prevent leaving |
 | **Image Processing** | sharp (server-side blur: resize 200×200 + blur 50 + JPEG quality 60) |
 | **Icons** | Lucide React + HugeIcons |
 | **Code Quality** | ESLint 9, Prettier, commitlint, lint-staged, Husky |

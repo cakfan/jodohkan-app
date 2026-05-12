@@ -63,8 +63,11 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 **Tujuan**: Membangun sistem komunikasi yang terjaga (Stream Chat).
 
-- [ ] Setup GetStream.io: Integrasi Stream SDK di Frontend & Backend.
-- [ ] Ta'aruf Room: Logic pembuatan channel chat otomatis yang menyertakan Mediator.
+- [x] Setup GetStream.io: Integrasi Stream SDK (`stream-chat`, `stream-chat-react`) + server-side client singleton + API token endpoint.
+- [x] Ta'aruf Room: Logic pembuatan channel chat otomatis (`messaging`) yang menyertakan Mediator sebagai `channel_moderator`, grant overrides (`!remove-own-channel-membership`) agar user tidak bisa leave, custom role `taaruf_user` tanpa `mute-user`.
+- [x] Chat UI: Layout WhatsApp-like dengan `ChannelList`, `MessageList`, `MessageComposer`, shadcn-themed CSS (`chat-theme.css`), empty states, `ChannelHeaderGroup` (nama, jumlah peserta, mediator, "Tidak bisa leave" badge).
+- [x] Avatar Circular + CV Link: Avatar Stream Chat dibuat circular (CSS) dan klik navigasi ke `/cv/[username]` via custom `ChatAvatar` override (mengambil `username` dari custom field Stream user).
+- [x] Hapus Channel oleh Mediator: Tombol trash di header — hanya mediator (`channel_moderator`) yang bisa menghapus channel via server action (`deleteTaarufChannel`), dengan konfirmasi dialog.
 - [ ] Mediator Dashboard: Panel khusus bagi mediator untuk mengelola permintaan ta'aruf dan memantau chat.
 - [ ] Notification Core: Implementasi sistem notifikasi in-app untuk aktivitas ta'aruf.
 - [ ] Chat Guard: Bot pengingat adab di dalam ruang obrolan.
@@ -96,5 +99,5 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 3.  Discovery/Listing Kandidat (✅ Selesai - Temukan dengan filter username, usia, kota, sticky sidebar, useSearchParams).
 4.  Request Ta'aruf (✅ Selesai - kirim/terima/tolak, 24h expiry, active ta'aruf guard, sidebar badge).
 5.  Token Top-Up (✅ Selesai - Xendit Invoice, 4 tier pricing, webhook, balance display di navbar & dashboard).
-6.  Chat Room Dasar (Pria + Wanita + Mediator).
+6.  Chat Room Dasar (✅ Selesai — termasuk permission guards, avatar CV link, channel deletion oleh mediator).
 7.  Status Tahapan Ta'aruf Sederhana.

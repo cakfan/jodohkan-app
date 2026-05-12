@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db, client } from "./index";
 import { user, account } from "./schema/auth-schema";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 const ADMIN_EMAIL = "admin@mail.com";
 const ADMIN_USERNAME = "admintln";
@@ -59,10 +60,7 @@ async function seedAdmin() {
 
   // Fallback: direct DB insert
   console.log("  Creating via direct DB insert...");
-  const hashedPassword = await Bun.password.hash(PASSWORD, {
-    algorithm: "bcrypt",
-    cost: 10,
-  });
+  const hashedPassword = await bcrypt.hash(PASSWORD, 10);
 
   const userId = crypto.randomUUID();
 

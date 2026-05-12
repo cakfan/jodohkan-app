@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import NextTopLoader from "nextjs-toploader";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  variable: "--font-heading",
+  weight: ["500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "Pethuk Jodoh - Ta'aruf Islami Modern",
-  description: "Platform fasilitasi Ta'aruf Islami yang aman, berkah, dan terhormat.",
+  title: "Jodohkan - Ta'aruf Islami Modern",
+  description: "Jodohmu Bukan Kebetulan.",
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -34,12 +34,10 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={cn("h-full antialiased", "font-sans", geist.variable)}
+      className={cn("h-full antialiased", "font-sans", jakarta.variable, playfair.variable)}
       suppressHydrationWarning
     >
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-full font-sans antialiased`}
-      >
+      <body className="min-h-full font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

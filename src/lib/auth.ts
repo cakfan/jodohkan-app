@@ -8,6 +8,7 @@ import { APIError } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { getVerificationEmailHtml, getPasswordResetEmailHtml } from "./email-templates";
+import { ac, admin as adminRole, user as userRole, mediator } from "./permissions";
 
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY;
@@ -34,7 +35,7 @@ export const auth = betterAuth({
       await getResend().emails.send({
         from,
         to: user.email,
-        subject: "Reset Password - Pethuk Jodoh",
+        subject: "Reset Password - Jodohkan",
         text: `Klik link ini untuk reset password: ${url}`,
         html: getPasswordResetEmailHtml(user.name, user.email, url),
       });
@@ -51,7 +52,7 @@ export const auth = betterAuth({
       await getResend().emails.send({
         from,
         to: user.email,
-        subject: "Verifikasi Email - Pethuk Jodoh",
+        subject: "Verifikasi Email - Jodohkan",
         text: `Klik link ini untuk verifikasi email: ${url}`,
         html: getVerificationEmailHtml(user.name, user.email, url),
       });
@@ -74,7 +75,7 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [username(), admin()],
+  plugins: [username(), admin({ ac, roles: { admin: adminRole, user: userRole, mediator } })],
   databaseHooks: {
     user: {
       create: {
@@ -82,7 +83,7 @@ export const auth = betterAuth({
           return {
             data: {
               ...user,
-              role: "candidate",
+              role: user.role ?? "candidate",
             },
           };
         },

@@ -50,9 +50,8 @@ export function HeroSection({ session }: HeroSectionProps) {
             Platform Ta&apos;aruf Islami Terpercaya
           </div>
 
-          <h1 className="text-4xl font-black tracking-tighter leading-none animate-fade-in-up [animation-delay:150ms] md:text-6xl lg:text-7xl">
-            Temukan Pasangan{" "}
-            <span className="text-primary">Halalan Thayyiban</span>
+          <h1 className="font-heading text-4xl font-medium tracking-tight leading-none animate-fade-in-up [animation-delay:150ms] md:text-6xl lg:text-7xl">
+            Jodohmu Bukan Kebetulan.
           </h1>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed animate-fade-in-up [animation-delay:300ms] md:text-xl">

@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Reset Password | Pethuk Jodoh",
-  description: "Buat password baru untuk akun Pethuk Jodoh Anda.",
+  title: "Reset Password | Jodohkan",
+  description: "Buat password baru untuk akun Jodohkan Anda.",
 };
 
 export const dynamic = "force-dynamic";
