@@ -32,11 +32,11 @@ export function UsernameInput<TFieldValues extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className="text-muted-foreground text-[13px] font-[500]">{label}</FormLabel>
           <FormControl>
-            <InputGroup className="h-11">
+            <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
               <InputGroupAddon>
-                <User />
+                <User className="text-muted-foreground" />
               </InputGroupAddon>
               <InputGroupInput placeholder={placeholder} disabled={disabled} {...field} />
               <InputGroupAddon align="inline-end">

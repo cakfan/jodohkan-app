@@ -5,38 +5,39 @@ const features = [
     icon: BookOpen,
     title: "CV Ta'aruf Digital",
     description:
-      "Buat profil lengkap yang mencakup visi-misi, pemahaman agama, dan kriteria pasangan dengan format yang terstruktur.",
+      "Profil lengkap yang mencakup visi hidup, pemahaman agama, dan kriteria pasangan — bukan sekadar foto dan bio singkat.",
   },
   {
     icon: UserCheck,
     title: "Algoritma Matching",
     description:
-      "Temukan kandidat yang sesuai berdasarkan kriteria agama, usia, lokasi, dan visi hidup tanpa fitur swipe.",
+      "Kandidat dicocokkan berdasarkan keselarasan agama, usia, lokasi, dan visi hidup — tanpa fitur swipe yang mereduksi manusia jadi gambar.",
   },
   {
     icon: MessageSquare,
     title: "Chat dengan Mediator",
     description:
-      "Komunikasi tidak pernah berduaan. Setiap sesi chat didampingi oleh mediator yang terverifikasi.",
+      "Tidak ada komunikasi langsung antar calon. Setiap percakapan didampingi mediator terverifikasi, sesuai adab ta'aruf.",
   },
   {
     icon: Wallet,
     title: "Sistem Token Niat",
     description:
-      "Menjamin keseriusan proses ta'aruf. Token digunakan untuk verifikasi dan membuka sesi ta'aruf.",
+      "Token digunakan sebelum membuka sesi ta'aruf — memastikan hanya yang serius dan berniat menikah yang bisa melanjutkan.",
   },
 ];
 
 export function FeaturesSection() {
   return (
-    <section className="bg-muted/30 py-24 px-4">
+    <section className="bg-muted/30 pt-8 pb-16 px-4">
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-16 space-y-4">
           <h2 className="font-heading text-3xl font-medium tracking-tight md:text-4xl">
             Mengapa Jodohkan?
           </h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Dibangun dengan prinsip privacy first dan mengikuti kaidah syar&apos;i
+            Dibangun dengan prinsip privacy first dan mengikuti kaidah
+            syar&apos;i
           </p>
         </div>
 

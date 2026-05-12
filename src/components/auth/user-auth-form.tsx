@@ -88,7 +88,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <InputGroup className="h-11">
+                  <InputGroup className="h-11 dark:bg-popover transition-colors duration-200">
                     <InputGroupAddon>
                       <User />
                     </InputGroupAddon>
@@ -121,7 +121,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   </Link>
                 </div>
                 <FormControl>
-                  <InputGroup className="h-11">
+                  <InputGroup className="h-11 dark:bg-popover transition-colors duration-200">
                     <InputGroupAddon>
                       <Lock />
                     </InputGroupAddon>
@@ -137,7 +137,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               </FormItem>
             )}
           />
-          <Button className="h-11 w-full" type="submit" disabled={isLoading || isSocialLoading}>
+          <Button
+            className="h-11 w-full transition-all duration-200 ease-out hover:-translate-y-[1px] hover:shadow-lg"
+            type="submit"
+            disabled={isLoading || isSocialLoading}
+          >
             {isLoading && <Spinner className="mr-2" />}
             Masuk
           </Button>
@@ -154,7 +158,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       <Button
         variant="outline"
         type="button"
-        className="h-11"
+        className="h-11 dark:bg-popover dark:border-input dark:hover:bg-secondary"
         disabled={isLoading || isSocialLoading}
         onClick={() => handleSocialLogin("google")}
       >

@@ -122,11 +122,13 @@ export function UserSignUpForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama Lengkap</FormLabel>
+                <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                  Nama Lengkap
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Nama sesuai KTP"
-                    className="h-11"
+                    className="h-12 px-4"
                     disabled={isLoading}
                     {...field}
                   />
@@ -140,32 +142,40 @@ export function UserSignUpForm() {
             name="gender"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Jenis Kelamin</FormLabel>
+                <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                  Jenis Kelamin
+                </FormLabel>
                 <FormControl>
-                  <div className="flex gap-3">
-                    <Button
+                  <div className="flex gap-2">
+                    <button
                       type="button"
-                      variant={field.value === "male" ? "default" : "outline"}
-                      className={`h-11 flex-1 gap-2 ${field.value === "male" ? "" : "border-border/60"}`}
+                      className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-medium transition-all duration-200 ${
+                        field.value === "male"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
                       onClick={() => field.onChange("male")}
                       disabled={isLoading}
                     >
                       <Mars className="h-4 w-4" />
                       Laki-laki
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="button"
-                      variant={field.value === "female" ? "default" : "outline"}
-                      className={`h-11 flex-1 gap-2 ${field.value === "female" ? "" : "border-border/60"}`}
+                      className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-medium transition-all duration-200 ${
+                        field.value === "female"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
                       onClick={() => field.onChange("female")}
                       disabled={isLoading}
                     >
                       <Venus className="h-4 w-4" />
                       Perempuan
-                    </Button>
+                    </button>
                   </div>
                 </FormControl>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1.5">
+                <p className="text-muted-foreground mt-1.5 flex items-center gap-1 text-xs">
                   <Lock className="h-3 w-3" />
                   Jenis kelamin tidak dapat diubah setelah pendaftaran
                 </p>
@@ -178,11 +188,13 @@ export function UserSignUpForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                  Email
+                </FormLabel>
                 <FormControl>
-                  <InputGroup className="h-11">
+                  <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
                     <InputGroupAddon>
-                      <Mail />
+                      <Mail className="text-muted-foreground" />
                     </InputGroupAddon>
                     <InputGroupInput
                       placeholder="anda@contoh.com"
@@ -206,11 +218,13 @@ export function UserSignUpForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                  Password
+                </FormLabel>
                 <FormControl>
-                  <InputGroup className="h-11">
+                  <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
                     <InputGroupAddon>
-                      <Lock />
+                      <Lock className="text-muted-foreground" />
                     </InputGroupAddon>
                     <InputGroupInput
                       type="password"
@@ -225,7 +239,7 @@ export function UserSignUpForm() {
             )}
           />
           <Button
-            className="h-11 w-full"
+            className="h-[52px] w-full text-[15px] font-semibold tracking-[0.01em] transition-all duration-200 ease-out hover:opacity-92 hover:-translate-y-[1px] hover:shadow-lg active:translate-y-0"
             type="submit"
             disabled={isLoading || isCheckingUsername || isUsernameAvailable === false}
           >
@@ -238,14 +252,16 @@ export function UserSignUpForm() {
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card text-muted-foreground px-2">Atau daftar dengan</span>
+        <div className="relative flex justify-center text-xs uppercase tracking-[0.08em]">
+          <span className="bg-card text-muted-foreground px-2 text-[11px]">
+            Atau daftar dengan
+          </span>
         </div>
       </div>
       <Button
         variant="outline"
         type="button"
-        className="h-11"
+        className="h-12 border-border bg-muted hover:bg-secondary transition-all duration-200"
         disabled={isLoading || isSocialLoading}
         onClick={() => handleSocialLogin("google")}
       >

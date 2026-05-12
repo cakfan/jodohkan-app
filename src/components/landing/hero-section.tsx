@@ -18,17 +18,17 @@ const trustIndicators = [
   {
     icon: Shield,
     label: "Terjaga Syar&apos;i",
-    delay: 500,
+    delay: 700,
   },
   {
     icon: Users,
     label: "Didampingi Mediator",
-    delay: 700,
+    delay: 900,
   },
   {
     icon: Heart,
     label: "Tujuan Menikah",
-    delay: 900,
+    delay: 1100,
   },
 ];
 
@@ -55,9 +55,9 @@ export function HeroSection({ session }: HeroSectionProps) {
           </h1>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed animate-fade-in-up [animation-delay:300ms] md:text-xl">
-            Proses ta&apos;aruf yang aman, terjaga, dan tetap memegang teguh
-            prinsip syariah. Dilengkapi dengan pendampingan mediator di setiap
-            tahapannya.
+            Capek kenalan yang tidak jelas arahnya? Jodohkan hadir untuk kamu
+            yang serius menuju pernikahan — dengan proses yang terjaga,
+            berpendamping, dan sesuai syariah.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export function HeroSection({ session }: HeroSectionProps) {
                   "group gap-2 rounded-full px-8 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 )}
               >
-                Mulai Sekarang
+                Daftar Sebagai Member Awal
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
@@ -97,6 +97,12 @@ export function HeroSection({ session }: HeroSectionProps) {
             </>
           )}
         </div>
+
+        {!session && (
+          <p className="animate-fade-in-up text-[11px] text-muted-foreground text-center [animation-delay:600ms]">
+            Gratis · Tanpa kartu kredit · Proses diverifikasi manual
+          </p>
+        )}
 
         <div className="mx-auto grid max-w-2xl gap-8 pt-8 sm:grid-cols-3">
           {trustIndicators.map((indicator) => (

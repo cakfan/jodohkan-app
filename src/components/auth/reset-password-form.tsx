@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { resetPasswordSchema, type ResetPasswordValues } from "@/lib/validations/auth";
@@ -85,30 +85,35 @@ export function ResetPasswordForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password Baru</FormLabel>
+              <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                Password Baru
+              </FormLabel>
               <FormControl>
-                <div className="relative">
-                  <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                  <Input
+                <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
+                  <InputGroupAddon>
+                    <Lock className="text-muted-foreground" />
+                  </InputGroupAddon>
+                  <InputGroupInput
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="h-11 pr-10 pl-10"
                     disabled={isLoading}
                     {...field}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                  <InputGroupAddon align="inline-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,37 +125,46 @@ export function ResetPasswordForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Konfirmasi Password</FormLabel>
+              <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                Konfirmasi Password
+              </FormLabel>
               <FormControl>
-                <div className="relative">
-                  <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                  <Input
+                <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
+                  <InputGroupAddon>
+                    <Lock className="text-muted-foreground" />
+                  </InputGroupAddon>
+                  <InputGroupInput
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="h-11 pr-10 pl-10"
                     disabled={isLoading}
                     {...field}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                    tabIndex={-1}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                  <InputGroupAddon align="inline-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="h-11 w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="h-[52px] w-full text-[15px] font-semibold tracking-[0.01em] transition-all duration-200 ease-out hover:opacity-92 hover:-translate-y-[1px] hover:shadow-lg active:translate-y-0"
+          disabled={isLoading}
+        >
           {isLoading && <Spinner className="mr-2" />}
           Reset Password
         </Button>

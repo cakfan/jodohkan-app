@@ -31,6 +31,16 @@ function ForgotPasswordFallback() {
 export default function ForgotPasswordPage() {
   return (
     <div className="bg-background selection:bg-primary/20 relative flex min-h-screen flex-col items-center justify-center p-4 transition-colors duration-500 md:p-8">
+      {/* Noise Texture Overlay */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-20 hidden opacity-[0.025] dark:hidden"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+          backgroundSize: "256px 256px",
+        }}
+      />
+
       <nav className="absolute top-4 right-4 left-4 z-50 flex items-center justify-between md:top-8 md:right-8 md:left-8">
         <Link
           href="/signin"
@@ -53,41 +63,44 @@ export default function ForgotPasswordPage() {
         />
       </div>
 
-      <main className="relative w-full max-w-[500px] space-y-8 py-12">
+      <main className="relative w-full max-w-[500px] space-y-10 py-12 max-[480px]:px-0">
         <header className="flex flex-col items-center space-y-6 text-center">
-          <div className="group relative">
+          {/* Logo */}
+          <div className="animate-fade-in-up group relative opacity-0 [animation-delay:0ms]">
+            {/* Dark mode radial glow */}
+            <div className="absolute inset-[-20px] rounded-full bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--color-primary)_8%,transparent),transparent_70%)] opacity-0 transition-opacity dark:opacity-100" />
             <div className="bg-primary/30 group-hover:bg-primary/40 absolute inset-0 rounded-full blur-2xl transition-all duration-500" />
-            <div className="bg-card border-border/60 relative rounded-3xl border p-2 shadow-2xl">
-              <BrandLogo size="lg" />
-            </div>
+            <BrandLogo size="lg" />
           </div>
 
-          <div className="space-y-3">
+          {/* Heading */}
+          <div className="animate-fade-in-up space-y-4 opacity-0 [animation-delay:150ms]">
             <h1 className="text-4xl font-black tracking-tighter lg:text-5xl">
               Lupa <span className="text-primary drop-shadow-sm">Password</span>
             </h1>
+
+            {/* Decorative line */}
+            <div className="flex items-center justify-center gap-2">
+              <span className="bg-secondary/60 block h-px w-12" />
+              <span className="bg-secondary/60 block h-px w-2" />
+              <span className="bg-secondary/60 block h-px w-12" />
+            </div>
+
             <p className="text-foreground/80 mx-auto max-w-[340px] text-lg leading-relaxed font-semibold">
               Masukkan email Anda untuk reset password.
             </p>
           </div>
         </header>
 
-        <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-white/20 backdrop-blur-3xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:ring-white/5">
-          <CardHeader className="border-border/50 bg-muted/40 space-y-2 border-b px-8 pt-10 pb-8 text-center">
-            <CardTitle className="text-foreground text-2xl font-bold tracking-tight">
-              Reset Password
-            </CardTitle>
-            <CardDescription className="text-foreground/70 text-base font-semibold">
-              Kami akan mengirimkan link reset ke email Anda
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="p-8 pt-10">
-            <Suspense fallback={<ForgotPasswordFallback />}>
-              <ForgotPasswordForm />
-            </Suspense>
-          </CardContent>
-        </Card>
+        <div className="animate-fade-in-up opacity-0 [animation-delay:300ms]">
+          <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-[0_20px_50px_color-mix(in_oklch,var(--color-primary)_8%,transparent)] backdrop-blur-3xl dark:border-border dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            <CardContent className="p-8">
+              <Suspense fallback={<ForgotPasswordFallback />}>
+                <ForgotPasswordForm />
+              </Suspense>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );

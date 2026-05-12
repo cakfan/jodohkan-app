@@ -20,5 +20,5 @@ export default async function OnboardingPage() {
     redirect("/dashboard");
   }
 
-  return <OnboardingForm />;
+  return <OnboardingForm userName={session.user.name} />;
 }

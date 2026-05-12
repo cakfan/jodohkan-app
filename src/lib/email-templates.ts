@@ -12,7 +12,7 @@ export function getVerificationEmailHtml(name: string, userEmail: string, url: s
       <td align="center">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <tr>
-            <td style="background: linear-gradient(135deg, #c6005b 0%, #a1004a 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+            <td style="background: linear-gradient(135deg, #7D3E52 0%, #632F40 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Verifikasi Email</h1>
             </td>
           </tr>
@@ -28,7 +28,7 @@ export function getVerificationEmailHtml(name: string, userEmail: string, url: s
               
               <table role="presentation" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="border-radius: 8px; background: linear-gradient(135deg, #c6005b 0%, #a1004a 100%);">
+                  <td style="border-radius: 8px; background: linear-gradient(135deg, #7D3E52 0%, #632F40 100%);">
                     <a href="${url}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">
                       Verifikasi Email
                     </a>
@@ -72,7 +72,7 @@ export function getPasswordResetEmailHtml(name: string, userEmail: string, url: 
       <td align="center">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <tr>
-            <td style="background: linear-gradient(135deg, #c6005b 0%, #a1004a 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+            <td style="background: linear-gradient(135deg, #7D3E52 0%, #632F40 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Reset Password</h1>
             </td>
           </tr>
@@ -88,7 +88,7 @@ export function getPasswordResetEmailHtml(name: string, userEmail: string, url: 
               
               <table role="presentation" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="border-radius: 8px; background: linear-gradient(135deg, #c6005b 0%, #a1004a 100%);">
+                  <td style="border-radius: 8px; background: linear-gradient(135deg, #7D3E52 0%, #632F40 100%);">
                     <a href="${url}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">
                       Reset Password
                     </a>
@@ -101,7 +101,7 @@ export function getPasswordResetEmailHtml(name: string, userEmail: string, url: 
               </p>
               <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">
                 Jika tombol di atas tidak berfungsi, salin dan tempel link berikut ke browser Anda:<br/>
-                <span style="color: #c6005b; word-break: break-all;">${url}</span>
+                <span style="color: #7D3E52; word-break: break-all;">${url}</span>
               </p>
             </td>
           </tr>

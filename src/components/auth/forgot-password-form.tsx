@@ -16,13 +16,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { forgotPasswordSchema, type ForgotPasswordValues } from "@/lib/validations/auth";
 
 const COOLDOWN_KEY = "forgot-password-cooldown";
-const COOLDOWN_DURATION = 300; // 5 minutes in seconds
+const COOLDOWN_DURATION = 300;
 
 function getInitialCooldown(): number {
   if (typeof window === "undefined") return 0;
@@ -110,18 +110,21 @@ export function ForgotPasswordForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-muted-foreground text-[13px] font-[500]">
+                Email
+              </FormLabel>
               <FormControl>
-                <div className="relative">
-                  <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                  <Input
+                <InputGroup className="h-12 dark:bg-popover transition-colors duration-200">
+                  <InputGroupAddon>
+                    <Mail className="text-muted-foreground" />
+                  </InputGroupAddon>
+                  <InputGroupInput
                     type="email"
                     placeholder="nama@email.com"
-                    className="h-11 pl-10"
                     disabled={isLoading || cooldown > 0}
                     {...field}
                   />
-                </div>
+                </InputGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,7 +133,7 @@ export function ForgotPasswordForm() {
 
         <Button
           type="submit"
-          className="h-11 w-full"
+          className="h-[52px] w-full text-[15px] font-semibold tracking-[0.01em] transition-all duration-200 ease-out hover:opacity-92 hover:-translate-y-[1px] hover:shadow-lg active:translate-y-0"
           disabled={isLoading || cooldown > 0}
         >
           {isLoading && <Spinner className="mr-2" />}

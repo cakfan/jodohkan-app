@@ -61,7 +61,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
             currentStep >= 1
-              ? "bg-primary text-primary-foreground"
+              ? "bg-primary text-primary-foreground shadow-sm"
               : "bg-muted text-muted-foreground"
           }`}
         >
@@ -76,13 +76,15 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
         </span>
       </div>
       <div
-        className={`h-px w-12 transition-colors ${currentStep >= 2 ? "bg-primary" : "bg-border"}`}
+        className={`h-px w-16 transition-colors duration-500 ${
+          currentStep >= 2 ? "bg-primary" : "bg-border"
+        }`}
       />
       <div className="flex items-center gap-2">
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
             currentStep >= 2
-              ? "bg-primary text-primary-foreground"
+              ? "bg-primary text-primary-foreground shadow-sm"
               : "bg-muted text-muted-foreground"
           }`}
         >
@@ -104,10 +106,10 @@ export function OnboardingForm() {
   const router = useRouter();
   const { data: session } = useSession();
   const [step, setStep] = useState(1);
-  const [agreed, setAgreed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const userName = session?.user?.name || "Pengguna";
+  const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleCommit() {
     if (!agreed) {
@@ -201,8 +203,8 @@ export function OnboardingForm() {
           </div>
 
           <div className="border-primary/20 from-card via-card to-primary/5 relative overflow-hidden rounded-2xl border-2 bg-linear-to-br p-6 shadow-sm md:p-8">
-            <div className="pointer-events-none absolute top-0 right-0 opacity-5 select-none">
-              <span className="font-arabic text-[120px] leading-none font-black md:text-[180px]">
+            <div className="pointer-events-none absolute top-1 right-1 opacity-5 select-none">
+              <span className="font-arabic text-[120px] leading-none font-black md:text-7xl">
                 ﷽
               </span>
             </div>

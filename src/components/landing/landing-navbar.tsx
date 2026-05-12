@@ -15,15 +15,15 @@ interface LandingNavbarProps {
 
 export function LandingNavbar({ session }: LandingNavbarProps) {
   return (
-    <nav className="absolute top-4 left-4 right-4 z-50 flex items-center justify-between md:top-8 md:left-8 md:right-8">
+    <nav className="absolute top-[54px] right-4 left-4 z-50 flex items-center justify-between md:top-[58px] md:right-8 md:left-8">
       <BrandLogo size="md" />
       <div className="flex items-center gap-4">
         {session ? (
           <Link
             href="/dashboard"
             className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "rounded-full hidden md:inline-flex"
+              buttonVariants({ variant: "default", size: "sm" }),
+              "hidden rounded-full md:inline-flex"
             )}
           >
             Dashboard
@@ -32,8 +32,8 @@ export function LandingNavbar({ session }: LandingNavbarProps) {
           <Link
             href="/signin"
             className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "rounded-full hidden md:inline-flex"
+              buttonVariants({ variant: "default", size: "lg" }),
+              "hidden items-center rounded-full md:inline-flex"
             )}
           >
             Masuk

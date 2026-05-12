@@ -1,6 +1,11 @@
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none">
         <div className="bg-primary/10 absolute top-[-15%] right-[-10%] h-[60%] w-[60%] animate-pulse rounded-full opacity-60 blur-[150px]" />
         <div
