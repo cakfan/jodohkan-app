@@ -5,28 +5,14 @@ import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import { eq, inArray } from "drizzle-orm";
 import { getStreamClient } from "@/lib/stream";
+import type { Channel } from "stream-chat";
 
-const TAARUF_ROLE = "taaruf_user";
-
-let ensureTaarufRolePromise: Promise<void> | null = null;
-
-async function ensureTaarufRole() {
-  if (!ensureTaarufRolePromise) {
-    ensureTaarufRolePromise = (async () => {
-      const client = getStreamClient();
-      try {
-        await client.createRole(TAARUF_ROLE);
-      } catch {
-        // Role already exists
-      }
-      await client.updateAppSettings({
-        grants: {
-          [TAARUF_ROLE]: ["search-user", "update-user-owner", "flag-user"],
-        },
-      });
-    })();
-  }
-  return ensureTaarufRolePromise;
+async function withTaarufChannel<T>(
+  channelId: string,
+  fn: (channel: Channel) => Promise<T>
+): Promise<T> {
+  const client = getStreamClient();
+  return await fn(client.channel("messaging", channelId));
 }
 
 function getInitials(name: string): string {
@@ -51,12 +37,16 @@ export async function getStreamToken() {
       columns: { username: true, image: true, role: true },
     });
 
+    // mediator → Stream "moderator", semua lainnya → "user"
+    const streamRole = dbUser?.role === "mediator" ? "moderator" : "user";
+
     await client.upsertUsers([
       {
         id: userId,
         name,
         image: dbUser?.image ?? undefined,
         username: dbUser?.username ?? undefined,
+        role: streamRole,
       },
     ]);
 
@@ -90,40 +80,65 @@ export async function createTaarufChannel(
     const client = getStreamClient();
     const channelId = `taaruf-${requestId}`;
 
-    await ensureTaarufRole();
-
     const memberIds: string[] = [senderId, recipientId];
+    const membersConfig: { user_id: string; role: "owner" | "member" }[] = [
+      { user_id: senderId, role: "member" },
+      { user_id: recipientId, role: "member" },
+    ];
 
     const mediators = await db.query.user.findMany({
       where: eq(user.role, "mediator"),
       columns: { id: true, name: true, username: true, image: true },
     });
-    const mediator = mediators.length > 0 ? mediators[Math.floor(Math.random() * mediators.length)] : null;
+    const mediator =
+      mediators.length > 0 ? mediators[Math.floor(Math.random() * mediators.length)] : null;
 
     const allUserIds = mediator ? [senderId, recipientId, mediator.id] : [senderId, recipientId];
     const userRows = await db.query.user.findMany({
       where: inArray(user.id, allUserIds),
       columns: { id: true, username: true, image: true },
     });
-    const userMap = new Map(userRows.map((r) => [r.id, { username: r.username ?? undefined, image: r.image ?? undefined }]));
+    const userMap = new Map(
+      userRows.map((r) => [
+        r.id,
+        { username: r.username ?? undefined, image: r.image ?? undefined },
+      ])
+    );
 
     if (mediator) {
       memberIds.push(mediator.id);
+      membersConfig.push({ user_id: mediator.id, role: "owner" });
       const m = userMap.get(mediator.id);
       await client.upsertUsers([
-        { id: mediator.id, name: mediator.name ?? mediator.id, role: "user", ...m },
+        {
+          id: mediator.id,
+          name: mediator.name ?? mediator.id,
+          role: "moderator", // Stream global role untuk mediator
+          ...m,
+        },
       ]);
     }
 
     await client.upsertUsers([
-      { id: senderId, name: senderName, role: TAARUF_ROLE, ...(userMap.get(senderId) ?? {}) },
-      { id: recipientId, name: recipientName, role: TAARUF_ROLE, ...(userMap.get(recipientId) ?? {}) },
+      {
+        id: senderId,
+        name: senderName,
+        role: "user",
+        ...(userMap.get(senderId) ?? {}),
+      },
+      {
+        id: recipientId,
+        name: recipientName,
+        role: "user",
+        ...(userMap.get(recipientId) ?? {}),
+      },
     ]);
 
+    const ownerId = mediator?.id ?? session.user.id;
     const channel = client.channel("messaging", channelId, {
       name: `Ta'aruf: ${getInitials(senderName)} & ${getInitials(recipientName)}`,
-      members: memberIds,
-      created_by_id: mediator?.id ?? session.user.id,
+      members: membersConfig,
+      created_by_id: ownerId,
     });
 
     await channel.create();
@@ -133,23 +148,6 @@ export async function createTaarufChannel(
     if (missingIds.length > 0) {
       await channel.addMembers(missingIds);
     }
-
-    if (mediator) {
-      await channel.assignRoles([
-        { user_id: mediator.id, channel_role: "channel_moderator" },
-      ]);
-    }
-
-    await channel.updatePartial({
-      set: {
-        config_overrides: {
-          grants: {
-            channel_member: ["!remove-own-channel-membership"],
-            user: ["!remove-own-channel-membership-owner"],
-          },
-        } as Record<string, unknown>,
-      },
-    });
 
     return { success: true, channelId };
   } catch (error) {
@@ -172,12 +170,12 @@ export async function banTaarufUser(channelId: string, targetUserId: string) {
   }
 
   try {
-    const client = getStreamClient();
-    const channel = client.channel("messaging", channelId);
-    await channel.banUser(targetUserId, {
-      reason: "Diblokir oleh mediator",
-      banned_by_id: session.user.id,
-    });
+    await withTaarufChannel(channelId, (channel) =>
+      channel.banUser(targetUserId, {
+        reason: "Diblokir oleh mediator",
+        banned_by_id: session.user.id,
+      })
+    );
     return { success: true };
   } catch {
     return { error: "Gagal memblokir peserta." };
@@ -198,9 +196,7 @@ export async function unbanTaarufUser(channelId: string, targetUserId: string) {
   }
 
   try {
-    const client = getStreamClient();
-    const channel = client.channel("messaging", channelId);
-    await channel.unbanUser(targetUserId);
+    await withTaarufChannel(channelId, (channel) => channel.unbanUser(targetUserId));
     return { success: true };
   } catch {
     return { error: "Gagal membuka blokir peserta." };
@@ -221,12 +217,23 @@ export async function freezeTaarufChannel(channelId: string, frozen: boolean) {
   }
 
   try {
-    const client = getStreamClient();
-    const channel = client.channel("messaging", channelId);
-    await channel.updatePartial({ set: { frozen } });
+    await withTaarufChannel(channelId, (channel) => channel.updatePartial({ set: { frozen } }));
     return { success: true };
   } catch {
     return { error: "Gagal mengubah status ta'aruf." };
+  }
+}
+
+export async function getUnreadMessageCount() {
+  const session = await getServerSession();
+  if (!session?.user?.id) return 0;
+
+  try {
+    const client = getStreamClient();
+    const { total_unread_count } = await client.getUnreadCount(session.user.id);
+    return total_unread_count ?? 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -244,11 +251,85 @@ export async function deleteTaarufChannel(channelId: string) {
   }
 
   try {
-    const client = getStreamClient();
-    const channel = client.channel("messaging", channelId);
-    await channel.delete();
+    await withTaarufChannel(channelId, (channel) => channel.delete());
     return { success: true };
   } catch {
     return { error: "Gagal menghapus channel." };
+  }
+}
+
+export async function fixExistingTaarufChannel(channelId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Not authenticated" };
+
+  try {
+    await withTaarufChannel(channelId, async (channel) => {
+      await channel.watch();
+      await channel.updatePartial({
+        set: {
+          config_overrides: {
+            replies: false,
+          },
+        },
+      });
+    });
+    return { success: true };
+  } catch (e) {
+    return { error: String(e) };
+  }
+}
+
+export async function getChannelOwner(channelId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Not authenticated" };
+
+  try {
+    let ownerId: string | undefined;
+
+    await withTaarufChannel(channelId, async (channel) => {
+      await channel.watch();
+      const d = channel.data as Record<string, unknown>;
+      ownerId = (d?.created_by_id ?? (d?.created_by as { id?: string })?.id) as string | undefined;
+    });
+
+    return { ownerId };
+  } catch (e) {
+    return { error: String(e) };
+  }
+}
+
+export async function debugChannelGrants(channelId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Not authenticated" };
+
+  try {
+    let grants: unknown;
+    let config: unknown;
+    let ownCapabilities: string[] | undefined;
+    let members: Record<string, { role: string | undefined; name: string | undefined }> = {};
+
+    await withTaarufChannel(channelId, async (channel) => {
+      await channel.watch();
+      grants = (channel.data as Record<string, unknown>)?.grants;
+      config = channel.data?.config;
+      ownCapabilities = channel.data?.own_capabilities;
+      members = channel.state?.members
+        ? Object.fromEntries(
+            Object.entries(
+              channel.state.members as Record<string, { user?: { role?: string; name?: string } }>
+            ).map(([id, m]) => [id, { role: m.user?.role, name: m.user?.name }])
+          )
+        : {};
+    });
+
+    return {
+      grants,
+      config_overrides_replies: (config as Record<string, unknown>)?.replies,
+      ownCapabilities,
+      members,
+      rawConfig: config,
+    };
+  } catch (e) {
+    return { error: String(e) };
   }
 }

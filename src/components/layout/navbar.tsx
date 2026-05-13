@@ -3,8 +3,6 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { NavbarPageTitle } from "./navbar-page-title";
 import { Coins, HeartHandshake } from "lucide-react";
 import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
@@ -39,9 +37,7 @@ export async function Navbar() {
   const status = CV_STATUS_LABELS[badgeKey] ?? CV_STATUS_LABELS.draft;
 
   return (
-    <header className="bg-background/80 supports-backdrop-blur:bg-background/60 sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b px-4 text-sm backdrop-blur-sm md:text-base">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" style={{ alignSelf: "center" }} />
+    <header className="bg-background/80 supports-backdrop-blur:bg-background/60 sticky top-0 z-1 flex h-16 shrink-0 items-center gap-2 border-b px-4 text-sm backdrop-blur-sm md:text-base">
       <NavbarPageTitle />
       <div className="flex flex-1 items-center justify-end gap-3">
         <div className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
@@ -49,7 +45,7 @@ export async function Navbar() {
           {walletBalance}
         </div>
         {inActiveTaaruf ? (
-          <div className="flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
+          <div className="border-destructive/30 bg-destructive/10 text-destructive flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
             <HeartHandshake className="size-3.5" />
             Ta&apos;aruf Aktif
           </div>

@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { getCandidates, type CandidateFilters } from "@/app/actions/candidates";
-import { TemukanClient } from "./temukan-client";
+import { FindClient } from "./find-client";
 import { Spinner } from "@/components/ui/spinner";
 
 export const dynamic = "force-dynamic";
 
-export default async function TemukanPage({
+export default async function FindPage({
   searchParams,
 }: {
   searchParams: Promise<{ city?: string; education?: string; ethnicity?: string; occupation?: string; ageMin?: string; ageMax?: string; username?: string }>;
@@ -32,7 +32,7 @@ export default async function TemukanPage({
           </div>
         }
       >
-        <TemukanClient
+        <FindClient
           initialCandidates={result.data ?? []}
           initialError={result.error}
         />

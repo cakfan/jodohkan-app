@@ -59,18 +59,25 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Payment Integration: Integrasi Xendit Invoice untuk top-up token (4 tier pricing, webhook, verifyWebhookToken).
 - [x] Wallet UI: Saldo Token card di dashboard, balance di navbar, halaman top-up di `/topup` dengan pilihan nominal + redirect Xendit checkout.
 
-## 💬 Fase 4: Integrasi Chat & Mediator (Minggu 4)
+## 💬 Fase 4: Integrasi Chat & Mediator (Minggu 4-5)
 
-**Tujuan**: Membangun sistem komunikasi yang terjaga (Stream Chat).
+**Tujuan**: Membangun sistem komunikasi yang terjaga.
 
-- [x] Setup GetStream.io: Integrasi Stream SDK (`stream-chat`, `stream-chat-react`) + server-side client singleton + API token endpoint.
-- [x] Ta'aruf Room: Logic pembuatan channel chat otomatis (`messaging`) yang menyertakan Mediator sebagai `channel_moderator`, grant overrides (`!remove-own-channel-membership`) agar user tidak bisa leave, custom role `taaruf_user` tanpa `mute-user`.
-- [x] Chat UI: Layout WhatsApp-like dengan `ChannelList`, `MessageList`, `MessageComposer`, shadcn-themed CSS (`chat-theme.css`), empty states, `ChannelHeaderGroup` (nama, jumlah peserta, mediator, "Tidak bisa leave" badge).
-- [x] Avatar Circular + CV Link: Avatar Stream Chat dibuat circular (CSS) dan klik navigasi ke `/cv/[username]` via custom `ChatAvatar` override (mengambil `username` dari custom field Stream user).
-- [x] Hapus Channel oleh Mediator: Tombol trash di header — hanya mediator (`channel_moderator`) yang bisa menghapus channel via server action (`deleteTaarufChannel`), dengan konfirmasi dialog.
-- [ ] Mediator Dashboard: Panel khusus bagi mediator untuk mengelola permintaan ta'aruf dan memantau chat.
-- [ ] Notification Core: Implementasi sistem notifikasi in-app untuk aktivitas ta'aruf.
-- [ ] Chat Guard: Bot pengingat adab di dalam ruang obrolan.
+### 💬 Chat Integration dengan GetStream.io
+
+- [x] **Setup GetStream.io**: Setup akun Stream, API key & secret di environment.
+- [x] **Ta'aruf Room (Stream)**: Channel dibuat otomatis saat ta'aruf diterima dengan mediator auto-include.
+- [x] **Chat UI (Stream)**: Implementasi `ChannelList`, `MessageList`, `MessageComposer` dari stream-chat-react.
+- [x] **Avatar Circular + CV Link**: Override komponen Avatar Stream agar bisa link ke profil CV.
+- [x] **Mediator Controls**: Mediator dapat menghapus channel, block/unblock user, freeze channel.
+- [x] **Chat Custom Theme**: Override CSS Stream Chat dengan design system shadcn/ui (token colors, border, font).
+- [x] **Multiple Participant Ta'aruf**: Channel messaging dengan mediator sebagai participant ketiga.
+- [x] **Chat Attachment**: Upload file/gambar via Stream CDN dengan attachment selector.
+- [ ] **Adab Guard**: Integrasi filter pesan — blokir gambar tidak senonoh, kata kasar, pengingat etika otomatis.
+- [ ] **Nazhar Gate**: Upload gambar/file hanya aktif saat tahap Nazhar (`stage = nazhar`); gambar tetap blur sampai Nazhar selesai.
+- [ ] **Welcome Message**: Pesan pembuka & aturan ta'aruf dikirim otomatis saat channel dibuat.
+- [ ] **Pin Pesan**: Mediator bisa pin/unpin satu pesan per channel.
+- [ ] **Notification Core**: Notifikasi in-app untuk pesan baru dan aktivitas ta'aruf.
 
 ## 🔄 Fase 5: Lifecycle & Nazhar System (Minggu 5)
 
@@ -99,5 +106,5 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 3.  Discovery/Listing Kandidat (✅ Selesai - Temukan dengan filter username, usia, kota, sticky sidebar, useSearchParams).
 4.  Request Ta'aruf (✅ Selesai - kirim/terima/tolak, 24h expiry, active ta'aruf guard, sidebar badge).
 5.  Token Top-Up (✅ Selesai - Xendit Invoice, 4 tier pricing, webhook, balance display di navbar & dashboard).
-6.  Chat Room Dasar (✅ Selesai — termasuk permission guards, avatar CV link, channel deletion oleh mediator).
+6.  Chat Room Dasar (✅ Selesai — Stream Chat dengan mediator auto-include).
 7.  Status Tahapan Ta'aruf Sederhana.

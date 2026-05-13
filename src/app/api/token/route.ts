@@ -23,7 +23,7 @@ export async function GET() {
       userId,
       name,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to generate token" },
       { status: 500 }

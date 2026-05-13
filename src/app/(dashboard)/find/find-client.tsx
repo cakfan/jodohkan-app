@@ -3,7 +3,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap, Heart, User, Calendar } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Heart,
+  User,
+  Calendar,
+} from "lucide-react";
 import { getCandidates, type CandidateFilters } from "@/app/actions/candidates";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -47,7 +56,7 @@ function getDisplayName(name: string, username: string | null): string {
   return username ? `${initials} (${username})` : initials;
 }
 
-export function TemukanClient({
+export function FindClient({
   initialCandidates,
   initialError,
 }: {
@@ -88,7 +97,14 @@ export function TemukanClient({
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const hasActiveFilters = filters.city || filters.education || filters.ethnicity || filters.occupation || filters.ageMin || filters.ageMax || filters.username;
+  const hasActiveFilters =
+    filters.city ||
+    filters.education ||
+    filters.ethnicity ||
+    filters.occupation ||
+    filters.ageMin ||
+    filters.ageMax ||
+    filters.username;
 
   const applyFilters = useCallback(async () => {
     setLoading(true);
@@ -103,7 +119,7 @@ export function TemukanClient({
     if (filters.ageMax) params.set("ageMax", String(filters.ageMax));
     if (filters.username) params.set("username", filters.username);
     const qs = params.toString();
-    router.replace(`/temukan${qs ? `?${qs}` : ""}`, { scroll: false });
+    router.replace(`/find${qs ? `?${qs}` : ""}`, { scroll: false });
 
     const result = await getCandidates(filters);
     if (result.error) {
@@ -115,9 +131,17 @@ export function TemukanClient({
   }, [filters, router]);
 
   const resetFilters = useCallback(async () => {
-    const empty: CandidateFilters = { city: "", education: "", ethnicity: "", occupation: "", ageMin: undefined, ageMax: undefined, username: "" };
+    const empty: CandidateFilters = {
+      city: "",
+      education: "",
+      ethnicity: "",
+      occupation: "",
+      ageMin: undefined,
+      ageMax: undefined,
+      username: "",
+    };
     setFilters(empty);
-    router.replace("/temukan", { scroll: false });
+    router.replace("/find", { scroll: false });
     setLoading(true);
     setError(undefined);
     const result = await getCandidates(empty);
@@ -135,9 +159,7 @@ export function TemukanClient({
       <div className="flex-1">
         {/* Mobile filter toggle */}
         <div className="mb-4 flex items-center justify-between lg:hidden">
-          <p className="text-muted-foreground text-sm">
-            {candidates.length} kandidat ditemukan
-          </p>
+          <p className="text-muted-foreground text-sm">{candidates.length} kandidat ditemukan</p>
           <Button
             variant="outline"
             size="sm"
@@ -155,7 +177,7 @@ export function TemukanClient({
         </p>
 
         {error && (
-          <div className="border-destructive/30 bg-destructive/5 mb-6 rounded-xl border p-4 text-sm text-destructive">
+          <div className="border-destructive/30 bg-destructive/5 text-destructive mb-6 rounded-xl border p-4 text-sm">
             {error}
           </div>
         )}
@@ -172,8 +194,8 @@ export function TemukanClient({
             <div className="space-y-1">
               <p className="text-lg font-semibold">Belum ada kandidat</p>
               <p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
-                Belum ada kandidat yang sesuai dengan kriteria Anda. Coba ubah filter atau
-                tunggu hingga ada kandidat baru.
+                Belum ada kandidat yang sesuai dengan kriteria Anda. Coba ubah filter atau tunggu
+                hingga ada kandidat baru.
               </p>
             </div>
           </div>
@@ -191,7 +213,9 @@ export function TemukanClient({
       </div>
 
       {/* Filter Sidebar */}
-      <div className={`lg:w-72 lg:shrink-0 lg:self-start lg:sticky lg:top-24 ${showFilters ? "block" : "hidden lg:block"}`}>
+      <div
+        className={`lg:sticky lg:top-24 lg:w-72 lg:shrink-0 lg:self-start ${showFilters ? "block" : "hidden lg:block"}`}
+      >
         <div className="bg-card border-border/50 space-y-5 rounded-2xl border p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -267,7 +291,10 @@ export function TemukanClient({
               className="h-10 rounded-xl text-sm"
               value={filters.ageMin ?? ""}
               onChange={(e) =>
-                setFilters((f) => ({ ...f, ageMin: e.target.value ? Number(e.target.value) : undefined }))
+                setFilters((f) => ({
+                  ...f,
+                  ageMin: e.target.value ? Number(e.target.value) : undefined,
+                }))
               }
             />
           </div>
@@ -281,7 +308,10 @@ export function TemukanClient({
               className="h-10 rounded-xl text-sm"
               value={filters.ageMax ?? ""}
               onChange={(e) =>
-                setFilters((f) => ({ ...f, ageMax: e.target.value ? Number(e.target.value) : undefined }))
+                setFilters((f) => ({
+                  ...f,
+                  ageMax: e.target.value ? Number(e.target.value) : undefined,
+                }))
               }
             />
           </div>
@@ -304,63 +334,75 @@ function CandidateCard({ candidate }: { candidate: Candidate }) {
   const age = computeAge(candidate.birthDate);
 
   return (
-    <div className="bg-card border-border/50 group relative overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:shadow-md">
+    <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-md">
       {/* Photo */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className="relative aspect-4/3 overflow-hidden bg-muted">
         {candidate.photoBlurredUrl ? (
-          <Image
-            src={candidate.photoBlurredUrl}
-            alt={getDisplayName(candidate.name, candidate.username)}
-            fill
-            className="object-cover"
-            loading="eager"
-            unoptimized
-          />
+          <>
+            <Image
+              src={candidate.photoBlurredUrl}
+              alt={getDisplayName(candidate.name, candidate.username)}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="eager"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3">
+              <h3 className="truncate text-sm font-bold text-white drop-shadow-sm">
+                {getDisplayName(candidate.name, candidate.username)}
+              </h3>
+              {age !== null && (
+                <p className="text-xs font-medium text-white/80 drop-shadow-sm">{age} tahun</p>
+              )}
+            </div>
+          </>
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <User className="text-muted-foreground h-12 w-12" />
+          <div className="flex h-full flex-col items-center justify-center gap-1.5">
+            <div className="flex size-14 items-center justify-center rounded-full bg-muted-foreground/10">
+              <User className="size-7 text-muted-foreground/60" />
+            </div>
+            <h3 className="truncate px-3 text-sm font-semibold text-foreground/80">
+              {getDisplayName(candidate.name, candidate.username)}
+            </h3>
+            {age !== null && (
+              <p className="text-xs text-muted-foreground">{age} tahun</p>
+            )}
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className="space-y-3 p-4">
-        <div>
-          <h3 className="text-base font-bold tracking-tight">{getDisplayName(candidate.name, candidate.username)}</h3>
-          {age !== null && (
-            <p className="text-muted-foreground text-sm">{age} tahun</p>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-2.5 p-3.5">
+        <div className="flex flex-wrap gap-1.5">
           {candidate.city && (
-            <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
-              <MapPin className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 rounded-lg bg-secondary/50 px-2 py-1 text-[11px] font-medium text-secondary-foreground/80">
+              <MapPin className="size-3 shrink-0" />
               {candidate.city}
             </span>
           )}
           {candidate.occupation && (
-            <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
-              <Briefcase className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 rounded-lg bg-secondary/50 px-2 py-1 text-[11px] font-medium text-secondary-foreground/80">
+              <Briefcase className="size-3 shrink-0" />
               {candidate.occupation}
             </span>
           )}
           {candidate.education && (
-            <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
-              <GraduationCap className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 rounded-lg bg-secondary/50 px-2 py-1 text-[11px] font-medium text-secondary-foreground/80">
+              <GraduationCap className="size-3 shrink-0" />
               {candidate.education}
             </span>
           )}
-              {candidate.maritalStatus && (
-                <span className="bg-secondary/50 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium">
-                  <Calendar className="h-3 w-3" />
-                  {getMaritalLabel(candidate.maritalStatus)}
-                </span>
-              )}
+          {candidate.maritalStatus && (
+            <span className="inline-flex items-center gap-1 rounded-lg bg-secondary/50 px-2 py-1 text-[11px] font-medium text-secondary-foreground/80">
+              <Calendar className="size-3 shrink-0" />
+              {getMaritalLabel(candidate.maritalStatus)}
+            </span>
+          )}
         </div>
 
         {candidate.bio && (
-          <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
+          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
             {candidate.bio}
           </p>
         )}

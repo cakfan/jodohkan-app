@@ -7,13 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { BlurredPhoto } from "@/components/blurred-photo";
 import { computeAge } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { sendTaarufRequest, hasSentTaarufRequest, getPendingTaarufRequestFromSource, respondToTaarufRequest, isInActiveTaarufWith } from "@/app/actions/taaruf";
+import {
+  sendTaarufRequest,
+  hasSentTaarufRequest,
+  getPendingTaarufRequestFromSource,
+  respondToTaarufRequest,
+  isInActiveTaarufWith,
+} from "@/app/actions/taaruf";
 import {
   ArrowLeft,
   MapPin,
@@ -35,6 +47,7 @@ import {
   Send,
   CheckCircle2,
   XCircle,
+  Clock,
 } from "lucide-react";
 
 export interface CandidateDetail {
@@ -108,7 +121,8 @@ function getDisplayName(name: string, username: string | null, showFull: boolean
   return username ? `${initials} (${username})` : initials;
 }
 
-const isFallback = (v: string) => v === "-" || v.startsWith("Belum") || v === "Tidak mempersyaratkan";
+const isFallback = (v: string) =>
+  v === "-" || v.startsWith("Belum") || v === "Tidak mempersyaratkan";
 
 function ExpiryCountdown({ expiresAt }: { expiresAt: Date | null }) {
   const [remaining, setRemaining] = useState("");
@@ -127,17 +141,56 @@ function ExpiryCountdown({ expiresAt }: { expiresAt: Date | null }) {
   }, [expiresAt]);
   if (!remaining) return null;
   return (
-    <p className="text-muted-foreground text-xs">
+    <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+      <Clock className="h-3 w-3" />
       {remaining === "Kadaluwarsa" ? "Permintaan telah kadaluwarsa" : `Batas respons: ${remaining}`}
-    </p>
+    </div>
   );
 }
 
 function InfoItem({ label, value }: { label: string; value: string }) {
+  const fallback = isFallback(value);
   return (
-    <div className="space-y-1.5">
-      <p className="text-muted-foreground text-xs">{label}</p>
-      <p className={`text-base font-medium leading-snug${isFallback(value) ? " text-muted-foreground" : ""}`}>{value}</p>
+    <div className="space-y-1">
+      <p className="text-muted-foreground/90 text-[11px] font-medium tracking-wider uppercase">
+        {label}
+      </p>
+      <p
+        className={`text-sm font-medium leading-snug${fallback ? "text-muted-foreground/50 italic" : ""}`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function SectionHeading({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <h2 className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
+        <Icon className="h-3.5 w-3.5" />
+        {title}
+      </h2>
+      {description && <p className="text-muted-foreground pl-5.5 text-xs">{description}</p>}
+    </div>
+  );
+}
+
+function StatCard({ value, unit }: { value: string | number; unit: string }) {
+  return (
+    <div className="border-border/40 bg-card flex min-w-[90px] flex-col items-center justify-center gap-0.5 rounded-2xl border px-5 py-4 shadow-sm">
+      <p className="text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
+      <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+        {unit}
+      </p>
     </div>
   );
 }
@@ -187,7 +240,8 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
     }
   };
 
-  const profileUrl = typeof window !== "undefined" ? `${window.location.origin}/cv/${candidate.username}` : "";
+  const profileUrl =
+    typeof window !== "undefined" ? `${window.location.origin}/cv/${candidate.username}` : "";
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(profileUrl);
@@ -195,241 +249,331 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const displayName = getDisplayName(candidate.name, candidate.username, showFullProfile);
+
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8 pb-16">
       {/* Back */}
       <button
-        onClick={() => router.push("/temukan")}
+        onClick={() => router.push("/find")}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali
       </button>
 
-      {/* Header */}
-      <section className="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
-        <div className="shrink-0">
-          <BlurredPhoto
-            blurredSrc={candidate.photoBlurredUrl}
-            originalSrc={candidate.photoUrl}
-            alt={getDisplayName(candidate.name, candidate.username, showFullProfile)}
-            size="lg"
-            canToggle={showFullProfile}
-          />
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{getDisplayName(candidate.name, candidate.username, showFullProfile)}</h1>
-            <button
-              onClick={() => setQrOpen(true)}
-              className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg p-1.5 transition-colors"
-              title="Tampilkan QR Code"
-            >
-              <QrCode className="h-4 w-4" />
-            </button>
+      {/* ── Header Card ─────────────────────────────────────────── */}
+      <section className="border-border/40 bg-card overflow-hidden rounded-2xl border shadow-sm">
+        {/* Subtle top accent strip */}
+        <div className="from-primary/60 via-primary to-accent/70 h-1 w-full bg-linear-to-r" />
+
+        <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start">
+          {/* Photo */}
+          <div className="shrink-0 self-center sm:self-start">
+            <BlurredPhoto
+              blurredSrc={candidate.photoBlurredUrl}
+              originalSrc={candidate.photoUrl}
+              alt={displayName}
+              size="lg"
+              canToggle={showFullProfile}
+            />
           </div>
-            <p className="text-muted-foreground mt-0.5 text-sm">
-              {[age !== null && `${age} tahun`, showFullProfile && candidate.gender === "male" ? "Laki-laki" : showFullProfile && candidate.gender === "female" ? "Perempuan" : null]
-                .filter(Boolean)
-                .join(" • ")}
-            </p>
-            <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-sm sm:justify-start">
-              <MapPin className="h-3.5 w-3.5" />
-              {candidate.city}
-            </p>
-          <div className="flex flex-wrap justify-center gap-2 pt-1 sm:justify-start">
-            {candidate.education && (
-              <Badge variant="secondary" className="gap-1.5 rounded-full text-xs font-normal">
-                <GraduationCap className="h-3 w-3" />
-                {candidate.education}
-              </Badge>
-            )}
-            {candidate.occupation && (
-              <Badge variant="secondary" className="gap-1.5 rounded-full text-xs font-normal">
-                <Briefcase className="h-3 w-3" />
-                {candidate.occupation}
-              </Badge>
-            )}
-            {candidate.maritalStatus && (
-              <Badge variant="secondary" className="gap-1.5 rounded-full text-xs font-normal">
-                {getMaritalLabel(candidate.maritalStatus)}
-              </Badge>
-            )}
-          </div>
-        </div>
-        {canRequestTaaruf && activeTaaruf && (
-          <Button className="shrink-0 gap-2 rounded-xl px-5" disabled>
-            <HeartHandshake className="h-4 w-4" /> Ta&apos;aruf sedang berjalan
-          </Button>
-        )}
-        {canRequestTaaruf && !activeTaaruf && incomingRequestId && (
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="gap-2 rounded-xl"
-                onClick={() => handleTaarufResponse("decline")}
-                disabled={responding}
+
+          {/* Info */}
+          <div className="min-w-0 flex-1 space-y-3 text-center sm:text-left">
+            {/* Name + QR */}
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
+              <h1 className="truncate text-xl font-semibold tracking-tight">{displayName}</h1>
+              <button
+                onClick={() => setQrOpen(true)}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted shrink-0 rounded-lg p-1.5 transition-colors"
+                title="Bagikan profil"
               >
-                <XCircle className="h-4 w-4" />
-                Tolak
-              </Button>
-              <Button
-                className="gap-2 rounded-xl"
-                onClick={() => handleTaarufResponse("accept")}
-                disabled={responding}
-              >
-                {responding ? <Spinner className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                Terima
-              </Button>
+                <QrCode className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <ExpiryCountdown expiresAt={incomingExpiresAt} />
+
+            {/* Age + city */}
+            <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm sm:justify-start">
+              {age !== null && <span>{age} tahun</span>}
+              {showFullProfile && candidate.gender && (
+                <>
+                  <span className="text-border">·</span>
+                  <span>{candidate.gender === "male" ? "Laki-laki" : "Perempuan"}</span>
+                </>
+              )}
+              <span className="text-border">·</span>
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {candidate.city}
+              </span>
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-wrap justify-center gap-1.5 sm:justify-start">
+              {candidate.education && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1 rounded-full py-0.5 text-xs font-normal"
+                >
+                  <GraduationCap className="h-3 w-3" />
+                  {candidate.education}
+                </Badge>
+              )}
+              {candidate.occupation && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1 rounded-full py-0.5 text-xs font-normal"
+                >
+                  <Briefcase className="h-3 w-3" />
+                  {candidate.occupation}
+                </Badge>
+              )}
+              {candidate.maritalStatus && (
+                <Badge variant="secondary" className="rounded-full py-0.5 text-xs font-normal">
+                  {getMaritalLabel(candidate.maritalStatus)}
+                </Badge>
+              )}
+            </div>
           </div>
-        )}
-        {canRequestTaaruf && !activeTaaruf && !incomingRequestId && (
-          <Button className="shrink-0 gap-2 rounded-xl px-5" onClick={() => setTaarufOpen(true)} disabled={taarufSent}>
-            {taarufSent ? (
-              <><Send className="h-4 w-4" /> Ta&apos;aruf Terkirim</>
-            ) : (
-              <><Heart className="h-4 w-4" /> Ajak Ta&apos;aruf</>
-            )}
-          </Button>
-        )}
+
+          {/* CTA — right-aligned on desktop, below on mobile */}
+          {canRequestTaaruf && (
+            <div className="flex flex-col items-center gap-2 sm:shrink-0 sm:items-end">
+              {activeTaaruf && (
+                <Button size="sm" className="cursor-default gap-2 rounded-xl opacity-80" disabled>
+                  <HeartHandshake className="h-4 w-4" />
+                  Sedang berjalan
+                </Button>
+              )}
+
+              {!activeTaaruf && incomingRequestId && (
+                <>
+                  <p className="text-muted-foreground text-xs font-medium">
+                    Mengajakmu ta&apos;aruf
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 rounded-xl"
+                      onClick={() => handleTaarufResponse("decline")}
+                      disabled={responding}
+                    >
+                      <XCircle className="h-3.5 w-3.5" />
+                      Tolak
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="gap-1.5 rounded-xl"
+                      onClick={() => handleTaarufResponse("accept")}
+                      disabled={responding}
+                    >
+                      {responding ? (
+                        <Spinner className="h-3.5 w-3.5" />
+                      ) : (
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      )}
+                      Terima
+                    </Button>
+                  </div>
+                  <ExpiryCountdown expiresAt={incomingExpiresAt} />
+                </>
+              )}
+
+              {!activeTaaruf && !incomingRequestId && (
+                <Button
+                  size="sm"
+                  className="gap-2 rounded-xl px-5"
+                  onClick={() => setTaarufOpen(true)}
+                  disabled={taarufSent}
+                  variant={taarufSent ? "secondary" : "default"}
+                >
+                  {taarufSent ? (
+                    <>
+                      <Send className="h-3.5 w-3.5" />
+                      Terkirim
+                    </>
+                  ) : (
+                    <>
+                      <Heart className="h-3.5 w-3.5" />
+                      Ajak Ta&apos;aruf
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* Tabs */}
+      {/* ── Tabs ─────────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 bg-transparent p-0">
-          <TabsTrigger value="personal" className="rounded-lg py-2 text-sm font-medium text-muted-foreground transition-colors data-active:bg-primary/10 data-active:text-primary">
-            Data Diri
-          </TabsTrigger>
-          <TabsTrigger value="vision" className="rounded-lg py-2 text-sm font-medium text-muted-foreground transition-colors data-active:bg-primary/10 data-active:text-primary">
-            Visi & Misi
-          </TabsTrigger>
-          <TabsTrigger value="criteria" className="rounded-lg py-2 text-sm font-medium text-muted-foreground transition-colors data-active:bg-primary/10 data-active:text-primary">
-            Kriteria
-          </TabsTrigger>
-          <TabsTrigger value="spiritual" className="rounded-lg py-2 text-sm font-medium text-muted-foreground transition-colors data-active:bg-primary/10 data-active:text-primary">
-            Spiritual
-          </TabsTrigger>
+        {/* Tab bar — pill style */}
+        <TabsList className="border-border/40 bg-muted/40 flex w-full gap-0.5 rounded-xl border p-1">
+          {[
+            { value: "personal", label: "Data Diri" },
+            { value: "vision", label: "Visi & Misi" },
+            { value: "criteria", label: "Kriteria" },
+            { value: "spiritual", label: "Spiritual" },
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground flex-1 rounded-lg py-4 text-xs font-medium transition-all data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        {/* Data Diri */}
-        <TabsContent value="personal" className="mt-8 space-y-8">
+        {/* ── DATA DIRI ─────────────────────────────────────────── */}
+        <TabsContent value="personal" className="mt-8 space-y-10">
+          {/* Profil Pribadi */}
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <User className="h-4 w-4" />
-              Profil Pribadi
-            </h2>
-            <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-              <div className="grid gap-6 sm:grid-cols-2">
+            <SectionHeading icon={User} title="Profil Pribadi" />
+            <div className="border-border/40 bg-card divide-border/30 divide-y rounded-2xl border shadow-sm">
+              <div className="divide-border/30 grid gap-0 divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                 {showFullProfile && (
-                  <InfoItem label="Jenis Kelamin" value={candidate.gender === "male" ? "Laki-laki" : candidate.gender === "female" ? "Perempuan" : "-"} />
+                  <div className="p-5">
+                    <InfoItem
+                      label="Jenis Kelamin"
+                      value={
+                        candidate.gender === "male"
+                          ? "Laki-laki"
+                          : candidate.gender === "female"
+                            ? "Perempuan"
+                            : "-"
+                      }
+                    />
+                  </div>
                 )}
                 {showFullProfile && (
-                  <InfoItem
-                    label="Tempat, Tanggal Lahir"
-                    value={candidate.birthPlace && candidate.birthDate ? `${candidate.birthPlace}, ${candidate.birthDate}` : "-"}
-                  />
-                )}
-                <InfoItem label="Suku / Etnis" value={candidate.ethnicity || "-"} />
-                <InfoItem label="Status Perkawinan" value={getMaritalLabel(candidate.maritalStatus)} />
-                {candidate.childCount !== null && candidate.childCount !== undefined && (
-                  <InfoItem label="Jumlah Anak" value={String(candidate.childCount)} />
+                  <div className="p-5">
+                    <InfoItem
+                      label="Tempat, Tanggal Lahir"
+                      value={
+                        candidate.birthPlace && candidate.birthDate
+                          ? `${candidate.birthPlace}, ${candidate.birthDate}`
+                          : "-"
+                      }
+                    />
+                  </div>
                 )}
               </div>
+              <div className="divide-border/30 grid gap-0 divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                <div className="p-5">
+                  <InfoItem label="Suku / Etnis" value={candidate.ethnicity || "-"} />
+                </div>
+                <div className="p-5">
+                  <InfoItem
+                    label="Status Perkawinan"
+                    value={getMaritalLabel(candidate.maritalStatus)}
+                  />
+                </div>
+              </div>
+              {candidate.childCount !== null && candidate.childCount !== undefined && (
+                <div className="p-5">
+                  <InfoItem label="Jumlah Anak" value={String(candidate.childCount)} />
+                </div>
+              )}
             </div>
           </section>
 
+          {/* Data Fisik */}
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <Ruler className="h-4 w-4" />
-              Data Fisik
-            </h2>
+            <SectionHeading icon={Ruler} title="Data Fisik" />
+            {/* Stat chips */}
             <div className="flex flex-wrap gap-3">
-              {candidate.height && (
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm text-center min-w-[100px]">
-                  <p className="text-xl font-semibold tracking-tight">{candidate.height}</p>
-                  <p className="text-muted-foreground text-xs">cm</p>
-                </div>
-              )}
-              {candidate.weight && (
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm text-center min-w-[100px]">
-                  <p className="text-xl font-semibold tracking-tight">{candidate.weight}</p>
-                  <p className="text-muted-foreground text-xs">kg</p>
-                </div>
-              )}
-              {candidate.skinColor && (
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm text-center min-w-[100px]">
-                  <p className="text-xl font-semibold tracking-tight capitalize">{candidate.skinColor}</p>
-                  <p className="text-muted-foreground text-xs">Warna Kulit</p>
-                </div>
-              )}
+              {candidate.height && <StatCard value={candidate.height} unit="cm" />}
+              {candidate.weight && <StatCard value={candidate.weight} unit="kg" />}
+              {candidate.skinColor && <StatCard value={candidate.skinColor} unit="Warna Kulit" />}
             </div>
-            <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <InfoItem label="Warna Rambut" value={candidate.hairColor || "-"} />
-                <InfoItem label="Tipe Rambut" value={candidate.hairType || "-"} />
-                {candidate.gender === "female" && <InfoItem label="Hijab" value={candidate.hijabStatus || "-"} />}
-                <InfoItem label="Penampilan Wajah" value={candidate.faceAppearance || "-"} />
+            {/* Grid info */}
+            <div className="border-border/40 bg-card divide-border/30 divide-y rounded-2xl border shadow-sm">
+              <div className="divide-border/30 grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                <div className="p-5">
+                  <InfoItem label="Warna Rambut" value={candidate.hairColor || "-"} />
+                </div>
+                <div className="p-5">
+                  <InfoItem label="Tipe Rambut" value={candidate.hairType || "-"} />
+                </div>
+              </div>
+              <div className="divide-border/30 grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                {candidate.gender === "female" && (
+                  <div className="p-5">
+                    <InfoItem label="Hijab" value={candidate.hijabStatus || "-"} />
+                  </div>
+                )}
+                <div className="p-5">
+                  <InfoItem label="Penampilan Wajah" value={candidate.faceAppearance || "-"} />
+                </div>
               </div>
               {candidate.otherPhysicalTraits && (
-                <div className="mt-4 pt-4 border-t border-border/50">
-                  <p className="text-muted-foreground text-xs mb-1.5">Ciri Fisik Lainnya</p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">{candidate.otherPhysicalTraits}</p>
+                <div className="space-y-2 p-5">
+                  <p className="text-muted-foreground/90 text-[11px] font-medium tracking-wider uppercase">
+                    Ciri Fisik Lainnya
+                  </p>
+                  <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
+                    {candidate.otherPhysicalTraits}
+                  </p>
                 </div>
               )}
             </div>
           </section>
 
+          {/* Pendidikan & Pekerjaan */}
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <Briefcase className="h-4 w-4" />
-              Pendidikan & Pekerjaan
-            </h2>
-            <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm space-y-4">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <InfoItem label="Pendidikan Terakhir" value={candidate.education || "-"} />
-                <InfoItem label="Pekerjaan" value={candidate.occupation || "-"} />
+            <SectionHeading icon={Briefcase} title="Pendidikan & Pekerjaan" />
+            <div className="border-border/40 bg-card divide-border/30 divide-y rounded-2xl border shadow-sm">
+              <div className="divide-border/30 grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                <div className="p-5">
+                  <InfoItem label="Pendidikan Terakhir" value={candidate.education || "-"} />
+                </div>
+                <div className="p-5">
+                  <InfoItem label="Pekerjaan" value={candidate.occupation || "-"} />
+                </div>
               </div>
-              <InfoItem label="Domisili" value={candidate.city || "-"} />
+              <div className="p-5">
+                <InfoItem label="Domisili" value={candidate.city || "-"} />
+              </div>
             </div>
           </section>
         </TabsContent>
 
-        {/* Visi & Misi */}
-        <TabsContent value="vision" className="mt-8 space-y-8">
+        {/* ── VISI & MISI ───────────────────────────────────────── */}
+        <TabsContent value="vision" className="mt-8 space-y-10">
           {candidate.bio && (
             <section className="space-y-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-                <Quote className="h-4 w-4" />
-                Bio Singkat
-              </h2>
-              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">{candidate.bio}</p>
+              <SectionHeading icon={Quote} title="Bio Singkat" />
+              <div className="border-border/40 bg-card rounded-2xl border p-5 shadow-sm">
+                <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
+                  {candidate.bio}
+                </p>
               </div>
             </section>
           )}
 
           {(candidate.personalityTraits || candidate.interests) && (
             <section className="space-y-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-                <Puzzle className="h-4 w-4" />
-                Kepribadian & Minat
-              </h2>
-              <div className="space-y-4">
+              <SectionHeading icon={Puzzle} title="Kepribadian & Minat" />
+              <div className="space-y-3">
                 {candidate.personalityTraits && (
-                  <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                    <h3 className="mb-3 text-base font-semibold">Sifat & Karakter</h3>
-                    <p className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.personalityTraits ? " text-muted-foreground" : " text-foreground/85"}`}>
+                  <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                      Sifat & Karakter
+                    </p>
+                    <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
                       {candidate.personalityTraits}
                     </p>
                   </div>
                 )}
                 {candidate.interests && (
-                  <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                    <h3 className="mb-3 text-base font-semibold">Minat & Hobi</h3>
-                    <p className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.interests ? " text-muted-foreground" : " text-foreground/85"}`}>
+                  <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                      Minat & Hobi
+                    </p>
+                    <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
                       {candidate.interests}
                     </p>
                   </div>
@@ -439,21 +583,29 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           )}
 
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <Target className="h-4 w-4" />
-              Visi & Misi Hidup
-            </h2>
-            <p className="text-muted-foreground/80 text-sm">Pandangan dan tujuan dalam membina rumah tangga Islami</p>
-            <div className="space-y-6">
-              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                <h3 className="mb-3 text-base font-semibold">Visi Hidup</h3>
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.vision ? " text-muted-foreground" : " text-foreground/85"}`}>
+            <SectionHeading
+              icon={Target}
+              title="Visi & Misi Hidup"
+              description="Pandangan dan tujuan dalam membina rumah tangga Islami"
+            />
+            <div className="border-border/40 bg-card divide-border/30 divide-y rounded-2xl border shadow-sm">
+              <div className="space-y-2 p-5">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                  Visi Hidup
+                </p>
+                <p
+                  className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.vision ? "text-muted-foreground/50 italic" : "text-foreground/85"}`}
+                >
                   {candidate.vision || "Belum mengisi visi hidup."}
                 </p>
               </div>
-              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                <h3 className="mb-3 text-base font-semibold">Misi Rumah Tangga</h3>
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.mission ? " text-muted-foreground" : " text-foreground/85"}`}>
+              <div className="space-y-2 p-5">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                  Misi Rumah Tangga
+                </p>
+                <p
+                  className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.mission ? "text-muted-foreground/50 italic" : "text-foreground/85"}`}
+                >
                   {candidate.mission || "Belum mengisi misi rumah tangga."}
                 </p>
               </div>
@@ -461,40 +613,58 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           </section>
 
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <HeartHandshake className="h-4 w-4" />
-              Pandangan & Kesiapan
-            </h2>
-            <p className="text-muted-foreground/80 text-sm">Pandangan tentang pernikahan dan kesiapan membina rumah tangga</p>
-            <div className="space-y-4">
+            <SectionHeading
+              icon={HeartHandshake}
+              title="Pandangan & Kesiapan"
+              description="Pandangan tentang pernikahan dan kesiapan membina rumah tangga"
+            />
+            <div className="space-y-3">
               {candidate.marriageTarget && (
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                  <h3 className="mb-3 text-base font-semibold">Target Pernikahan</h3>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">{candidate.marriageTarget}</p>
+                <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                    Target Pernikahan
+                  </p>
+                  <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
+                    {candidate.marriageTarget}
+                  </p>
                 </div>
               )}
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {candidate.gender === "female" && candidate.polygamyView && (
-                  <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                    <h3 className="mb-2 text-base font-semibold">Pandangan Poligami</h3>
-                    <p className="text-sm leading-relaxed text-foreground/85 capitalize">
+                  <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                      Pandangan Poligami
+                    </p>
+                    <p className="text-foreground/85 text-sm leading-relaxed capitalize">
                       {candidate.polygamyView}
                     </p>
                   </div>
                 )}
                 {candidate.gender === "female" && candidate.parentsInvolvement && (
-                  <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                    <h3 className="mb-2 text-base font-semibold">Sepengetahuan Orang Tua</h3>
-                    <p className="text-sm leading-relaxed text-foreground/85 capitalize">
-                      {candidate.parentsInvolvement === "ya" ? "Ya, orang tua tahu" : candidate.parentsInvolvement === "tidak" ? "Tidak, orang tua tidak tahu" : "Via wali saja"}
+                  <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                      Sepengetahuan Orang Tua
+                    </p>
+                    <p className="text-foreground/85 text-sm leading-relaxed capitalize">
+                      {candidate.parentsInvolvement === "ya"
+                        ? "Ya, orang tua tahu"
+                        : candidate.parentsInvolvement === "tidak"
+                          ? "Tidak, orang tua tidak tahu"
+                          : "Via wali saja"}
                     </p>
                   </div>
                 )}
                 {candidate.smokingStatus && (
-                  <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                    <h3 className="mb-2 text-base font-semibold">Status Merokok</h3>
-                    <p className="text-sm leading-relaxed text-foreground/85 capitalize">
-                      {candidate.smokingStatus === "ya" ? "Ya, merokok" : candidate.smokingStatus === "tidak" ? "Tidak, tidak merokok" : "Proses berhenti"}
+                  <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                      Status Merokok
+                    </p>
+                    <p className="text-foreground/85 text-sm leading-relaxed capitalize">
+                      {candidate.smokingStatus === "ya"
+                        ? "Ya, merokok"
+                        : candidate.smokingStatus === "tidak"
+                          ? "Tidak, tidak merokok"
+                          : "Proses berhenti"}
                     </p>
                   </div>
                 )}
@@ -503,61 +673,95 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           </section>
         </TabsContent>
 
-        {/* Kriteria */}
-        <TabsContent value="criteria" className="mt-8 space-y-8">
+        {/* ── KRITERIA ──────────────────────────────────────────── */}
+        <TabsContent value="criteria" className="mt-8 space-y-10">
           <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <Sparkles className="h-4 w-4" />
-              Kriteria Calon Pasangan
-            </h2>
-            <p className="text-muted-foreground/80 text-sm">Gambaran pasangan yang diharapkan</p>
-            <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-              <div className="grid gap-6 sm:grid-cols-3">
-                <InfoItem label="Domisili" value={candidate.partnerCity || "Tidak mempersyaratkan"} />
-                <InfoItem
-                  label="Usia"
-                  value={candidate.partnerAgeMin && candidate.partnerAgeMax ? `${candidate.partnerAgeMin} - ${candidate.partnerAgeMax} tahun` : "Tidak mempersyaratkan"}
-                />
-                <InfoItem label="Pekerjaan" value={candidate.partnerOccupation || "Tidak mempersyaratkan"} />
-              </div>
+            <SectionHeading
+              icon={Sparkles}
+              title="Kriteria Calon Pasangan"
+              description="Gambaran pasangan yang diharapkan"
+            />
+            {/* Three stat-style chips */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Domisili", value: candidate.partnerCity || "Tidak mempersyaratkan" },
+                {
+                  label: "Usia",
+                  value:
+                    candidate.partnerAgeMin && candidate.partnerAgeMax
+                      ? `${candidate.partnerAgeMin}–${candidate.partnerAgeMax} th`
+                      : "Bebas",
+                },
+                { label: "Pekerjaan", value: candidate.partnerOccupation || "Bebas" },
+              ].map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="border-border/40 bg-card space-y-1 rounded-2xl border p-4 text-center shadow-sm"
+                >
+                  <p className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
+                    {label}
+                  </p>
+                  <p
+                    className={`text-xs font-semibold leading-snug${isFallback(value) ? "text-muted-foreground/50" : ""}`}
+                  >
+                    {value}
+                  </p>
+                </div>
+              ))}
             </div>
-            <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm space-y-3">
-              <p className="text-muted-foreground/80 text-sm">Kriteria Pasangan</p>
-              <p className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.partnerCriteria ? " text-muted-foreground" : ""}`}>
+            <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+              <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                Kriteria Pasangan
+              </p>
+              <p
+                className={`text-sm leading-relaxed whitespace-pre-wrap${!candidate.partnerCriteria ? "text-muted-foreground/50 italic" : "text-foreground/85"}`}
+              >
                 {candidate.partnerCriteria || "Tidak mempersyaratkan"}
               </p>
             </div>
           </section>
         </TabsContent>
 
-        {/* Spiritual */}
-        <TabsContent value="spiritual" className="mt-8 space-y-8">
-          <section className="space-y-6">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <BookHeart className="h-4 w-4" />
-              Pemahaman Agama
-            </h2>
-            <p className="text-muted-foreground/80 text-sm">Landasan dan praktik keagamaan sehari-hari</p>
-            <div className="space-y-6">
-              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                <h3 className="mb-3 text-base font-semibold">Pemahaman Ilmu Agama</h3>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">
+        {/* ── SPIRITUAL ─────────────────────────────────────────── */}
+        <TabsContent value="spiritual" className="mt-8 space-y-10">
+          <section className="space-y-4">
+            <SectionHeading
+              icon={BookHeart}
+              title="Pemahaman Agama"
+              description="Landasan dan praktik keagamaan sehari-hari"
+            />
+            <div className="space-y-3">
+              <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                  Pemahaman Ilmu Agama
+                </p>
+                <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
                   {candidate.religiousUnderstanding || "-"}
                 </p>
               </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                  <h3 className="mb-2 text-base font-semibold">Manhaj</h3>
-                  <p className="text-sm leading-relaxed text-foreground/85">{candidate.manhaj || "-"}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                    Manhaj
+                  </p>
+                  <p className="text-foreground/85 text-sm leading-relaxed">
+                    {candidate.manhaj || "-"}
+                  </p>
                 </div>
-                <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                  <h3 className="mb-2 text-base font-semibold">Hafalan Al-Qur&apos;an</h3>
-                  <p className="text-sm leading-relaxed text-foreground/85">{candidate.memorization || "-"}</p>
+                <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                    Hafalan Al-Qur&apos;an
+                  </p>
+                  <p className="text-foreground/85 text-sm leading-relaxed">
+                    {candidate.memorization || "-"}
+                  </p>
                 </div>
               </div>
-              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                <h3 className="mb-3 text-base font-semibold">Kebiasaan Ibadah</h3>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">
+              <div className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+                  Kebiasaan Ibadah
+                </p>
+                <p className="text-foreground/85 text-sm leading-relaxed whitespace-pre-wrap">
                   {candidate.dailyWorship || "-"}
                 </p>
               </div>
@@ -567,19 +771,25 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           {candidate.qa && candidate.qa.length > 0 && (
             <>
               <Separator />
-              <section className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <MessageCircleQuestion className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="text-base font-semibold text-muted-foreground">Tanya Jawab</h2>
-                </div>
-                <p className="text-muted-foreground/80 text-sm">Pertanyaan dan jawaban seputar pandangan ta&apos;aruf</p>
-                <div className="space-y-4">
+              <section className="space-y-4">
+                <SectionHeading
+                  icon={MessageCircleQuestion}
+                  title="Tanya Jawab"
+                  description="Pertanyaan dan jawaban seputar pandangan ta'aruf"
+                />
+                <div className="space-y-3">
                   {candidate.qa.map((item, index) => (
-                    <div key={index} className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
-                      <p className="mb-2 text-sm font-semibold">
-                        <span className="text-muted-foreground">{index + 1}.</span> {item.question}
+                    <div
+                      key={index}
+                      className="border-border/40 bg-card space-y-2 rounded-2xl border p-5 shadow-sm"
+                    >
+                      <p className="text-sm leading-snug font-semibold">
+                        <span className="text-muted-foreground mr-1.5">{index + 1}.</span>
+                        {item.question}
                       </p>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/85">{item.answer}</p>
+                      <p className="text-foreground/80 border-primary/30 border-l-2 pl-4 text-sm leading-relaxed whitespace-pre-wrap">
+                        {item.answer}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -589,12 +799,12 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
         </TabsContent>
       </Tabs>
 
-      <Separator />
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pb-8">
-    <div className="space-y-1.5">
-          <p className="text-muted-foreground text-xs">Terdaftar sejak</p>
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      <div className="border-border/30 flex items-center justify-between border-t pt-2">
+        <div className="space-y-0.5">
+          <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+            Terdaftar sejak
+          </p>
           <p className="text-sm font-medium">
             {new Date(candidate.createdAt).toLocaleDateString("id-ID", {
               day: "numeric",
@@ -604,24 +814,26 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
           </p>
         </div>
         <div className="space-y-0.5 text-right">
-          <p className="text-muted-foreground text-xs">Username</p>
+          <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
+            Username
+          </p>
           <p className="text-sm font-medium">@{candidate.username || "-"}</p>
         </div>
       </div>
 
-      {/* QR Code Sheet */}
+      {/* ── QR Code Sheet ────────────────────────────────────────── */}
       <Sheet open={qrOpen} onOpenChange={setQrOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl">
           <SheetHeader className="items-center pb-2">
             <SheetTitle>Bagikan Profil</SheetTitle>
-            <SheetDescription>Scan QR Code untuk melihat profil {getDisplayName(candidate.name, candidate.username, showFullProfile)}</SheetDescription>
+            <SheetDescription>Scan QR Code untuk melihat profil {displayName}</SheetDescription>
           </SheetHeader>
           <div className="flex flex-col items-center gap-5 py-6">
             <div className="rounded-2xl border bg-white p-4 shadow-sm">
               <QRCodeSVG value={profileUrl} size={180} level="M" />
             </div>
             <div className="space-y-1 text-center">
-              <p className="text-sm font-medium">{getDisplayName(candidate.name, candidate.username, showFullProfile)}</p>
+              <p className="text-sm font-medium">{displayName}</p>
               <p className="text-muted-foreground text-xs">{profileUrl}</p>
             </div>
             <Button variant="outline" className="gap-2 rounded-xl" onClick={copyLink}>
@@ -632,19 +844,17 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
         </SheetContent>
       </Sheet>
 
-      {/* Ta'aruf Request Sheet */}
+      {/* ── Ta'aruf Request Sheet ────────────────────────────────── */}
       <Sheet open={taarufOpen} onOpenChange={setTaarufOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl">
           <SheetHeader className="items-center pb-2">
             <SheetTitle>Ajukan Ta&apos;aruf</SheetTitle>
-            <SheetDescription>
-              Kirim permintaan ta&apos;aruf ke {getDisplayName(candidate.name, candidate.username, showFullProfile)}
-            </SheetDescription>
+            <SheetDescription>Kirim permintaan ta&apos;aruf ke {displayName}</SheetDescription>
           </SheetHeader>
           <div className="space-y-5 py-6">
             <textarea
               placeholder="Tulis pesan singkat (opsional)..."
-              className="border-border/50 bg-background min-h-[120px] w-full resize-none rounded-xl border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="border-border/50 bg-background focus:ring-primary/30 min-h-[120px] w-full resize-none rounded-xl border p-4 text-sm focus:ring-2 focus:outline-none"
               value={taarufMessage}
               onChange={(e) => setTaarufMessage(e.target.value)}
               disabled={sendingTaaruf}
@@ -665,7 +875,10 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
                 className="flex-1 gap-2 rounded-xl"
                 onClick={async () => {
                   setSendingTaaruf(true);
-                  const result = await sendTaarufRequest(candidate.userId, taarufMessage || undefined);
+                  const result = await sendTaarufRequest(
+                    candidate.userId,
+                    taarufMessage || undefined
+                  );
                   setSendingTaaruf(false);
                   if (result.error) {
                     toast.error(result.error);
@@ -677,11 +890,7 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
                 }}
                 disabled={sendingTaaruf}
               >
-                {sendingTaaruf ? (
-                  <Spinner className="h-4 w-4" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
+                {sendingTaaruf ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                 Kirim
               </Button>
             </div>

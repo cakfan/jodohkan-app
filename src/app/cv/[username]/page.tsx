@@ -61,7 +61,7 @@ export default async function CandidateDetailPage({ params }: PageProps) {
                 <EmptyDescription>{result.error}</EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Link href="/temukan" className={cn(buttonVariants({ variant: "outline" }), "inline-flex items-center gap-1.5")}>
+                <Link href="/find" className={cn(buttonVariants({ variant: "outline" }), "inline-flex items-center gap-1.5")}>
                   <ArrowLeft className="h-4 w-4" />
                   Kembali ke daftar kandidat
                 </Link>

@@ -1,205 +1,219 @@
-/* Make the Chat wrapper fill the full viewport height */
+/* ==========================================================
+   JODOHKAN — Stream Chat Theme Override
+   stream-chat-react v14.x
+   ========================================================== */
+
 .str-chat {
   height: 100%;
+  font-family: var(--font-sans, "Plus Jakarta Sans", sans-serif) !important;
 }
 
-/* Override Stream Chat variables to match shadcn design tokens */
+/* ── Brand → mauve/rose ──────────────────────────────────── */
+.str-chat.str-chat__theme-light {
+  --str-chat__brand-50: #f9f3f1;
+  --str-chat__brand-100: #e8c4b8;
+  --str-chat__brand-150: #d4a8bc;
+  --str-chat__brand-200: #c49aae;
+  --str-chat__brand-300: #a87090;
+  --str-chat__brand-400: #934a61;
+  --str-chat__brand-500: #7d3e52;
+  --str-chat__brand-600: #6a3346;
+  --str-chat__brand-700: #522839;
+  --str-chat__brand-800: #3d1e2b;
+  --str-chat__brand-900: #2d1a20;
 
-.str-chat.str-chat__theme-light,
-.str-chat.str-chat__theme-dark {
-  --str-chat__text-primary: var(--color-foreground);
-  --str-chat__text-secondary: var(--color-muted-foreground);
-  --str-chat__text-tertiary: var(--color-muted-foreground);
-  --str-chat__text-link: var(--color-primary);
-  --str-chat__text-disabled: var(--color-muted-foreground);
-  --str-chat__text-on-accent: var(--color-primary-foreground);
-
-  --str-chat__background-core-surface-default: var(--color-muted);
-  --str-chat__background-core-surface-card: var(--color-card);
-  --str-chat__background-core-surface-strong: var(--color-muted);
-  --str-chat__background-core-elevation-0: var(--color-background);
-  --str-chat__background-core-elevation-1: var(--color-background);
-  --str-chat__background-core-elevation-2: var(--color-popover);
+  --str-chat__avatar-palette-bg-1: #e8c4b8;
+  --str-chat__avatar-palette-bg-2: #e8c4b8;
+  --str-chat__avatar-palette-bg-3: #e8c4b8;
+  --str-chat__avatar-palette-bg-4: #e8c4b8;
+  --str-chat__avatar-palette-bg-5: #e8c4b8;
+  --str-chat__avatar-palette-text-1: #7d3e52;
+  --str-chat__avatar-palette-text-2: #7d3e52;
+  --str-chat__avatar-palette-text-3: #7d3e52;
+  --str-chat__avatar-palette-text-4: #7d3e52;
+  --str-chat__avatar-palette-text-5: #7d3e52;
 
   --str-chat__chat-bg-incoming: var(--color-muted);
   --str-chat__chat-text-incoming: var(--color-foreground);
   --str-chat__chat-border-incoming: transparent;
   --str-chat__chat-bg-attachment-incoming: var(--color-secondary);
-
   --str-chat__chat-bg-outgoing: var(--color-primary);
   --str-chat__chat-text-outgoing: var(--color-primary-foreground);
   --str-chat__chat-border-outgoing: transparent;
   --str-chat__chat-bg-attachment-outgoing: var(--color-primary);
 
-  --str-chat__chat-text-username: var(--color-muted-foreground);
-  --str-chat__chat-text-timestamp: var(--color-muted-foreground);
-  --str-chat__chat-text-read: var(--color-primary);
-  --str-chat__chat-text-mention: var(--color-primary);
-
-  --str-chat__accent-primary: var(--color-primary);
-  --str-chat__accent-success: var(--color-chart-2);
-  --str-chat__accent-error: var(--color-destructive);
-
-  --str-chat__border-core-default: var(--color-border);
-  --str-chat__border-core-subtle: var(--color-border);
-  --str-chat__border-core-strong: var(--color-border);
-  --str-chat__border-utility-active: var(--color-ring);
-  --str-chat__border-utility-focused: var(--color-ring);
-
-  --str-chat__button-primary-bg: var(--color-primary);
-  --str-chat__button-primary-text: var(--color-primary-foreground);
-  --str-chat__button-primary-border: var(--color-primary);
-
-  --str-chat__button-secondary-bg: var(--color-background);
-  --str-chat__button-secondary-text: var(--color-foreground);
-  --str-chat__button-secondary-border: var(--color-border);
-
-  --str-chat__input-bg: var(--color-background);
-  --str-chat__input-border: var(--color-input);
-  --str-chat__input-text-default: var(--color-foreground);
-  --str-chat__input-text-placeholder: var(--color-muted-foreground);
-  --str-chat__input-text-icon: var(--color-muted-foreground);
-  --str-chat__input-send-icon: var(--color-primary);
-  --str-chat__input-send-icon-disabled: var(--color-muted-foreground);
-
-  --str-chat__badge-bg-default: var(--color-primary);
-  --str-chat__badge-text: var(--color-primary-foreground);
-
-  --str-chat__reaction-bg: var(--color-popover);
-  --str-chat__reaction-border: var(--color-border);
-  --str-chat__reaction-text: var(--color-foreground);
-
-  --str-chat__avatar-bg-placeholder: var(--color-muted);
-  --str-chat__avatar-text-placeholder: var(--color-muted-foreground);
-
-  --str-chat__system-text: var(--color-muted-foreground);
-  --str-chat__system-caret: var(--color-primary);
-
-  --str-chat__skeleton-loading-base: var(--color-muted);
-  --str-chat__skeleton-loading-highlight: var(--color-border);
-
   --str-chat__background-core-app: var(--color-background);
-  --str-chat__background-core-inverse: var(--color-foreground);
-
-  --str-chat__chat-waveform-bar: var(--color-border);
-  --str-chat__chat-waveform-bar-playing: var(--color-primary);
+  --str-chat__background-core-elevation-0: var(--color-background);
+  --str-chat__background-core-elevation-1: var(--color-card);
+  --str-chat__background-core-elevation-2: var(--color-popover);
+  --str-chat__background-core-surface-default: var(--color-muted);
+  --str-chat__background-core-surface-card: var(--color-card);
+  --str-chat__text-primary: var(--color-foreground);
 }
 
-/* Hide the built-in "Chats" header — we don't need it */
+.str-chat.str-chat__theme-dark {
+  --str-chat__brand-50: #2d1a20;
+  --str-chat__brand-100: #3d1e2b;
+  --str-chat__brand-150: #522839;
+  --str-chat__brand-200: #6a3346;
+  --str-chat__brand-300: #7d3e52;
+  --str-chat__brand-400: #934a61;
+  --str-chat__brand-500: #a05870;
+  --str-chat__brand-600: #b07a90;
+  --str-chat__brand-700: #d4a8bc;
+  --str-chat__brand-800: #e8c4b8;
+  --str-chat__brand-900: #f9f3f1;
+
+  --str-chat__avatar-palette-bg-1: #3d1e2b;
+  --str-chat__avatar-palette-bg-2: #3d1e2b;
+  --str-chat__avatar-palette-bg-3: #3d1e2b;
+  --str-chat__avatar-palette-bg-4: #3d1e2b;
+  --str-chat__avatar-palette-bg-5: #3d1e2b;
+  --str-chat__avatar-palette-text-1: #b07a90;
+  --str-chat__avatar-palette-text-2: #b07a90;
+  --str-chat__avatar-palette-text-3: #b07a90;
+  --str-chat__avatar-palette-text-4: #b07a90;
+  --str-chat__avatar-palette-text-5: #b07a90;
+
+  --str-chat__chat-bg-incoming: var(--color-muted);
+  --str-chat__chat-text-incoming: var(--color-foreground);
+  --str-chat__chat-border-incoming: transparent;
+  --str-chat__chat-bg-outgoing: var(--color-primary);
+  --str-chat__chat-text-outgoing: var(--color-primary-foreground);
+  --str-chat__chat-border-outgoing: transparent;
+
+  --str-chat__background-core-app: var(--color-background);
+  --str-chat__background-core-elevation-0: var(--color-background);
+  --str-chat__background-core-elevation-1: var(--color-card);
+  --str-chat__background-core-elevation-2: var(--color-popover);
+  --str-chat__background-core-surface-default: var(--color-muted);
+  --str-chat__text-primary: var(--color-foreground);
+}
+
+/* ── Channel layout: composer selalu di bawah ─────────────────
+   Stream Channel & Container gak punya flex:1 secara default,
+   jadinya pas MessageList gak dirender (pesan kosong) height
+   collapse dan composer naik ke atas.
+   ─────────────────────────────────────────────────────────── */
+.str-chat__channel {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__main-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__message-list {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* ── Avatar --me: sembunyikan ────────────────────────────── */
+.str-chat__message.str-chat__message--me .str-chat__avatar {
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.str-chat__message.str-chat__message--me a:has(> .str-chat__avatar) {
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ── Avatar --other: link wrapper transparan ke grid ──────── */
+.str-chat__message.str-chat__message--other a:has(> .str-chat__avatar) {
+  display: contents !important;
+}
+
+/* ── Channel list ─────────────────────────────────────────── */
 .str-chat__channel-list__header {
   display: none !important;
 }
 
-/* Channel list — full height, no extra spacing */
 .str-chat__channel-list-inner__main {
-  padding-bottom: 0 !important;
+  padding: 8px 0 !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
-/* Remove default chat bubble borders since we use transparent */
-.str-chat__theme-light .str-chat__message-inner,
-.str-chat__theme-dark .str-chat__message-inner {
-  border: none !important;
+.str-chat__channel-preview-container {
+  border-radius: 8px !important;
+  margin: 1px 8px !important;
+  transition: background 0.15s !important;
 }
 
-/* Channel list item hover/active states */
-.str-chat__channel-list-item--active {
+.str-chat__channel-preview-container:hover {
   background: var(--color-muted) !important;
 }
 
-.str-chat__channel-preview:hover {
+.str-chat__channel-list-item--active .str-chat__channel-preview-container {
   background: var(--color-muted) !important;
 }
 
-/* Message composer styling */
+/* ── Composer ─────────────────────────────────────────────── */
 .str-chat__message-composer,
 .str-chat__dropzone-root,
 .str-chat__message-composer-container {
   background: transparent !important;
   border: none !important;
-  border-top: none !important;
   box-shadow: none !important;
-  margin-top: auto !important;
-}
-
-/* Force channel area to fill remaining height */
-.str-chat__channel {
-  flex: 1 !important;
-  min-height: 0 !important;
-  height: 100% !important;
 }
 
 .str-chat__composer {
   background: var(--color-background) !important;
   border: 1px solid var(--color-input) !important;
-  border-radius: var(--radius-lg) !important;
-  flex: 1 !important;
+  border-radius: 12px !important;
+  transition: border-color 0.15s !important;
 }
 
-/* Date separator */
-.str-chat__date-separator {
-  margin: var(--str-chat__space-4) 0;
+.str-chat__composer:focus-within {
+  border-color: var(--color-ring) !important;
 }
 
+/* ── Date separator ───────────────────────────────────────── */
 .str-chat__date-separator-date {
   background: var(--color-background) !important;
   color: var(--color-muted-foreground) !important;
+  font-size: 11px !important;
+  border-radius: 99px !important;
+  padding: 2px 12px !important;
+  border: 1px solid var(--color-border) !important;
 }
 
-/* Channel list scrollbar */
-.str-chat__channel-list-inner__main {
-  scrollbar-width: thin;
+.str-chat__date-separator-line {
+  background: var(--color-border) !important;
 }
 
-/* Remove default stream chat button styles that clash */
-.str-chat__button {
-  border-radius: var(--radius-md) !important;
-}
-
-/* Avatar styling */
-.str-chat__avatar,
-.str-chat__avatar-image,
-.str-chat__avatar-fallback {
-  border-radius: 9999px !important;
-  overflow: hidden !important;
-}
-
-/* Place avatar in same row as message, aligned to bottom (beside name position) */
-.str-chat__message--other:has(> a:first-child) > a:first-child {
-  grid-column: 1 !important;
-  align-self: end !important;
-}
-.str-chat__message--me:has(> a:first-child) > a:first-child {
-  grid-column: -1 !important;
-  align-self: end !important;
-}
-
-/* Make avatar smaller in messages */
-.str-chat__message .str-chat__avatar {
-  --avatar-size: 20px !important;
-  width: 20px !important;
-  height: 20px !important;
-}
-.str-chat__message .str-chat__avatar-initials {
-  font-size: 10px !important;
-}
-
-/* Hide attachment/commands trigger for ta'aruf users */
-.taaruf-hide-commands .str-chat__attachment-selector {
-  display: none !important;
-}
-
-/* Hide the + button and its container next to the input */
-.str-chat__attachment-selector {
-  display: none !important;
-}
-
-/* Hide Block User from message actions dropdown */
+/* ── Sembunyikan elemen ───────────────────────────────────── */
 .str-chat__message-actions-list-item-button[aria-label="Block User"],
-.str-chat__message-actions-list-item-button[aria-label="Unblock User"] {
-  display: none !important;
-}
-
-/* Hide Thread Reply (both quick action button and dropdown item) */
+.str-chat__message-actions-list-item-button[aria-label="Unblock User"],
 .str-chat__message-options [data-testid="thread-action"] {
   display: none !important;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+.str-chat ::-webkit-scrollbar {
+  width: 4px;
+}
+.str-chat ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.str-chat ::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
 }

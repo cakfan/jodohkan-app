@@ -3,9 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, BookOpen, LayoutDashboard, MessageSquare, Settings2, Shield, Users, HeartHandshake, Wallet } from "lucide-react";
+import {
+  Bell,
+  BookOpen,
+  LayoutDashboard,
+  MessageSquare,
+  Settings2,
+  Shield,
+  Users,
+  HeartHandshake,
+  Wallet,
+} from "lucide-react";
 
-import { BrandLogo } from "@/components/brand-logo";
 import { NavUser } from "./nav-user";
 import {
   Sidebar,
@@ -17,15 +26,17 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { getTaarufRequestCounts } from "@/app/actions/taaruf";
+import { getUnreadMessageCount } from "@/app/actions/stream";
 
 const candidateNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "CV Ta'aruf", url: "/cv/edit", icon: BookOpen },
-  { title: "Temukan", url: "/temukan", icon: Users },
+  { title: "Temukan", url: "/find", icon: Users },
   { title: "Ta'aruf", url: "/taaruf", icon: HeartHandshake },
   { title: "Pesan", url: "/messages", icon: MessageSquare },
   { title: "Notifikasi", url: "/notifications", icon: Bell },
@@ -55,6 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMediator = session?.user?.role === "mediator";
   const navItems = isAdmin ? adminNavItems : isMediator ? mediatorNavItems : candidateNavItems;
   const [pendingTaaruf, setPendingTaaruf] = React.useState(0);
+  const [unreadMessages, setUnreadMessages] = React.useState(0);
 
   React.useEffect(() => {
     getTaarufRequestCounts().then((counts) => {
@@ -62,18 +74,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     });
   }, []);
 
+  React.useEffect(() => {
+    const fetch = () => getUnreadMessageCount().then(setUnreadMessages);
+    fetch();
+    const interval = setInterval(fetch, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="px-3 py-5 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
-        >
-          <BrandLogo size="sm" className="shrink-0" />
-          <span className="text-base font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+      {/* Header: title kiri, toggle kanan — collapsed: hanya toggle */}
+      <SidebarHeader className="flex h-[60px] flex-row items-center justify-between px-5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
+        <Link href="/dashboard" className="group-data-[collapsible=icon]:hidden">
+          <span className="font-heading text-foreground text-xl font-semibold tracking-tight">
             Jodohkan
           </span>
         </Link>
+        <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-1 group-data-[collapsible=icon]:px-0">
@@ -82,7 +99,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             const isActive =
               pathname === item.url ||
               (pathname.startsWith(item.url + "/") && item.url !== "/dashboard");
-            const showBadge = item.url === "/taaruf" && pendingTaaruf > 0;
+            const showBadge =
+              (item.url === "/taaruf" && pendingTaaruf > 0) ||
+              (item.url === "/messages" && unreadMessages > 0);
+            const badgeCount =
+              item.url === "/taaruf"
+                ? pendingTaaruf
+                : item.url === "/messages"
+                  ? unreadMessages
+                  : 0;
 
             return (
               <SidebarMenuItem
@@ -114,7 +139,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {showBadge && (
                   <SidebarMenuBadge
                     className={cn(
-                      "right-1.5 top-1/2! -translate-y-1/2!",
+                      "top-1/2! right-1.5 -translate-y-1/2!",
                       "group-data-[collapsible=icon]:flex!",
                       "group-data-[collapsible=icon]:right-0!",
                       "group-data-[collapsible=icon]:top-1!",
@@ -126,12 +151,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       "group-data-[collapsible=icon]:border-background",
                       "group-data-[collapsible=icon]:bg-destructive",
                       "group-data-[collapsible=icon]:overflow-hidden",
-                      "group-data-[collapsible=icon]:translate-y-0",
+                      "group-data-[collapsible=icon]:translate-y-0"
                     )}
                   >
-                    <span className="group-data-[collapsible=icon]:sr-only">
-                      {pendingTaaruf}
-                    </span>
+                    <span className="group-data-[collapsible=icon]:sr-only">{badgeCount}</span>
                   </SidebarMenuBadge>
                 )}
               </SidebarMenuItem>

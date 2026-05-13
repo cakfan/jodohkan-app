@@ -30,9 +30,7 @@ export function BlurredPhoto({
 
   if (!blurredSrc) {
     return (
-      <div
-        className={`bg-muted flex items-center justify-center rounded-2xl ${sizeMap[size]}`}
-      >
+      <div className={`bg-muted flex items-center justify-center rounded-2xl ${sizeMap[size]}`}>
         <Lock className="text-muted-foreground h-6 w-6 md:h-8 md:w-8" />
       </div>
     );
@@ -43,7 +41,7 @@ export function BlurredPhoto({
 
   return (
     <div className="relative inline-block">
-      <div className="relative overflow-hidden rounded-2xl">
+      <div className="relative overflow-clip rounded-2xl">
         <Image
           src={src}
           alt={alt}
@@ -53,9 +51,9 @@ export function BlurredPhoto({
           loading="eager"
           unoptimized
         />
-        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5" />
+        <div className="absolute inset-0 rounded-full ring-1 ring-black/5 ring-inset" />
         {!showOriginal && (
-          <div className="bg-background/60 absolute inset-x-0 bottom-0 px-3 py-1.5 text-center text-[10px] font-semibold tracking-wider uppercase backdrop-blur-sm">
+          <div className="bg-background/60 absolute inset-x-0 bottom-0 rounded-b-2xl px-3 py-1.5 text-center text-[10px] font-semibold tracking-wider uppercase backdrop-blur-sm">
             Tersamarkan
           </div>
         )}

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { StreamChatProvider } from "@/components/stream-chat-provider";
 import { cookies } from "next/headers";
 
 export default async function DashboardLayout({
@@ -45,7 +46,9 @@ export default async function DashboardLayout({
       <SidebarInset>
         <Navbar />
         <main className="flex flex-1 flex-col">
-          {children}
+          <StreamChatProvider>
+            {children}
+          </StreamChatProvider>
         </main>
       </SidebarInset>
     </SidebarProvider>

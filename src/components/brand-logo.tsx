@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +17,22 @@ const wrapperSizes = {
   xl: "size-16",
 };
 
+function useHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
+
 export function BrandLogo({ className, size = "md" }: BrandLogoProps) {
+  const mounted = useHydrated();
   const { resolvedTheme } = useTheme();
+
+  if (!mounted) {
+    return <div className={cn("shrink-0", wrapperSizes[size], className)} />;
+  }
+
   const isDark = resolvedTheme === "dark";
 
   return (
