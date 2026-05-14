@@ -84,9 +84,10 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 
 **Tujuan**: Memfasilitasi sesi video call nadzor dengan moderator dan transisi ke khitbah.
 
-- [ ] DB Schema: `nadzor_session` (mediator_id, max_duration, enum status/reason, index) + `nadzor_session_agreement` (unique constraint, requested_at/responded_at).
-- [ ] Phase State: Tambah kolom `phase` (chat|nadzor|khitbah|completed) di `taaruf_request`.
-- [ ] Phase Transition: Mediator bisa mengaktifkan fase nadzor dari panel — validasi kedua pihak setuju.
+- [x] DB Schema: `nadzor_session` (mediator_id, max_duration, enum status/reason, index) + `nadzor_session_agreement` (unique constraint, requested_at/responded_at) + `moderator_audit_log` (audit trail).
+- [x] Phase State: Tambah kolom `phase` (chat|nadzor|khitbah|completed) + `phase_updated_at` + `mediator_id` di `taaruf_request`.
+- [x] Phase Transition: Mediator bisa mengaktifkan fase nadzor dari panel — validasi kedua pihak setuju.
+- [x] Unit Tests: Test untuk `transitionToNadzorPhase`, `getActiveTaarufPhase`, dan validasi enum phase.
 - [ ] Scheduling Panel: Ajukan jadwal, approval dari kedua pihak, notifikasi ke mediator.
 - [ ] Stream Video SDK: Install `@stream-io/video-react-sdk`, custom call type `"nadzor"`.
 - [ ] Video Call UI: 1-on-1 video (ikhwan & akhwat), moderator join audio-only sebagai observer.

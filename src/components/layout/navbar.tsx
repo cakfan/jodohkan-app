@@ -5,8 +5,8 @@ import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 import { NavbarPageTitle } from "./navbar-page-title";
 import { NavbarNotifications } from "./navbar-notifications";
-import { Coins, HeartHandshake } from "lucide-react";
-import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
+import { Coins, HeartHandshake, Video } from "lucide-react";
+import { getActiveTaarufPhase } from "@/app/actions/taaruf";
 import { getUnreadNotificationCount, getNotifications } from "@/app/actions/notification";
 
 export async function Navbar() {
@@ -16,11 +16,14 @@ export async function Navbar() {
   let cvStatus = "draft";
   let published = false;
   let walletBalance = 0;
-  let inActiveTaaruf = false;
+  let taarufPhase: { active: boolean; phase: string | null } = {
+    active: false,
+    phase: null,
+  };
   let unreadNotif = 0;
   let notifList: Awaited<ReturnType<typeof getNotifications>>["data"] = [];
   if (userId) {
-    const [existing, existingWallet, taarufStatus, notifCount, notifications] = await Promise.all([
+    const [existing, existingWallet, phaseResult, notifCount, notifications] = await Promise.all([
       db.query.profile.findFirst({
         where: eq(profile.userId, userId),
         columns: { cvStatus: true, published: true },
@@ -29,14 +32,14 @@ export async function Navbar() {
         where: eq(wallet.userId, userId),
         columns: { balance: true },
       }),
-      isUserInActiveTaaruf(userId),
+      getActiveTaarufPhase(userId),
       getUnreadNotificationCount(),
       getNotifications(5),
     ]);
     cvStatus = existing?.cvStatus ?? "draft";
     published = existing?.published ?? false;
     walletBalance = existingWallet?.balance ?? 0;
-    inActiveTaaruf = taarufStatus;
+    taarufPhase = phaseResult;
     unreadNotif = notifCount;
     notifList = notifications.data ?? [];
   }
@@ -53,11 +56,23 @@ export async function Navbar() {
           <Coins className="size-3.5 text-amber-500" />
           {walletBalance}
         </div>
-        {inActiveTaaruf ? (
-          <div className="border-destructive/30 bg-destructive/10 text-destructive flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
-            <HeartHandshake className="size-3.5" />
-            Ta&apos;aruf Aktif
-          </div>
+        {taarufPhase.active ? (
+          taarufPhase.phase === "nadzor" ? (
+            <div className="bg-amber-500/10 text-amber-600 flex items-center gap-1.5 rounded-full border border-amber-200/50 px-3 py-1 text-xs font-medium dark:border-amber-800/30">
+              <Video className="size-3.5" />
+              Fase Nadzor
+            </div>
+          ) : taarufPhase.phase === "khitbah" ? (
+            <div className="bg-emerald-500/10 text-emerald-600 flex items-center gap-1.5 rounded-full border border-emerald-200/50 px-3 py-1 text-xs font-medium dark:border-emerald-800/30">
+              <HeartHandshake className="size-3.5" />
+              Fase Khitbah
+            </div>
+          ) : (
+            <div className="border-destructive/30 bg-destructive/10 text-destructive flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
+              <HeartHandshake className="size-3.5" />
+              Ta&apos;aruf Aktif
+            </div>
+          )
         ) : (
           <div className="flex items-center gap-1.5 rounded-full border px-3 py-1">
             <span className={`size-1.5 rounded-full ${status.dot}`} />

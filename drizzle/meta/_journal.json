@@ -64,6 +64,13 @@
       "when": 1778737849471,
       "tag": "0008_busy_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778791945100,
+      "tag": "0009_majestic_puff_adder",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,8 @@ import { user } from "@/db/schema/auth-schema";
 import { taarufRequest } from "@/db/schema/taaruf-schema";
 import { eq, inArray } from "drizzle-orm";
 import { getStreamClient } from "@/lib/stream";
+import { createNotification } from "./notification";
+import { revalidatePath } from "next/cache";
 import type { Channel } from "stream-chat";
 
 async function withTaarufChannel<T>(
@@ -367,6 +369,63 @@ export async function getChannelOwner(channelId: string) {
   } catch (e) {
     return { error: String(e) };
   }
+}
+
+export async function transitionToNadzorPhase(channelId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const dbUser = await db.query.user.findFirst({
+    where: eq(user.id, session.user.id),
+    columns: { role: true },
+  });
+
+  if (dbUser?.role !== "mediator") {
+    return { error: "Hanya mediator yang bisa mengaktifkan fase nadzor." };
+  }
+
+  const requestId = channelId.replace("taaruf-", "");
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: { id: true, phase: true, senderId: true, recipientId: true },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+  if (request.phase !== "chat") return { error: "Fase nadzor sudah aktif." };
+
+  const now = new Date();
+  await db
+    .update(taarufRequest)
+    .set({ phase: "nadzor", phaseUpdatedAt: now, updatedAt: now })
+    .where(eq(taarufRequest.id, requestId));
+
+  try {
+    await withTaarufChannel(channelId, (channel) =>
+      channel.updatePartial({
+        set: { phase: "nadzor" } as Record<string, unknown>,
+      })
+    );
+  } catch {
+    return { error: "Gagal memperbarui channel." };
+  }
+
+  await createNotification(
+    request.senderId,
+    "nadzor_activated",
+    "Fase Nadzor Aktif",
+    "Mediator telah mengaktifkan fase nadzor. Anda akan dijadwalkan untuk sesi video call.",
+    { requestId }
+  );
+  await createNotification(
+    request.recipientId,
+    "nadzor_activated",
+    "Fase Nadzor Aktif",
+    "Mediator telah mengaktifkan fase nadzor. Anda akan dijadwalkan untuk sesi video call.",
+    { requestId }
+  );
+
+  revalidatePath("/", "layout");
+  return { success: true };
 }
 
 export async function debugChannelGrants(channelId: string) {

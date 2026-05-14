@@ -15,7 +15,11 @@ export type NotificationType =
   | "taaruf_request_expired"
   | "taaruf_ended"
   | "cv_approved"
-  | "cv_rejected";
+  | "cv_rejected"
+  | "nadzor_activated"
+  | "nadzor_scheduled"
+  | "nadzor_reminder"
+  | "nadzor_feedback";
 
 export interface NotificationData {
   id: string;
@@ -36,6 +40,10 @@ const notificationActionUrls: Record<NotificationType, string | null> = {
   taaruf_ended: "/taaruf",
   cv_approved: "/profile",
   cv_rejected: "/profile",
+  nadzor_activated: "/messages",
+  nadzor_scheduled: "/messages",
+  nadzor_reminder: "/messages",
+  nadzor_feedback: "/messages",
 };
 
 export async function createNotification(

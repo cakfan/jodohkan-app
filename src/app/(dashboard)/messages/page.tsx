@@ -26,6 +26,7 @@ import {
   ScrollText,
   FileText,
   Pin,
+  Rocket,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,11 +48,12 @@ import { toast } from "sonner";
 import { useStreamChat } from "@/components/stream-chat-provider";
 import {
   deleteTaarufChannel,
+  unpinMessage,
+  transitionToNadzorPhase,
+  getChannelOwner,
   banTaarufUser,
   unbanTaarufUser,
   freezeTaarufChannel,
-  getChannelOwner,
-  unpinMessage,
 } from "@/app/actions/stream";
 import { checkMessageContent } from "@/lib/adab-guard";
 import {
@@ -771,6 +773,8 @@ function ChannelHeaderGroup({
   const { channel, client } = useChatContext();
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [nadzorDialogOpen, setNadzorDialogOpen] = useState(false);
+  const [activating, setActivating] = useState(false);
   const members = channel?.state?.members ? Object.values(channel.state.members) : [];
   const ownerId = channel?.data?.created_by_id ?? channel?.data?.created_by?.id;
   const owner = members.find(
@@ -778,6 +782,20 @@ function ChannelHeaderGroup({
       m.channel_role === "owner" || m.user?.id === ownerId
   );
   const isMediator = owner?.user?.id === client?.userID;
+  const phase = ((channel?.data as Record<string, unknown>)?.phase as string | undefined) ?? "chat";
+
+  const phaseBadge = (() => {
+    switch (phase) {
+      case "nadzor":
+        return <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 text-[10px]">Nadzor</Badge>;
+      case "khitbah":
+        return <Badge className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 text-[10px]">Khitbah</Badge>;
+      case "completed":
+        return <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/10 text-[10px]">Selesai</Badge>;
+      default:
+        return null;
+    }
+  })();
 
   const handleDelete = useCallback(async () => {
     if (!channel?.id) return;
@@ -789,6 +807,19 @@ function ChannelHeaderGroup({
     } else {
       window.location.href = "/messages";
     }
+  }, [channel]);
+
+  const handleActivateNadzor = useCallback(async () => {
+    if (!channel?.id) return;
+    setActivating(true);
+    const result = await transitionToNadzorPhase(channel.id);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Fase nadzor telah diaktifkan.");
+    }
+    setActivating(false);
+    setNadzorDialogOpen(false);
   }, [channel]);
 
   return (
@@ -813,6 +844,28 @@ function ChannelHeaderGroup({
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={nadzorDialogOpen} onOpenChange={setNadzorDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia>
+              <Rocket className="text-primary size-8" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Aktifkan Fase Nadzor</AlertDialogTitle>
+            <AlertDialogDescription>
+              Kedua pihak telah sepakat untuk lanjut ke nadzor? Dengan mengaktifkan fase ini,
+              sesi video call nadzor akan dapat dijadwalkan. Pastikan kedua pihak sudah setuju
+              sebelum melanjutkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setNadzorDialogOpen(false)}>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleActivateNadzor} disabled={activating}>
+              {activating ? "Mengaktifkan..." : "Ya, aktifkan"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="bg-card flex items-center gap-3 border-b px-4 py-3">
         <Button
           variant="ghost"
@@ -823,7 +876,10 @@ function ChannelHeaderGroup({
             <Users className="text-primary size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-sm font-semibold">{channel?.data?.name ?? "Ta'aruf"}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="truncate text-sm font-semibold">{channel?.data?.name ?? "Ta'aruf"}</h2>
+              {phaseBadge}
+            </div>
             <p className="text-muted-foreground truncate text-xs">
               {members.length} peserta
               {owner ? ` · ${owner.user?.name ?? "Owner"}` : ""}
@@ -839,6 +895,17 @@ function ChannelHeaderGroup({
           >
             <ScrollText className="size-3.5" />
           </Button>
+          {isMediator && phase === "chat" && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setNadzorDialogOpen(true)}
+              className="gap-1.5 text-xs"
+            >
+              <Rocket className="size-3.5" />
+              Aktifkan Nadzor
+            </Button>
+          )}
           {isMediator && (
             <Button
               variant="destructive"

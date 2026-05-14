@@ -25,6 +25,26 @@ export async function isUserInActiveTaaruf(userId: string): Promise<boolean> {
   return rows.length > 0;
 }
 
+export async function getActiveTaarufPhase(
+  userId: string
+): Promise<{ active: boolean; phase: string | null }> {
+  const row = await db
+    .select({ phase: taarufRequest.phase })
+    .from(taarufRequest)
+    .where(
+      and(
+        or(
+          eq(taarufRequest.senderId, userId),
+          eq(taarufRequest.recipientId, userId)
+        ),
+        eq(taarufRequest.status, "accepted")
+      )
+    )
+    .limit(1);
+  if (row.length === 0) return { active: false, phase: null };
+  return { active: true, phase: row[0].phase ?? "chat" };
+}
+
 export async function getActiveTaarufUserIds(): Promise<string[]> {
   const rows = await db
     .select({ userId: taarufRequest.senderId })

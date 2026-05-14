@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCheck, HeartHandshake, Shield, XCircle, Clock, FileText } from "lucide-react";
+import { Bell, CheckCheck, HeartHandshake, Shield, XCircle, Clock, FileText, Rocket, Video, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,10 @@ const iconMap: Record<string, React.ElementType> = {
   taaruf_ended: Shield,
   cv_approved: FileText,
   cv_rejected: FileText,
+  nadzor_activated: Rocket,
+  nadzor_scheduled: Video,
+  nadzor_reminder: Video,
+  nadzor_feedback: MessageSquare,
 };
 
 function getNotificationHref(notif: NotificationData): string | null {
@@ -34,6 +38,11 @@ function getNotificationHref(notif: NotificationData): string | null {
     case "cv_approved":
     case "cv_rejected":
       return "/cv/edit";
+    case "nadzor_activated":
+    case "nadzor_scheduled":
+    case "nadzor_reminder":
+    case "nadzor_feedback":
+      return "/messages";
     default:
       return null;
   }

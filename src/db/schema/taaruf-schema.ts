@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, index, boolean } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
+import { mediator } from "./mediators-schema";
 
 export const taarufRequest = pgTable(
   "taaruf_request",
@@ -12,6 +13,15 @@ export const taarufRequest = pgTable(
     recipientId: text("recipient_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    mediatorId: text("mediator_id").references(() => mediator.id, {
+      onDelete: "set null",
+    }),
+    phase: text("phase", {
+      enum: ["chat", "nadzor", "khitbah", "completed"],
+    })
+      .default("chat")
+      .notNull(),
+    phaseUpdatedAt: timestamp("phase_updated_at"),
     status: text("status").default("pending").notNull(),
     message: text("message"),
     senderRead: boolean("sender_read").default(false).notNull(),
@@ -27,7 +37,9 @@ export const taarufRequest = pgTable(
   (table) => [
     index("taaruf_senderId_idx").on(table.senderId),
     index("taaruf_recipientId_idx").on(table.recipientId),
+    index("taaruf_mediatorId_idx").on(table.mediatorId),
     index("taaruf_status_idx").on(table.status),
+    index("taaruf_phase_idx").on(table.phase),
   ]
 ).enableRLS();
 
@@ -39,6 +51,10 @@ export const taarufRequestRelations = relations(taarufRequest, ({ one }) => ({
   recipient: one(user, {
     fields: [taarufRequest.recipientId],
     references: [user.id],
+  }),
+  mediator: one(mediator, {
+    fields: [taarufRequest.mediatorId],
+    references: [mediator.id],
   }),
 }));
 
