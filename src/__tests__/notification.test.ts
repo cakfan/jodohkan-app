@@ -57,7 +57,6 @@ describe("Notification Server Actions - Auth Guard", () => {
 
 describe("Notification Types", () => {
   test("should have all expected notification types", async () => {
-    const mod = await import("@/app/actions/notification");
     const types: string[] = [
       "taaruf_request_received",
       "taaruf_request_accepted",

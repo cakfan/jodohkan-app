@@ -2,9 +2,11 @@
 
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
-import { notification } from "@/db/schema";
+import { notification, user } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
+import { getNotificationEmailHtml } from "@/lib/email-templates/notification";
 
 export type NotificationType =
   | "taaruf_request_received"
@@ -26,6 +28,16 @@ export interface NotificationData {
   createdAt: Date;
 }
 
+const notificationActionUrls: Record<NotificationType, string | null> = {
+  taaruf_request_received: "/taaruf",
+  taaruf_request_accepted: "/taaruf",
+  taaruf_request_declined: "/taaruf",
+  taaruf_request_expired: "/taaruf",
+  taaruf_ended: "/taaruf",
+  cv_approved: "/profile",
+  cv_rejected: "/profile",
+};
+
 export async function createNotification(
   userId: string,
   type: NotificationType,
@@ -44,6 +56,26 @@ export async function createNotification(
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+
+  const [targetUser] = await db
+    .select({ email: user.email, emailVerified: user.emailVerified })
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+
+  if (targetUser?.emailVerified) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://jodohkan.app";
+    const actionPath = notificationActionUrls[type];
+    const actionUrl = actionPath ? `${appUrl}${actionPath}` : null;
+    const actionLabel = actionUrl ? "Buka Notifikasi" : null;
+
+    await sendEmail(
+      targetUser.email,
+      `Jodohkan - ${title}`,
+      getNotificationEmailHtml(title, body, actionLabel, actionUrl)
+    );
+  }
+
   return id;
 }
 
