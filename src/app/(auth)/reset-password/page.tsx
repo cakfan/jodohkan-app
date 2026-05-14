@@ -17,8 +17,6 @@ export const metadata: Metadata = {
   description: "Buat password baru untuk akun Jodohkan Anda.",
 };
 
-export const dynamic = "force-dynamic";
-
 function ResetPasswordFallback() {
   return (
     <div className="flex min-h-[400px] items-center justify-center">

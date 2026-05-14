@@ -2,6 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCandidateByUsername } from "@/app/actions/candidates";
+import {
+  hasSentTaarufRequest,
+  getPendingTaarufRequestFromSource,
+  isUserInActiveTaaruf,
+} from "@/app/actions/taaruf";
 import { CandidateDetailClient, type CandidateDetail } from "./candidate-detail-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buttonVariants } from "@/components/ui/button";
@@ -50,43 +55,66 @@ function DetailSkeleton() {
   );
 }
 
-export default async function CandidateDetailPage({ params }: PageProps) {
-  const { username } = await params;
-  const result = await getCandidateByUsername(username);
-
+export default function CandidateDetailPage({ params }: PageProps) {
   return (
     <div className="px-4 pt-8 pb-4 md:px-6 md:pt-10 md:pb-6">
       <Suspense fallback={<DetailSkeleton />}>
-        {result.error ? (
-          <div className="flex min-h-[60vh] items-center justify-center p-4">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <UserX />
-                </EmptyMedia>
-                <EmptyTitle>Profil Tidak Ditemukan</EmptyTitle>
-                <EmptyDescription>{result.error}</EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Link
-                  href="/find"
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "inline-flex items-center gap-1.5"
-                  )}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Kembali ke daftar kandidat
-                </Link>
-              </EmptyContent>
-            </Empty>
-          </div>
-        ) : (
-          <CandidateDetailClient
-            candidate={{ ...result.data!, qa: result.data!.qa as CandidateDetail["qa"] }}
-          />
-        )}
+        <CandidateDetailView params={params} />
       </Suspense>
     </div>
+  );
+}
+
+async function CandidateDetailView({ params }: PageProps) {
+  const { username } = await params;
+  const result = await getCandidateByUsername(username);
+
+  if (result.error) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-4">
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <UserX />
+            </EmptyMedia>
+            <EmptyTitle>Profil Tidak Ditemukan</EmptyTitle>
+            <EmptyDescription>{result.error}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Link
+              href="/find"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "inline-flex items-center gap-1.5"
+              )}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Kembali ke daftar kandidat
+            </Link>
+          </EmptyContent>
+        </Empty>
+      </div>
+    );
+  }
+
+  const candidate = {
+    ...result.data!,
+    qa: result.data!.qa as CandidateDetail["qa"],
+  };
+
+  const [initialTaarufSent, initialPendingReq, initialActiveTaaruf] = await Promise.all([
+    hasSentTaarufRequest(candidate.userId),
+    getPendingTaarufRequestFromSource(candidate.userId),
+    isUserInActiveTaaruf(candidate.userId),
+  ]);
+
+  return (
+    <CandidateDetailClient
+      candidate={candidate}
+      initialTaarufSent={initialTaarufSent}
+      initialIncomingRequestId={initialPendingReq?.id ?? null}
+      initialIncomingExpiresAt={initialPendingReq?.expiresAt ?? null}
+      initialActiveTaaruf={initialActiveTaaruf}
+    />
   );
 }

@@ -5,9 +5,27 @@ import { Spinner } from "@/components/ui/spinner";
 import { getServerSession } from "@/lib/get-server-session";
 import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
-export const dynamic = "force-dynamic";
+export default function FindPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ city?: string; education?: string; ethnicity?: string; occupation?: string; ageMin?: string; ageMax?: string; username?: string }>;
+}) {
+  return (
+    <div className="p-4 md:p-6">
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-20">
+            <Spinner className="h-8 w-8" />
+          </div>
+        }
+      >
+        <FindPageContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
 
-export default async function FindPage({
+async function FindPageContent({
   searchParams,
 }: {
   searchParams: Promise<{ city?: string; education?: string; ethnicity?: string; occupation?: string; ageMin?: string; ageMax?: string; username?: string }>;
@@ -31,20 +49,10 @@ export default async function FindPage({
   const result = await getCandidates(filters);
 
   return (
-    <div className="p-4 md:p-6">
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center py-20">
-            <Spinner className="h-8 w-8" />
-          </div>
-        }
-      >
-        <FindClient
-          initialCandidates={result.data ?? []}
-          initialError={result.error}
-          inActiveTaaruf={inActiveTaaruf}
-        />
-      </Suspense>
-    </div>
+    <FindClient
+      initialCandidates={result.data ?? []}
+      initialError={result.error}
+      inActiveTaaruf={inActiveTaaruf}
+    />
   );
 }

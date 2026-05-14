@@ -4,8 +4,7 @@ export type AdabCheckResult = {
   violationCategory?: "bad_word" | "appearance" | "dating";
 };
 
-// TODO: set ke false untuk production
-const IS_TESTING = true;
+const IS_TESTING = process.env.NODE_ENV === "development";
 
 type DurationTier = { ms: number | null; label: string };
 

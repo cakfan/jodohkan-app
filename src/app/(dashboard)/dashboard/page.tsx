@@ -1,10 +1,42 @@
+import { Suspense } from "react";
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function DashboardPage() {
+function StatCardSkeleton() {
+  return (
+    <div className="bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
+      <Skeleton className="h-4 w-20" />
+      <Skeleton className="mt-2 h-8 w-16" />
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 p-4 md:p-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCardSkeleton />
+        <StatCardSkeleton />
+        <StatCardSkeleton />
+        <StatCardSkeleton />
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+async function DashboardContent() {
   const session = await getServerSession();
   const userId = session?.user?.id;
 

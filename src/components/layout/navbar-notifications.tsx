@@ -3,13 +3,14 @@
 import Link from "next/link";
 import {
   Bell,
-  BellDot,
   Check,
   ChevronRight,
   Heart,
   MessageCircle,
   CheckCircle2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { markNotificationRead, markAllNotificationsRead } from "@/app/actions/notification";
@@ -67,17 +68,17 @@ export function NavbarNotifications({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="relative flex size-8 cursor-pointer items-center justify-center rounded-full outline-hidden transition-colors hover:bg-[oklch(0.94_0.016_25)]">
-        {unreadCount > 0 ? (
-          <>
-            <BellDot className="text-primary size-4.5" />
-            <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] leading-tight font-bold">
+      <PopoverTrigger
+        render={<Button variant="ghost" size="icon" className="relative rounded-full" />}
+      >
+        <>
+          <Bell className="size-4.5" />
+          {unreadCount > 0 && (
+            <Badge className="absolute -top-1.5 -right-1.5 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full p-0 text-[10px] leading-none font-bold">
               {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          </>
-        ) : (
-          <Bell className="text-muted-foreground size-4.5" />
-        )}
+            </Badge>
+          )}
+        </>
       </PopoverTrigger>
 
       <PopoverContent align="end" sideOffset={8} className="w-80 gap-0 overflow-clip p-0">
@@ -85,12 +86,14 @@ export function NavbarNotifications({
         <div className="flex items-center justify-between px-4 pt-3 pb-2.5">
           <span className="text-sm font-semibold tracking-tight">Notifikasi</span>
           {unreadCount > 0 && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleMarkAllRead}
-              className="text-primary hover:bg-primary/8 rounded-md px-2 py-1 text-xs font-medium transition-colors"
+              className="text-xs font-medium"
             >
               Tandai semua dibaca
-            </button>
+            </Button>
           )}
         </div>
 
@@ -112,10 +115,8 @@ export function NavbarNotifications({
                 onClick={() => handleItemClick(n)}
                 className={cn(
                   "group relative flex w-full items-start gap-3 px-4 py-3 text-left transition-colors",
-                  // ✅ hover: mauve muda, bukan gold
-                  "hover:bg-[oklch(0.96_0.012_345)]",
-                  // ✅ unread: blush mauve, bukan gold
-                  !n.read && "bg-[oklch(0.965_0.018_345)]"
+                  "hover:bg-accent/10",
+                  !n.read && "bg-primary/5"
                 )}
               >
                 {/* ✅ Strip indikator unread di kiri, lebih jelas dari dot kecil */}
@@ -156,16 +157,24 @@ export function NavbarNotifications({
 
                 {/* ✅ Mark read: muncul hanya saat hover, bukan selalu visible */}
                 {!n.read && (
-                  <button
+                  <div
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMarkRead(n.id);
                     }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        handleMarkRead(n.id);
+                      }
+                    }}
                     title="Tandai sudah dibaca"
-                    className="hover:bg-primary/10 hover:text-primary text-muted-foreground mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                    className="hover:bg-primary/10 hover:text-primary text-muted-foreground mt-0.5 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <Check className="size-3.5" />
-                  </button>
+                  </div>
                 )}
               </button>
             ))
@@ -178,7 +187,7 @@ export function NavbarNotifications({
         <Link
           href="/notifications"
           onClick={() => setOpen(false)}
-          className="text-muted-foreground hover:text-foreground flex items-center justify-between px-4 py-2.5 text-xs font-medium transition-colors hover:bg-[oklch(0.96_0.012_345)]"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent/30 flex items-center justify-between px-4 py-2.5 text-xs font-medium transition-colors"
         >
           Lihat Semua
           <ChevronRight className="size-3.5" />

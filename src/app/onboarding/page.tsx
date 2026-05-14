@@ -1,9 +1,14 @@
+import { Suspense } from "react";
 import { getServerSession } from "@/lib/get-server-session";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { OnboardingForm } from "./onboarding-form";
 
-export default async function OnboardingPage() {
+function OnboardingPageContent() {
+  return null;
+}
+
+async function OnboardingLoader() {
   const session = await getServerSession();
 
   if (!session?.user?.username) {
@@ -21,4 +26,12 @@ export default async function OnboardingPage() {
   }
 
   return <OnboardingForm userName={session.user.name} />;
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<OnboardingPageContent />}>
+      <OnboardingLoader />
+    </Suspense>
+  );
 }

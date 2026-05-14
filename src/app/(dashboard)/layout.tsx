@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getServerSession } from "@/lib/get-server-session";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
@@ -6,8 +7,43 @@ import { Navbar } from "@/components/layout/navbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { StreamChatProvider } from "@/components/stream-chat-provider";
 import { cookies } from "next/headers";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function DashboardLayout({
+function DashboardFallback() {
+  return (
+    <div className="flex h-screen">
+      <div className="flex w-60 flex-col gap-2 border-r p-4">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-3/4" />
+      </div>
+      <div className="flex flex-1 flex-col">
+        <div className="flex h-16 items-center border-b px-4">
+          <Skeleton className="h-5 w-40" />
+        </div>
+        <div className="flex-1 p-4">
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<DashboardFallback />}>
+      <DashboardContent>
+        {children}
+      </DashboardContent>
+    </Suspense>
+  );
+}
+
+async function DashboardContent({
   children,
 }: {
   children: React.ReactNode;

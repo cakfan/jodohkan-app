@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -21,10 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import {
   sendTaarufRequest,
-  hasSentTaarufRequest,
-  getPendingTaarufRequestFromSource,
   respondToTaarufRequest,
-  isInActiveTaarufWith,
 } from "@/app/actions/taaruf";
 import {
   ArrowLeft,
@@ -99,6 +97,11 @@ export interface CandidateDetail {
 
 interface CandidateDetailClientProps {
   candidate: CandidateDetail;
+  hideBackButton?: boolean;
+  initialTaarufSent?: boolean;
+  initialIncomingRequestId?: string | null;
+  initialIncomingExpiresAt?: Date | null;
+  initialActiveTaaruf?: boolean;
 }
 
 const maritalLabels: Record<string, string> = {
@@ -195,7 +198,14 @@ function StatCard({ value, unit }: { value: string | number; unit: string }) {
   );
 }
 
-export function CandidateDetailClient({ candidate }: CandidateDetailClientProps) {
+export function CandidateDetailClient({
+  candidate,
+  hideBackButton,
+  initialTaarufSent = false,
+  initialIncomingRequestId = null,
+  initialIncomingExpiresAt = null,
+  initialActiveTaaruf = false,
+}: CandidateDetailClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("personal");
@@ -210,22 +220,11 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
   const [taarufOpen, setTaarufOpen] = useState(false);
   const [taarufMessage, setTaarufMessage] = useState("");
   const [sendingTaaruf, setSendingTaaruf] = useState(false);
-  const [taarufSent, setTaarufSent] = useState(false);
-  const [incomingRequestId, setIncomingRequestId] = useState<string | null>(null);
-  const [incomingExpiresAt, setIncomingExpiresAt] = useState<Date | null>(null);
-  const [activeTaaruf, setActiveTaaruf] = useState(false);
+  const [taarufSent, setTaarufSent] = useState(initialTaarufSent);
+  const [incomingRequestId, setIncomingRequestId] = useState<string | null>(initialIncomingRequestId);
+  const [incomingExpiresAt] = useState<Date | null>(initialIncomingExpiresAt);
+  const [activeTaaruf, setActiveTaaruf] = useState(initialActiveTaaruf);
   const [responding, setResponding] = useState(false);
-
-  useEffect(() => {
-    if (canRequestTaaruf) {
-      hasSentTaarufRequest(candidate.userId).then(setTaarufSent);
-      getPendingTaarufRequestFromSource(candidate.userId).then((r) => {
-        setIncomingRequestId(r?.id ?? null);
-        setIncomingExpiresAt(r?.expiresAt ?? null);
-      });
-      isInActiveTaarufWith(candidate.userId).then(setActiveTaaruf);
-    }
-  }, [canRequestTaaruf, candidate.userId]);
 
   const handleTaarufResponse = async (action: "accept" | "decline") => {
     if (!incomingRequestId) return;
@@ -237,6 +236,7 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
     } else {
       toast.success(action === "accept" ? "Ta'aruf diterima!" : "Ta'aruf ditolak.");
       setIncomingRequestId(null);
+      if (action === "accept") setActiveTaaruf(true);
     }
   };
 
@@ -253,14 +253,16 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-16">
-      <Button
-        variant="ghost"
-        onClick={() => router.push("/find")}
-        className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Kembali
-      </Button>
+      {!hideBackButton && (
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/find")}
+          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Kembali
+        </Button>
+      )}
 
       {/* ── Header Card ─────────────────────────────────────────── */}
       <section className="border-border/40 bg-card overflow-hidden rounded-2xl border shadow-sm">
@@ -410,7 +412,10 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
       {/* ── Tabs ─────────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Tab bar — pill style */}
-        <TabsList className="border-border/40 bg-muted/40 flex w-full gap-0.5 rounded-xl border p-1">
+        <TabsList
+          // className="border-border/40 rounded-none flex h-auto w-full gap-0 border-b bg-transparent! p-0!"
+          className="w-full"
+        >
           {[
             { value: "personal", label: "Data Diri" },
             { value: "vision", label: "Visi & Misi" },
@@ -420,7 +425,8 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground flex-1 rounded-lg py-4 text-xs font-medium transition-all data-[state=active]:font-semibold data-[state=active]:shadow-sm"
+              className="data-active:font-semibold"
+              // className="text-muted-foreground data-active:text-foreground data-active:border-primary -mb-px flex-1 rounded-full bg-transparent! py-3! text-xs font-medium transition-all data-active:border-b-2 data-active:font-semibold data-active:shadow-none"
             >
               {tab.label}
             </TabsTrigger>
@@ -847,18 +853,27 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
       {/* ── Ta'aruf Request Sheet ────────────────────────────────── */}
       <Sheet open={taarufOpen} onOpenChange={setTaarufOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl">
-          <SheetHeader className="items-center pb-2">
+          <SheetHeader className="items-center pb-4 text-center">
+            <div className="bg-primary/10 mb-2 flex size-12 items-center justify-center rounded-2xl">
+              <HeartHandshake className="text-primary h-6 w-6" />
+            </div>
             <SheetTitle>Ajukan Ta&apos;aruf</SheetTitle>
-            <SheetDescription>Kirim permintaan ta&apos;aruf ke {displayName}</SheetDescription>
+            <SheetDescription>
+              Kirim permintaan ta&apos;aruf ke{" "}
+              <span className="text-foreground font-medium">{displayName}</span>
+            </SheetDescription>
           </SheetHeader>
-          <div className="space-y-5 py-6">
-            <textarea
-              placeholder="Tulis pesan singkat (opsional)..."
-              className="border-border/50 bg-background focus:ring-primary/30 min-h-[120px] w-full resize-none rounded-xl border p-4 text-sm focus:ring-2 focus:outline-none"
-              value={taarufMessage}
-              onChange={(e) => setTaarufMessage(e.target.value)}
-              disabled={sendingTaaruf}
-            />
+          <div className="space-y-5 px-6 pb-6">
+            <div className="space-y-2">
+              <label className="text-muted-foreground text-xs font-medium">Pesan (opsional)</label>
+              <Textarea
+                placeholder="Tulis pesan singkat untuk memulai perkenalan..."
+                className="min-h-[120px] resize-none rounded-xl text-sm"
+                value={taarufMessage}
+                onChange={(e) => setTaarufMessage(e.target.value)}
+                disabled={sendingTaaruf}
+              />
+            </div>
             <div className="flex gap-3">
               <Button
                 variant="outline"
@@ -884,6 +899,7 @@ export function CandidateDetailClient({ candidate }: CandidateDetailClientProps)
                     toast.error(result.error);
                   } else {
                     toast.success("Permintaan ta'aruf berhasil dikirim!");
+                    setTaarufSent(true);
                     setTaarufOpen(false);
                     setTaarufMessage("");
                   }

@@ -1,10 +1,30 @@
+import { Suspense } from "react";
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import type { ProfileData } from "@/app/actions/profile";
 import { CVEditorForm } from "./cv-editor-form";
 import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function CVEditPage() {
+function CVEditSkeleton() {
+  return (
+    <div className="space-y-6 p-4 md:p-6">
+      <Skeleton className="h-10 w-40" />
+      <Skeleton className="h-96 w-full rounded-2xl" />
+      <Skeleton className="h-96 w-full rounded-2xl" />
+    </div>
+  );
+}
+
+export default function CVEditPage() {
+  return (
+    <Suspense fallback={<CVEditSkeleton />}>
+      <CVEditContent />
+    </Suspense>
+  );
+}
+
+async function CVEditContent() {
   const session = await getServerSession();
   const userId = session?.user?.id;
 

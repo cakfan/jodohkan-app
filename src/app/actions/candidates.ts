@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { profile, user } from "@/db/schema";
-import { eq, and, like, gte, lte, ne, notInArray } from "drizzle-orm";
+import { eq, and, ilike, gte, lte, ne, notInArray } from "drizzle-orm";
 import { getServerSession } from "@/lib/get-server-session";
 import { candidateFullSelect, candidateListSelect } from "@/db/selects";
 import { getActiveTaarufUserIds, isUserInActiveTaaruf } from "@/app/actions/taaruf";
@@ -71,10 +71,10 @@ export async function getCandidates(filters: CandidateFilters = {}) {
   }
 
   if (filters.city) {
-    conditions.push(like(profile.city, `%${filters.city}%`));
+    conditions.push(ilike(profile.city, `%${filters.city}%`));
   }
   if (filters.education) {
-    conditions.push(like(profile.education, `%${filters.education}%`));
+    conditions.push(ilike(profile.education, `%${filters.education}%`));
   }
   if (filters.ageMin) {
     conditions.push(lte(profile.birthDate, computeAgeDateBoundary(filters.ageMin, "min")));
@@ -83,13 +83,13 @@ export async function getCandidates(filters: CandidateFilters = {}) {
     conditions.push(gte(profile.birthDate, computeAgeDateBoundary(filters.ageMax, "max")));
   }
   if (filters.username) {
-    conditions.push(like(user.username, `%${filters.username}%`));
+    conditions.push(ilike(user.username, `%${filters.username}%`));
   }
   if (filters.ethnicity) {
-    conditions.push(like(profile.ethnicity, `%${filters.ethnicity}%`));
+    conditions.push(ilike(profile.ethnicity, `%${filters.ethnicity}%`));
   }
   if (filters.occupation) {
-    conditions.push(like(profile.occupation, `%${filters.occupation}%`));
+    conditions.push(ilike(profile.occupation, `%${filters.occupation}%`));
   }
 
   const activeUserIds = await getActiveTaarufUserIds();

@@ -9,17 +9,20 @@ import { createTaarufChannel } from "./stream";
 import { createNotification } from "./notification";
 
 export async function isUserInActiveTaaruf(userId: string): Promise<boolean> {
-  const existing = await db.query.taarufRequest.findFirst({
-    where: and(
-      or(
-        eq(taarufRequest.senderId, userId),
-        eq(taarufRequest.recipientId, userId)
-      ),
-      eq(taarufRequest.status, "accepted")
-    ),
-    columns: { id: true },
-  });
-  return !!existing;
+  const rows = await db
+    .select({ id: taarufRequest.id })
+    .from(taarufRequest)
+    .where(
+      and(
+        or(
+          eq(taarufRequest.senderId, userId),
+          eq(taarufRequest.recipientId, userId)
+        ),
+        eq(taarufRequest.status, "accepted")
+      )
+    )
+    .limit(1);
+  return rows.length > 0;
 }
 
 export async function getActiveTaarufUserIds(): Promise<string[]> {

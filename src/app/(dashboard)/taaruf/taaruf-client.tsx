@@ -107,7 +107,7 @@ function RequestCard({
             href={`/cv/${partnerUsername}`}
             className="leading-tight font-semibold hover:underline"
           >
-            {partnerName}
+            {getInitials(partnerName)}
           </Link>
           {partnerUsername && (
             <span className="text-muted-foreground text-xs">@{partnerUsername}</span>
@@ -214,8 +214,10 @@ export function TaarufClient() {
       getMySentRequests(),
       getMyIncomingRequests(),
     ]);
-    if (sentRes.data) setSent(sentRes.data);
-    if (incomingRes.data) setIncoming(incomingRes.data);
+    if (sentRes.data)
+      setSent(sentRes.data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+    if (incomingRes.data)
+      setIncoming(incomingRes.data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
     if (sentRes.error) setError(sentRes.error);
     if (incomingRes.error) setError(incomingRes.error);
     setLoading(false);
@@ -229,8 +231,10 @@ export function TaarufClient() {
         getMyIncomingRequests(),
       ]);
       if (!mounted) return;
-      if (sentRes.data) setSent(sentRes.data);
-      if (incomingRes.data) setIncoming(incomingRes.data);
+      if (sentRes.data)
+        setSent(sentRes.data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+      if (incomingRes.data)
+        setIncoming(incomingRes.data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
       if (sentRes.error) setError(sentRes.error);
       if (incomingRes.error) setError(incomingRes.error);
       setLoading(false);

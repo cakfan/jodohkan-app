@@ -47,12 +47,15 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 6. Private Route Protection
+  // 6. Landing Page Redirect - logged-in users go to dashboard
+  if (isLoggedIn && nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+  }
+
+  // 7. Private Route Protection
   // All routes are private unless they are in publicRoutes
   if (!isLoggedIn && !isPublicRoute) {
     const loginUrl = new URL("/signin", nextUrl);
-    // Optional: save the current URL to redirect back after login
-    // loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 

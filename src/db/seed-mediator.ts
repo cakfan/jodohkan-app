@@ -4,86 +4,96 @@ import { user, account } from "./schema/auth-schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
-const MEDIATOR_EMAIL = "mediator@mail.com";
-const MEDIATOR_USERNAME = "mediatortln";
+const MEDIATORS = [
+  {
+    email: "mediator.pria@mail.com",
+    username: "mediatorpria",
+    name: "Mediator Pria",
+    gender: "male" as const,
+  },
+  {
+    email: "mediator.wanita@mail.com",
+    username: "mediatorwanita",
+    name: "Mediator Wanita",
+    gender: "female" as const,
+  },
+];
+
 const PASSWORD = "Password123!";
 
 async function seedMediator() {
-  console.log("Seeding mediator user...\n");
+  console.log("Seeding mediator users...\n");
 
-  // Delete existing mediator user first (if created via direct DB insert)
-  const existing = await db.query.user.findFirst({
-    where: eq(user.email, MEDIATOR_EMAIL),
-  });
+  for (const m of MEDIATORS) {
+    const existing = await db.query.user.findFirst({
+      where: eq(user.email, m.email),
+    });
 
-  if (existing) {
-    console.log(`  Removing existing mediator: ${existing.name} (@${existing.username})`);
-    await db.delete(account).where(eq(account.userId, existing.id));
-    await db.delete(user).where(eq(user.id, existing.id));
-    console.log("  Deleted.\n");
-  }
+    if (existing) {
+      console.log(`  Removing existing: ${existing.name} (@${existing.username})`);
+      await db.delete(account).where(eq(account.userId, existing.id));
+      await db.delete(user).where(eq(user.id, existing.id));
+      console.log("  Deleted.\n");
+    }
 
-  console.log("  Creating via Better Auth API...\n");
+    console.log(`  Creating ${m.name}...`);
 
-  try {
-    const result = await auth.api.createUser({
-      body: {
-        email: MEDIATOR_EMAIL,
-        password: PASSWORD,
-        name: "Mediator TLN",
-        role: "mediator",
-        data: {
-          username: MEDIATOR_USERNAME,
-          displayUsername: "Mediator TLN",
-          gender: "male",
+    try {
+      const result = await auth.api.createUser({
+        body: {
+          email: m.email,
+          password: PASSWORD,
+          name: m.name,
+          role: "mediator",
+          data: {
+            username: m.username,
+            displayUsername: m.name,
+            gender: m.gender,
+          },
         },
-      },
-    });
+      });
 
-    // Mark email as verified
-    await db.update(user).set({ emailVerified: true }).where(eq(user.id, result.user.id));
+      await db.update(user).set({ emailVerified: true }).where(eq(user.id, result.user.id));
 
-    console.log(`  Mediator created`);
-    console.log(`     Email:    ${MEDIATOR_EMAIL}`);
-    console.log(`     Username: ${MEDIATOR_USERNAME}`);
+      console.log(`  Created via Better Auth API`);
+    } catch (err) {
+      console.error(`  Better Auth failed: ${(err as Error).message}`);
+      console.log("  Fallback: direct DB insert...\n");
+
+      const hashedPassword = await bcrypt.hash(PASSWORD, 10);
+      const userId = crypto.randomUUID();
+
+      await db.insert(user).values({
+        id: userId,
+        name: m.name,
+        email: m.email,
+        emailVerified: true,
+        username: m.username,
+        displayUsername: m.name,
+        gender: m.gender,
+        role: "mediator",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await db.insert(account).values({
+        id: crypto.randomUUID(),
+        accountId: m.email,
+        providerId: "credential",
+        userId,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      console.log(`  Created via direct DB (fallback)`);
+    }
+
+    console.log(`     Email:    ${m.email}`);
+    console.log(`     Username: ${m.username}`);
     console.log(`     Password: ${PASSWORD}`);
-    console.log(`     Role:     mediator\n`);
-  } catch (err) {
-    console.error("  Better Auth createUser failed:", (err as Error).message);
-    console.log("\n  Fallback: creating via direct DB insert...\n");
-
-    const hashedPassword = await bcrypt.hash(PASSWORD, 10);
-
-    const userId = crypto.randomUUID();
-
-    await db.insert(user).values({
-      id: userId,
-      name: "Mediator Pethuk",
-      email: MEDIATOR_EMAIL,
-      emailVerified: true,
-      username: MEDIATOR_USERNAME,
-      displayUsername: "Mediator Pethuk",
-      gender: "male",
-      role: "mediator",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await db.insert(account).values({
-      id: crypto.randomUUID(),
-      accountId: MEDIATOR_EMAIL,
-      providerId: "credential",
-      userId,
-      password: hashedPassword,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    console.log(`  Mediator created via direct DB (fallback)`);
-    console.log(`     Email:    ${MEDIATOR_EMAIL}`);
-    console.log(`     Username: ${MEDIATOR_USERNAME}`);
-    console.log(`     Password: ${PASSWORD}`);
-    console.log(`     Role:     mediator\n`);
+    console.log(`     Role:     mediator`);
+    console.log(`     Gender:   ${m.gender}\n`);
   }
 
   await client.end();

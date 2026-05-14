@@ -1,6 +1,4 @@
-import { getServerSession } from "@/lib/get-server-session";
-import { redirect } from "next/navigation";
-import { db } from "@/db";
+import { Suspense } from "react";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { EarlyAccessBanner } from "@/components/landing/early-banner";
 import { HeroSection } from "@/components/landing/hero-section";
@@ -9,6 +7,7 @@ import { FeaturesSection } from "@/components/landing/features-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works";
 import { TrustSection } from "@/components/landing/trust-section";
 import { CTASection } from "@/components/landing/cta-section";
+import { CopyrightYear } from "./copyright-year";
 
 function SectionDivider() {
   return (
@@ -20,26 +19,12 @@ function SectionDivider() {
   );
 }
 
-export default async function Home() {
-  const session = await getServerSession();
-
-  if (session?.user.id && session.user.username) {
-    const existingProfile = await db.query.profile.findFirst({
-      where: (profile, { eq }) => eq(profile.userId, session.user.id),
-    });
-
-    if (!existingProfile?.onboardingCompleted) {
-      redirect("/onboarding");
-    }
-
-    redirect("/dashboard");
-  }
-
+export default function Home() {
   return (
     <div className="bg-background relative min-h-screen">
-      <LandingNavbar session={session} />
+      <LandingNavbar session={null} />
       <EarlyAccessBanner />
-      <HeroSection session={session} />
+      <HeroSection session={null} />
       <SectionDivider />
       <EarlyBenefitsSection />
       <SectionDivider />
@@ -53,7 +38,7 @@ export default async function Home() {
       <footer className="bg-muted/30 border-t px-4 py-12 text-center">
         <div className="mx-auto max-w-6xl space-y-4">
           <p className="text-muted-foreground text-sm">
-            &copy; {new Date().getFullYear()} Jodohkan. Semua hak dilindungi.
+            &copy; <Suspense fallback={null}><CopyrightYear /></Suspense> Jodohkan. Semua hak dilindungi.
           </p>
           <p className="text-muted-foreground/70 mx-auto max-w-lg text-xs leading-relaxed">
             Platform Ta&apos;aruf Islami yang aman, terjaga, dan mengikuti kaidah syar&apos;i
