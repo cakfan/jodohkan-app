@@ -3,6 +3,7 @@
 import { getServerSession } from "@/lib/get-server-session";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
+import { taarufRequest } from "@/db/schema/taaruf-schema";
 import { eq, inArray } from "drizzle-orm";
 import { getStreamClient } from "@/lib/stream";
 import type { Channel } from "stream-chat";
@@ -149,6 +150,24 @@ export async function createTaarufChannel(
       await channel.addMembers(missingIds);
     }
 
+    // Kirim pesan selamat datang dari mediator
+    const welcomeUserId = mediator?.id ?? session.user.id;
+    await channel.sendMessage({
+      text: `Assalamu'alaikum warahmatullahi wabarakatuh,
+
+Selamat datang di ruang ta'aruf antara *${senderName}* dan *${recipientName}*.
+
+Berikut adalah aturan yang perlu diperhatikan bersama:
+
+1. **Jaga adab dan akhlak** dalam setiap percakapan.
+2. **Fokus pada pembahasan** yang bermanfaat untuk proses ta'aruf.
+3. **Hindari pembahasan** yang bersifat pribadi sebelum waktunya.
+4. Jika ada pertanyaan atau masalah, silakan **hubungi mediator**.
+
+Barakallahu lakuma.`,
+      user_id: welcomeUserId,
+    });
+
     return { success: true, channelId };
   } catch (error) {
     console.error("createTaarufChannel error:", error);
@@ -203,7 +222,7 @@ export async function unbanTaarufUser(channelId: string, targetUserId: string) {
   }
 }
 
-export async function freezeTaarufChannel(channelId: string, frozen: boolean) {
+export async function freezeTaarufChannel(channelId: string, frozen: boolean, reason?: string) {
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
@@ -217,7 +236,28 @@ export async function freezeTaarufChannel(channelId: string, frozen: boolean) {
   }
 
   try {
-    await withTaarufChannel(channelId, (channel) => channel.updatePartial({ set: { frozen } }));
+    if (frozen) {
+      await withTaarufChannel(channelId, (channel) =>
+        channel.updatePartial({
+          set: {
+            frozen: true,
+            freeze_reason: reason ?? null,
+          },
+        })
+      );
+      const requestId = channelId.replace("taaruf-", "");
+      await db
+        .update(taarufRequest)
+        .set({ status: "ended" })
+        .where(eq(taarufRequest.id, requestId));
+    } else {
+      await withTaarufChannel(channelId, (channel) =>
+        channel.updatePartial({
+          set: { frozen: false },
+          unset: ["freeze_reason"],
+        })
+      );
+    }
     return { success: true };
   } catch {
     return { error: "Gagal mengubah status ta'aruf." };
@@ -255,6 +295,32 @@ export async function deleteTaarufChannel(channelId: string) {
     return { success: true };
   } catch {
     return { error: "Gagal menghapus channel." };
+  }
+}
+
+export async function unpinMessage(channelId: string, messageId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const dbUser = await db.query.user.findFirst({
+    where: eq(user.id, session.user.id),
+    columns: { role: true },
+  });
+
+  if (dbUser?.role !== "mediator") {
+    return { error: "Hanya mediator yang bisa melepas pin pesan." };
+  }
+
+  try {
+    const client = getStreamClient();
+    await client.updateMessage({
+      id: messageId,
+      pinned: false,
+      pinned_at: null,
+    });
+    return { success: true };
+  } catch {
+    return { error: "Gagal melepas pin pesan." };
   }
 }
 

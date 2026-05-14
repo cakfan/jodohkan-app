@@ -73,20 +73,29 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] **Chat Custom Theme**: Override CSS Stream Chat dengan design system shadcn/ui (token colors, border, font).
 - [x] **Multiple Participant Ta'aruf**: Channel messaging dengan mediator sebagai participant ketiga.
 - [x] **Chat Attachment**: Upload file/gambar via Stream CDN dengan attachment selector.
-- [ ] **Adab Guard**: Integrasi filter pesan — blokir gambar tidak senonoh, kata kasar, pengingat etika otomatis.
-- [ ] **Nazhar Gate**: Upload gambar/file hanya aktif saat tahap Nazhar (`stage = nazhar`); gambar tetap blur sampai Nazhar selesai.
-- [ ] **Welcome Message**: Pesan pembuka & aturan ta'aruf dikirim otomatis saat channel dibuat.
-- [ ] **Pin Pesan**: Mediator bisa pin/unpin satu pesan per channel.
+- [x] **Adab Guard**: Filter pesan — blokir kata kasar, pengingat etika otomatis saat topik fisik/pacaran terdeteksi, log pelanggaran ke database.
+- [x] **Welcome Message**: Pesan pembuka & aturan ta'aruf dikirim otomatis saat channel dibuat dari mediator.
+- [x] **Pin Pesan**: Mediator bisa pin lewat menu aksi pesan + banner pinned message di atas daftar pesan + tombol lepas pin.
 - [ ] **Notification Core**: Notifikasi in-app untuk pesan baru dan aktivitas ta'aruf.
 
-## 🔄 Fase 5: Lifecycle & Nazhar System (Minggu 5)
+## 🔄 Fase 5: Nadzor — Video Call & Fase Lanjutan (Minggu 5)
 
-**Tujuan**: Mengelola alur ta'aruf hingga tahap akhir.
+**Tujuan**: Memfasilitasi sesi video call nadzor dengan moderator dan transisi ke khitbah.
 
-- [ ] State Management: Sistem pelacakan tahapan (Tukar CV -> Nazhar -> Istikharah -> Khitbah).
-- [ ] Nazhar Scheduler: Penjadwalan pertemuan (online/offline) yang difasilitasi mediator.
-- [ ] Feedback System: Pengguna dapat memberikan update status setelah nazhar.
-- [ ] Akumulasi Data: Laporan progres ta'aruf untuk pengguna.
+- [ ] DB Schema: `nadzor_session` (mediator_id, max_duration, enum status/reason, index) + `nadzor_session_agreement` (unique constraint, requested_at/responded_at).
+- [ ] Phase State: Tambah kolom `phase` (chat|nadzor|khitbah|completed) di `taaruf_request`.
+- [ ] Phase Transition: Mediator bisa mengaktifkan fase nadzor dari panel — validasi kedua pihak setuju.
+- [ ] Scheduling Panel: Ajukan jadwal, approval dari kedua pihak, notifikasi ke mediator.
+- [ ] Stream Video SDK: Install `@stream-io/video-react-sdk`, custom call type `"nadzor"`.
+- [ ] Video Call UI: 1-on-1 video (ikhwan & akhwat), moderator join audio-only sebagai observer.
+- [ ] Moderator Panel: Tombol mute peserta (audio/video) dan akhiri call, indikator pembicara.
+- [ ] Pengingat Wali: Dialog wajib centang sebelum call dimulai + banner selama call.
+- [ ] Wali Reminder: Banner "Pastikan akhwat didampingi wali/keluarga terpercaya" (tidak bisa di-skip).
+- [ ] Time Window: Call hanya aktif ±15 menit dari jadwal; moderator wajib hadir 5 menit.
+- [ ] After Call: Form feedback ikhwan/akhwat + pilihan lanjut (khitbah / stop).
+- [ ] Absence Handling: Jika salah satu pihak tidak hadir 15 menit → call batal.
+- [ ] Audit Trail: Semua tindakan moderator (mute, end call) tercatat di DB.
+- [ ] Khitbah: Fase di luar aplikasi — mediator update status sebagai completed setelah dikonfirmasi.
 
 ## 🚀 Fase 6: Polish, Testing & Launch (Minggu 6)
 
