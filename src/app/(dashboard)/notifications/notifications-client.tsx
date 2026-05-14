@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  Bell,
-  CheckCheck,
-  HeartHandshake,
-  Shield,
-  XCircle,
-  Clock,
-  FileText,
-} from "lucide-react";
+import { Bell, CheckCheck, HeartHandshake, Shield, XCircle, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -63,9 +55,7 @@ export function NotificationsClient({
     const result = await markNotificationRead(id);
     setLoadingId(null);
     if (result.success) {
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-      );
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
       setUnread((prev) => Math.max(0, prev - 1));
     }
   };
@@ -80,16 +70,8 @@ export function NotificationsClient({
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6">
+    <div className="mx-auto w-full px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Notifikasi</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {unread > 0
-              ? `${unread} notifikasi belum dibaca`
-              : "Tidak ada notifikasi baru"}
-          </p>
-        </div>
         {unread > 0 && (
           <Button variant="outline" size="sm" onClick={handleMarkAllRead}>
             <CheckCheck className="mr-1.5 size-4" />
@@ -102,9 +84,7 @@ export function NotificationsClient({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Bell className="text-muted-foreground/20 mb-3 size-12" />
-            <p className="text-muted-foreground text-sm">
-              Belum ada notifikasi
-            </p>
+            <p className="text-muted-foreground text-sm">Belum ada notifikasi</p>
           </CardContent>
         </Card>
       ) : (
@@ -117,15 +97,13 @@ export function NotificationsClient({
               <div
                 className={cn(
                   "hover:bg-muted/50 flex items-start gap-3 rounded-xl border p-4 transition-colors",
-                  !notif.read && "border-l-primary border-l-2 bg-accent/30"
+                  !notif.read && "border-l-primary bg-accent/30 border-l-2"
                 )}
               >
                 <div
                   className={cn(
                     "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full",
-                    notif.read
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-primary/10 text-primary"
+                    notif.read ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
                   )}
                 >
                   <Icon className="size-4.5" />
@@ -133,14 +111,7 @@ export function NotificationsClient({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p
-                        className={cn(
-                          "text-sm",
-                          !notif.read && "font-semibold"
-                        )}
-                      >
-                        {notif.title}
-                      </p>
+                      <p className={cn("text-sm", !notif.read && "font-semibold")}>{notif.title}</p>
                       <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
                         {notif.body}
                       </p>

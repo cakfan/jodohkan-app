@@ -9,6 +9,7 @@ const pageInfo: Record<string, { title: string; description: string }> = {
   "/taaruf": { title: "Ta'aruf", description: "Kelola permintaan ta'aruf masuk dan keluar" },
   "/topup": { title: "Top-Up Token", description: "Beli token untuk fitur premium" },
   "/messages": { title: "Pesan", description: "Ruangan ta'aruf Anda" },
+  "/notifications": { title: "Notifikasi", description: "Aktivitas dan pemberitahuan terbaru" },
 };
 
 export function NavbarPageTitle() {

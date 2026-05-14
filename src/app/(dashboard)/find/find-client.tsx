@@ -10,6 +10,7 @@ import {
   Briefcase,
   GraduationCap,
   Heart,
+  HeartHandshake,
   User,
   Calendar,
 } from "lucide-react";
@@ -59,9 +60,11 @@ function getDisplayName(name: string, username: string | null): string {
 export function FindClient({
   initialCandidates,
   initialError,
+  inActiveTaaruf,
 }: {
   initialCandidates: Candidate[];
   initialError?: string;
+  inActiveTaaruf: boolean;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -185,6 +188,19 @@ export function FindClient({
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Spinner className="h-8 w-8" />
+          </div>
+        ) : inActiveTaaruf ? (
+          <div className="bg-card border-border/50 flex flex-col items-center gap-4 rounded-2xl border p-12 text-center shadow-sm">
+            <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-2xl">
+              <HeartHandshake className="text-primary h-8 w-8" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-lg font-semibold">Sedang dalam Proses Ta&apos;aruf</p>
+              <p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
+                Anda sedang dalam proses ta&apos;aruf aktif. Anda tidak dapat mencari kandidat baru
+                selama proses ta&apos;aruf berlangsung.
+              </p>
+            </div>
           </div>
         ) : candidates.length === 0 ? (
           <div className="bg-card border-border/50 flex flex-col items-center gap-4 rounded-2xl border p-12 text-center shadow-sm">

@@ -1260,6 +1260,7 @@ function ChatView({
               sort={defaultSort}
               options={options}
               EmptyStateIndicator={EmptyChannels}
+              setActiveChannelOnMount={false}
             />
             <div className="flex flex-1 flex-col">
               <ChatMainArea />

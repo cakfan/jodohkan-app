@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { getCandidates, type CandidateFilters } from "@/app/actions/candidates";
 import { FindClient } from "./find-client";
 import { Spinner } from "@/components/ui/spinner";
+import { getServerSession } from "@/lib/get-server-session";
+import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +12,11 @@ export default async function FindPage({
 }: {
   searchParams: Promise<{ city?: string; education?: string; ethnicity?: string; occupation?: string; ageMin?: string; ageMax?: string; username?: string }>;
 }) {
+  const session = await getServerSession();
+  const inActiveTaaruf = session?.user?.id
+    ? await isUserInActiveTaaruf(session.user.id)
+    : false;
+
   const params = await searchParams;
   const filters: CandidateFilters = {
     city: params.city || undefined,
@@ -35,6 +42,7 @@ export default async function FindPage({
         <FindClient
           initialCandidates={result.data ?? []}
           initialError={result.error}
+          inActiveTaaruf={inActiveTaaruf}
         />
       </Suspense>
     </div>
