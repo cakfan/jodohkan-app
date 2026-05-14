@@ -27,6 +27,7 @@ import {
   FileText,
   Pin,
   Rocket,
+  Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +65,7 @@ import {
   reviewAppeal,
 } from "@/app/actions/adab-guard";
 import type { ViolationWithUser } from "@/app/actions/adab-guard";
+import { NadzorPanel } from "@/components/nadzor/nadzor-panel";
 import "stream-chat-react/dist/css/index.css";
 import "./chat-theme.css";
 
@@ -766,9 +768,11 @@ function ActivityLogPanel({
 function ChannelHeaderGroup({
   onMemberPanelToggle,
   onActivityToggle,
+  onNadzorPanelToggle,
 }: {
   onMemberPanelToggle: () => void;
   onActivityToggle: () => void;
+  onNadzorPanelToggle?: () => void;
 }) {
   const { channel, client } = useChatContext();
   const [deleting, setDeleting] = useState(false);
@@ -906,6 +910,17 @@ function ChannelHeaderGroup({
               Aktifkan Nadzor
             </Button>
           )}
+          {phase === "nadzor" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNadzorPanelToggle}
+              className="gap-1.5 text-xs"
+            >
+              <Video className="size-3.5" />
+              Jadwal
+            </Button>
+          )}
           {isMediator && (
             <Button
               variant="destructive"
@@ -984,6 +999,7 @@ function ChannelContent() {
   const { messages } = useChannelStateContext();
   const [memberPanelOpen, setMemberPanelOpen] = useState(false);
   const [activityPanelOpen, setActivityPanelOpen] = useState(false);
+  const [nadzorPanelOpen, setNadzorPanelOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const isFrozen = channel?.data?.frozen === true;
   const hasMessages = messages && messages.length > 0;
@@ -1116,6 +1132,7 @@ function ChannelContent() {
       <ChannelHeaderGroup
         onMemberPanelToggle={() => setMemberPanelOpen((v) => !v)}
         onActivityToggle={() => setActivityPanelOpen((v) => !v)}
+        onNadzorPanelToggle={() => setNadzorPanelOpen((v) => !v)}
       />
       <div className="flex min-h-0 flex-1">
         <div className="flex min-h-0 flex-1 flex-col">
@@ -1218,6 +1235,10 @@ function ChannelContent() {
           clientUserId={client?.userID ?? ""}
           isMediator={isMediator}
           onReviewComplete={() => setLocalFreeze(null)}
+        />
+        <NadzorPanel
+          open={nadzorPanelOpen}
+          onClose={() => setNadzorPanelOpen(false)}
         />
         <MemberPanel open={memberPanelOpen} onClose={() => setMemberPanelOpen(false)} />
       </div>
