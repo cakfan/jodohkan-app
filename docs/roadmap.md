@@ -78,7 +78,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] **Pin Pesan**: Mediator bisa pin lewat menu aksi pesan + banner pinned message di atas daftar pesan + tombol lepas pin.
 - [x] **Notification Core**: Notifikasi in-app untuk aktivitas penting (request ta'aruf baru, pesan baru, status verifikasi CV, pengingat jadwal).
 - [x] **Notification Page**: Halaman `/notifications` untuk melihat riwayat notifikasi.
-- [ ] **Email Notification**: Ringkasan aktivitas atau notifikasi penting ke email via Resend (Opsional).
+- [x] **Email Notification**: Ringkasan aktivitas atau notifikasi penting ke email via Resend (Opsional).
 
 ## 🔄 Fase 5: Nadzor — Video Call & Fase Lanjutan (Minggu 5)
 
