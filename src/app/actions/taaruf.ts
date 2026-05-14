@@ -6,6 +6,7 @@ import { taarufRequest, profile, user } from "@/db/schema";
 import { eq, and, lt, inArray, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createTaarufChannel } from "./stream";
+import { createNotification } from "./notification";
 
 export async function isUserInActiveTaaruf(userId: string): Promise<boolean> {
   const existing = await db.query.taarufRequest.findFirst({
@@ -123,6 +124,18 @@ export async function sendTaarufRequest(recipientUserId: string, message?: strin
     updatedAt: now,
   });
 
+  const sender = await db.query.user.findFirst({
+    where: eq(user.id, senderId),
+    columns: { name: true, username: true },
+  });
+  await createNotification(
+    recipientUserId,
+    "taaruf_request_received",
+    "Permintaan Ta'aruf Baru",
+    `@${sender?.username ?? senderId} mengirimkan permintaan ta'aruf untuk Anda.`,
+    { requestId: id, senderId }
+  );
+
   revalidatePath("/", "layout");
   return { success: true, id };
 }
@@ -178,15 +191,22 @@ export async function respondToTaarufRequest(
     })
     .where(eq(taarufRequest.id, requestId));
 
-  if (action === "accept") {
-    const users = await db
-      .select({ id: user.id, name: user.name })
-      .from(user)
-      .where(inArray(user.id, [request.senderId, request.recipientId]));
+  const users = await db
+    .select({ id: user.id, name: user.name, username: user.username })
+    .from(user)
+    .where(inArray(user.id, [request.senderId, request.recipientId]));
 
-    const userMap = new Map(users.map((u) => [u.id, u.name ?? u.id]));
-    const senderName = userMap.get(request.senderId) ?? request.senderId;
-    const recipientName = userMap.get(request.recipientId) ?? request.recipientId;
+  const userMap = new Map(users.map((u) => [u.id, u]));
+
+  const recipient = userMap.get(request.recipientId);
+  const recipientNotifName = recipient?.username
+    ? `@${recipient.username}`
+    : recipient?.name ?? request.recipientId;
+
+  if (action === "accept") {
+    const sender = userMap.get(request.senderId);
+    const senderName = sender?.name ?? request.senderId;
+    const recipientName = recipient?.name ?? request.recipientId;
 
     const channelResult = await createTaarufChannel(
       request.id,
@@ -199,6 +219,22 @@ export async function respondToTaarufRequest(
     if (channelResult.error) {
       return { error: channelResult.error };
     }
+
+    await createNotification(
+      request.senderId,
+      "taaruf_request_accepted",
+      "Ta'aruf Diterima",
+      `${recipientNotifName} telah menerima permintaan ta'aruf Anda.`,
+      { requestId, recipientId: request.recipientId }
+    );
+  } else {
+    await createNotification(
+      request.senderId,
+      "taaruf_request_declined",
+      "Ta'aruf Ditolak",
+      `${recipientNotifName} menolak permintaan ta'aruf Anda.`,
+      { requestId }
+    );
   }
 
   revalidatePath("/", "layout");

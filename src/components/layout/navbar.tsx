@@ -4,8 +4,10 @@ import { eq } from "drizzle-orm";
 import { profile, wallet } from "@/db/schema";
 import { CV_STATUS_LABELS } from "@/lib/constants/profile";
 import { NavbarPageTitle } from "./navbar-page-title";
+import { NavbarNotifications } from "./navbar-notifications";
 import { Coins, HeartHandshake } from "lucide-react";
 import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
+import { getUnreadNotificationCount } from "@/app/actions/notification";
 
 export async function Navbar() {
   const session = await getServerSession();
@@ -15,8 +17,9 @@ export async function Navbar() {
   let published = false;
   let walletBalance = 0;
   let inActiveTaaruf = false;
+  let unreadNotif = 0;
   if (userId) {
-    const [existing, existingWallet, taarufStatus] = await Promise.all([
+    const [existing, existingWallet, taarufStatus, notifCount] = await Promise.all([
       db.query.profile.findFirst({
         where: eq(profile.userId, userId),
         columns: { cvStatus: true, published: true },
@@ -26,11 +29,13 @@ export async function Navbar() {
         columns: { balance: true },
       }),
       isUserInActiveTaaruf(userId),
+      getUnreadNotificationCount(),
     ]);
     cvStatus = existing?.cvStatus ?? "draft";
     published = existing?.published ?? false;
     walletBalance = existingWallet?.balance ?? 0;
     inActiveTaaruf = taarufStatus;
+    unreadNotif = notifCount;
   }
 
   const badgeKey = cvStatus === "approved" && published ? "published" : cvStatus;
@@ -39,7 +44,8 @@ export async function Navbar() {
   return (
     <header className="bg-background/80 supports-backdrop-blur:bg-background/60 sticky top-0 z-1 flex h-16 shrink-0 items-center gap-2 border-b px-4 text-sm backdrop-blur-sm md:text-base">
       <NavbarPageTitle />
-      <div className="flex flex-1 items-center justify-end gap-3">
+      <div className="flex flex-1 items-center justify-end gap-2">
+        <NavbarNotifications unreadCount={unreadNotif} />
         <div className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
           <Coins className="size-3.5 text-amber-500" />
           {walletBalance}

@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { getTaarufRequestCounts } from "@/app/actions/taaruf";
 import { getUnreadMessageCount } from "@/app/actions/stream";
+import { getUnreadNotificationCount } from "@/app/actions/notification";
 
 const candidateNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -67,6 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navItems = isAdmin ? adminNavItems : isMediator ? mediatorNavItems : candidateNavItems;
   const [pendingTaaruf, setPendingTaaruf] = React.useState(0);
   const [unreadMessages, setUnreadMessages] = React.useState(0);
+  const [unreadNotif, setUnreadNotif] = React.useState(0);
 
   React.useEffect(() => {
     getTaarufRequestCounts().then((counts) => {
@@ -76,6 +78,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   React.useEffect(() => {
     const fetch = () => getUnreadMessageCount().then(setUnreadMessages);
+    fetch();
+    const interval = setInterval(fetch, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  React.useEffect(() => {
+    const fetch = () => getUnreadNotificationCount().then(setUnreadNotif);
     fetch();
     const interval = setInterval(fetch, 30000);
     return () => clearInterval(interval);
@@ -101,13 +110,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               (pathname.startsWith(item.url + "/") && item.url !== "/dashboard");
             const showBadge =
               (item.url === "/taaruf" && pendingTaaruf > 0) ||
-              (item.url === "/messages" && unreadMessages > 0);
+              (item.url === "/messages" && unreadMessages > 0) ||
+              (item.url === "/notifications" && unreadNotif > 0);
             const badgeCount =
               item.url === "/taaruf"
                 ? pendingTaaruf
                 : item.url === "/messages"
                   ? unreadMessages
-                  : 0;
+                  : item.url === "/notifications"
+                    ? unreadNotif
+                    : 0;
 
             return (
               <SidebarMenuItem

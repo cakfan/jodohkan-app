@@ -8,6 +8,7 @@ import { step1Schema, step2Schema, step3Schema, step4Schema, step5Schema } from 
 import { revalidatePath } from "next/cache";
 import type { InferProfileData } from "@/lib/types";
 import { isUserInActiveTaaruf } from "@/app/actions/taaruf";
+import { createNotification } from "@/app/actions/notification";
 
 export type ProfileData = InferProfileData;
 
@@ -132,6 +133,14 @@ export async function reviewCv(
         .update(profile)
         .set({ cvStatus: "approved", rejectionReason: null, updatedAt: new Date() })
         .where(eq(profile.userId, candidateUserId));
+
+      await createNotification(
+        candidateUserId,
+        "cv_approved",
+        "CV Disetujui",
+        "CV Ta'aruf Anda telah disetujui oleh admin. Anda sekarang dapat mempublikasikannya.",
+        { profileId: candidateUserId }
+      );
     } else {
       await db
         .update(profile)
@@ -142,6 +151,16 @@ export async function reviewCv(
           updatedAt: new Date(),
         })
         .where(eq(profile.userId, candidateUserId));
+
+      await createNotification(
+        candidateUserId,
+        "cv_rejected",
+        "CV Ditolak",
+        rejectionReason
+          ? `CV Ta'aruf Anda ditolak dengan alasan: ${rejectionReason}`
+          : "CV Ta'aruf Anda ditolak oleh admin. Silakan perbaiki dan ajukan ulang.",
+        { profileId: candidateUserId }
+      );
     }
 
     revalidatePath("/", "layout");
