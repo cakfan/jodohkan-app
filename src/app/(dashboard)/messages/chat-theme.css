@@ -149,6 +149,7 @@
   padding: 8px 0 !important;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
+  max-width: 420px;
 }
 
 .str-chat__channel-preview-container {

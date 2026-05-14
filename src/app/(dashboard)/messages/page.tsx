@@ -226,7 +226,11 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
   const handleFreeze = async () => {
     if (!channel?.id) return;
     setFreezing(true);
-    const result = await freezeTaarufChannel(channel.id, !isFrozen, isFrozen ? undefined : freezeReason);
+    const result = await freezeTaarufChannel(
+      channel.id,
+      !isFrozen,
+      isFrozen ? undefined : freezeReason
+    );
     if (result.success) {
       toast.success(isFrozen ? "Ta'aruf dibuka kembali" : "Ta'aruf diakhiri");
       if (!isFrozen) {
@@ -304,7 +308,12 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
             </div>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => { setFreezeDialogOpen(false); setFreezeReason(""); }}>
+            <AlertDialogCancel
+              onClick={() => {
+                setFreezeDialogOpen(false);
+                setFreezeReason("");
+              }}
+            >
               Batal
             </AlertDialogCancel>
             <AlertDialogAction
@@ -495,7 +504,12 @@ function ActivityLogPanel({
       setViolations((prev) =>
         prev!.map((v) =>
           v.id === reviewDialog.id
-            ? { ...v, status: action === "overturn" ? "overturned" : "upheld", reviewNotes, reviewedAt: new Date().toISOString() }
+            ? {
+                ...v,
+                status: action === "overturn" ? "overturned" : "upheld",
+                reviewNotes,
+                reviewedAt: new Date().toISOString(),
+              }
             : v
         )
       );
@@ -1043,7 +1057,9 @@ function ChannelContent() {
               <div className="flex items-start gap-2">
                 <Shield className="mt-0.5 size-4 shrink-0" />
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-medium">Ta&apos;aruf telah selesai. Tidak dapat mengirim pesan lagi.</span>
+                  <span className="font-medium">
+                    Ta&apos;aruf telah selesai. Tidak dapat mengirim pesan lagi.
+                  </span>
                   {channel?.data?.freeze_reason && (
                     <span className="text-primary/70">{channel.data.freeze_reason as string}</span>
                   )}
@@ -1094,8 +1110,8 @@ function ChannelContent() {
             </div>
           )}
           <PinnedMessageBanner />
-          <div className="grid min-h-0 flex-1 grid-rows-[1fr_auto]">
-            <div className="min-h-0">
+          <div className="grid min-h-0 flex-1 grid-rows-[1fr_auto] overflow-x-hidden">
+            <div className="min-h-0 overflow-x-hidden">
               {hasMessages ? (
                 <MessageList messageActions={messageActions} disableDateSeparator={false} />
               ) : (

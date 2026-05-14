@@ -152,19 +152,24 @@ export async function createTaarufChannel(
 
     // Kirim pesan selamat datang dari mediator
     const welcomeUserId = mediator?.id ?? session.user.id;
+    const sender = senderName;
+    const recipient = recipientName;
+    const welcomeText =
+      'Assalamu\'alaikum warahmatullahi wabarakatuh,\n' +
+      '\n' +
+      'Selamat datang di ruang ta\'aruf antara\n' +
+      '*' + sender + '* dan *' + recipient + '*.\n' +
+      '\n' +
+      'Berikut adalah aturan yang perlu diperhatikan bersama:\n' +
+      '\n' +
+      '1. **Jaga adab dan akhlak** dalam setiap percakapan.\n' +
+      '2. **Fokus pada pembahasan** yang bermanfaat untuk proses ta\'aruf.\n' +
+      '3. **Hindari pembahasan** yang bersifat pribadi sebelum waktunya.\n' +
+      '4. Jika ada pertanyaan atau masalah, silakan **hubungi mediator**.\n' +
+      '\n' +
+      'Barakallahu lakuma.';
     await channel.sendMessage({
-      text: `Assalamu'alaikum warahmatullahi wabarakatuh,
-
-Selamat datang di ruang ta'aruf antara *${senderName}* dan *${recipientName}*.
-
-Berikut adalah aturan yang perlu diperhatikan bersama:
-
-1. **Jaga adab dan akhlak** dalam setiap percakapan.
-2. **Fokus pada pembahasan** yang bermanfaat untuk proses ta'aruf.
-3. **Hindari pembahasan** yang bersifat pribadi sebelum waktunya.
-4. Jika ada pertanyaan atau masalah, silakan **hubungi mediator**.
-
-Barakallahu lakuma.`,
+      text: welcomeText,
       user_id: welcomeUserId,
     });
 

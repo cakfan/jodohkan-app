@@ -76,7 +76,9 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] **Adab Guard**: Filter pesan — blokir kata kasar, pengingat etika otomatis saat topik fisik/pacaran terdeteksi, log pelanggaran ke database.
 - [x] **Welcome Message**: Pesan pembuka & aturan ta'aruf dikirim otomatis saat channel dibuat dari mediator.
 - [x] **Pin Pesan**: Mediator bisa pin lewat menu aksi pesan + banner pinned message di atas daftar pesan + tombol lepas pin.
-- [ ] **Notification Core**: Notifikasi in-app untuk pesan baru dan aktivitas ta'aruf.
+- [ ] **Notification Core**: Notifikasi in-app untuk aktivitas penting (request ta'aruf baru, pesan baru, status verifikasi CV, pengingat jadwal).
+- [ ] **Notification Page**: Halaman `/notifications` untuk melihat riwayat notifikasi.
+- [ ] **Email Notification**: Ringkasan aktivitas atau notifikasi penting ke email via Resend (Opsional).
 
 ## 🔄 Fase 5: Nadzor — Video Call & Fase Lanjutan (Minggu 5)
 
