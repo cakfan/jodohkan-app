@@ -1,0 +1,363 @@
+/* ==========================================================
+   JODOHKAN — Stream Chat Theme Override
+   stream-chat-react v14.x
+   Brand: Rose & Mauve — selaras dengan globals.css
+   ========================================================== */
+
+.str-chat {
+  height: 100%;
+  font-family: var(--font-sans, "Plus Jakarta Sans", sans-serif) !important;
+}
+
+/* ── Brand scale — Light Mode (mauve → warm white) ───────── */
+/*
+ * Brand scale mengikuti palet brand Jodohkan secara konsisten.
+ * brand-500 = Mauve Primary #7D3E52 — anchor utama.
+ * Skala naik ke warm white, turun ke plum deep.
+ */
+.str-chat.str-chat__theme-light {
+  --str-chat__brand-50: #f9f3f1; /* Warm White */
+  --str-chat__brand-100: #f2e8e4; /* Blush Light */
+  --str-chat__brand-150: #e8c4b8; /* Blush */
+  --str-chat__brand-200: #d4a8bc; /* antara blush & dusty rose */
+  --str-chat__brand-300: #b07a90; /* Dusty Rose */
+  --str-chat__brand-400: #934a61; /* Mauve Mid */
+  --str-chat__brand-500: #7d3e52; /* Mauve Primary ← anchor */
+  --str-chat__brand-600: #6a3346; /* Mauve gelap */
+  --str-chat__brand-700: #522839; /* antara mauve & plum */
+  --str-chat__brand-800: #3d2530; /* Plum Card */
+  --str-chat__brand-900: #2d1a20; /* Plum Deep */
+
+  /* Avatar: bg=blush, text=mauve — kontras aman (gap ~0.44) */
+  --str-chat__avatar-palette-bg-1: #e8c4b8;
+  --str-chat__avatar-palette-bg-2: #e8c4b8;
+  --str-chat__avatar-palette-bg-3: #e8c4b8;
+  --str-chat__avatar-palette-bg-4: #e8c4b8;
+  --str-chat__avatar-palette-bg-5: #e8c4b8;
+  --str-chat__avatar-palette-text-1: #1a1218; /* warm dark fg — 10.04:1 ✓ AAA */
+  --str-chat__avatar-palette-text-2: #1a1218;
+  --str-chat__avatar-palette-text-3: #1a1218;
+  --str-chat__avatar-palette-text-4: #1a1218;
+  --str-chat__avatar-palette-text-5: #1a1218;
+
+  /* Bubble incoming (pesan lawan bicara) */
+  /* FIX: pakai --color-secondary (Blush) bukan --color-muted agar lebih
+     terlihat dan on-brand. text pakai --color-foreground (Plum Deep). */
+  --str-chat__chat-bg-incoming: var(--color-secondary);
+  --str-chat__chat-text-incoming: var(--color-foreground);
+  --str-chat__chat-border-incoming: transparent;
+  --str-chat__chat-bg-attachment-incoming: var(--color-secondary);
+
+  /* Bubble outgoing (pesan sendiri) */
+  /* Primary (Mauve) + primary-foreground (Warm White) — kontras 0.544 ✓ */
+  --str-chat__chat-bg-outgoing: var(--color-primary);
+  --str-chat__chat-text-outgoing: var(--color-primary-foreground);
+  --str-chat__chat-border-outgoing: transparent;
+  --str-chat__chat-bg-attachment-outgoing: var(--color-primary);
+
+  /* Background hierarchy — mengikuti shadcn elevation model */
+  --str-chat__background-core-app: var(--color-background);
+  --str-chat__background-core-elevation-0: var(--color-background);
+  --str-chat__background-core-elevation-1: var(--color-card);
+  --str-chat__background-core-elevation-2: var(--color-popover);
+  --str-chat__background-core-surface-default: var(--color-muted);
+  --str-chat__background-core-surface-card: var(--color-card);
+
+  /* Text */
+  --str-chat__text-primary: var(--color-foreground);
+  --str-chat__text-secondary: var(--color-muted-foreground);
+
+  /* Border */
+  --str-chat__border-color: var(--color-border);
+
+  /* Input */
+  --str-chat__input-bg: var(--color-background);
+  --str-chat__input-border: var(--color-input);
+
+  /* Highlight / mention */
+  --str-chat__mention-color: #7d3e52; /* Mauve Primary */
+
+  /* Reaction */
+  --str-chat__reaction-bg: var(--color-secondary);
+  --str-chat__reaction-text: var(--color-secondary-foreground);
+
+  /* Unread badge */
+  --str-chat__unread-count-bg: #7d3e52;
+  --str-chat__unread-count-color: #f9f3f1;
+}
+
+/* ── Brand scale — Dark Mode (plum → light mauve) ────────── */
+/*
+ * Di dark mode, skala dibalik: brand-50 = paling gelap (Plum Deep),
+ * brand-900 = paling terang (Warm White).
+ * brand-500 = Mauve Bright #B8628A — anchor di dark mode.
+ */
+.str-chat.str-chat__theme-dark {
+  --str-chat__brand-50: #2d1a20; /* Plum Deep */
+  --str-chat__brand-100: #3d2530; /* Plum Card */
+  --str-chat__brand-150: #522839; /* antara plum & mauve */
+  --str-chat__brand-200: #6a3346; /* Mauve gelap */
+  --str-chat__brand-300: #7d3e52; /* Mauve Primary */
+  --str-chat__brand-400: #934a61; /* Mauve Mid */
+  --str-chat__brand-500: #b8628a; /* Mauve Bright ← anchor dark mode */
+  --str-chat__brand-600: #b07a90; /* Dusty Rose */
+  --str-chat__brand-700: #e8c4b8; /* Blush */
+  --str-chat__brand-800: #f2e8e4; /* Blush Light */
+  --str-chat__brand-900: #f9f3f1; /* Warm White */
+
+  /* Avatar: bg=plum card, text=dusty rose — kontras aman */
+  /* FIX: sebelumnya text=Dusty Rose (#b07a90) — kontras dari Plum Card
+     (#3d2530) sekitar 0.38 — kurang. Ganti ke Blush (#e8c4b8) gap 0.638 ✓ */
+  --str-chat__avatar-palette-bg-1: #262626; /* dark popover neutral */
+  --str-chat__avatar-palette-bg-2: #262626;
+  --str-chat__avatar-palette-bg-3: #262626;
+  --str-chat__avatar-palette-bg-4: #262626;
+  --str-chat__avatar-palette-bg-5: #262626;
+  --str-chat__avatar-palette-text-1: #f0edeb; /* warm white — 12.82:1 ✓ AAA */
+  --str-chat__avatar-palette-text-2: #f0edeb;
+  --str-chat__avatar-palette-text-3: #f0edeb;
+  --str-chat__avatar-palette-text-4: #f0edeb;
+  --str-chat__avatar-palette-text-5: #f0edeb;
+
+  /* Bubble incoming */
+  /* Dark neutral: pakai --color-secondary (#333333) agar bubble kontras
+     dari card (#1E1E1E). text=foreground (warm white) 8.56:1 ✓ AAA */
+  --str-chat__chat-bg-incoming: var(--color-secondary);
+  --str-chat__chat-text-incoming: var(--color-foreground);
+  --str-chat__chat-border-incoming: transparent;
+  --str-chat__chat-bg-attachment-incoming: var(--color-secondary);
+
+  /* Bubble outgoing */
+  /* FIX KONTRAS: Mauve Bright (0.620) + Warm White = 3.63:1 — GAGAL WCAG AA.
+     Solusi: hardcode Mauve Primary (0.435) langsung, bukan var(--color-primary)
+     karena --color-primary di dark mode = Mauve Bright (0.620) yang terlalu terang.
+     Mauve Primary (0.435) + Warm White = 7.88:1 ✓ WCAG AAA */
+  --str-chat__chat-bg-outgoing: oklch(0.435 0.098 350); /* Mauve Primary */
+  --str-chat__chat-text-outgoing: oklch(0.979 0.005 30); /* Warm White */
+  --str-chat__chat-border-outgoing: transparent;
+  --str-chat__chat-bg-attachment-outgoing: oklch(0.435 0.098 350);
+
+  /* Background hierarchy */
+  --str-chat__background-core-app: var(--color-background);
+  --str-chat__background-core-elevation-0: var(--color-background);
+  --str-chat__background-core-elevation-1: var(--color-card);
+  --str-chat__background-core-elevation-2: var(--color-popover);
+  --str-chat__background-core-surface-default: var(--color-muted);
+  --str-chat__background-core-surface-card: var(--color-card);
+
+  /* Text */
+  --str-chat__text-primary: var(--color-foreground);
+  --str-chat__text-secondary: var(--color-muted-foreground);
+
+  /* Border */
+  --str-chat__border-color: var(--color-border);
+
+  /* Input */
+  --str-chat__input-bg: oklch(0.265 0 0); /* #262626 — popover level, lebih terang dari card */
+  --str-chat__input-border: var(--color-input);
+
+  /* Highlight / mention */
+  --str-chat__mention-color: #b8628a; /* Mauve Bright — visible di dark neutral */
+
+  /* Reaction */
+  --str-chat__reaction-bg: var(--color-secondary);
+  --str-chat__reaction-text: var(--color-secondary-foreground);
+
+  /* Unread badge */
+  --str-chat__unread-count-bg: #7d3e52; /* Mauve Primary — konsisten dengan primary */
+  --str-chat__unread-count-color: #fafafa; /* Netral putih */
+}
+
+/* ── Channel layout: composer selalu di bawah ─────────────────
+   Stream Channel & Container gak punya flex:1 secara default,
+   jadinya pas MessageList gak dirender (pesan kosong) height
+   collapse dan composer naik ke atas.
+   ─────────────────────────────────────────────────────────── */
+.str-chat__channel {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__main-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.str-chat__message-list {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* ── Avatar --me: sembunyikan ────────────────────────────── */
+.str-chat__message.str-chat__message--me .str-chat__avatar {
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.str-chat__message.str-chat__message--me a:has(> .str-chat__avatar) {
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ── Avatar --other: link wrapper transparan ke grid ──────── */
+.str-chat__message.str-chat__message--other a:has(> .str-chat__avatar) {
+  display: contents !important;
+}
+
+/* ── Channel list ─────────────────────────────────────────── */
+.str-chat__channel-list__header {
+  display: none !important;
+}
+
+.str-chat__channel-list-inner__main {
+  padding: 8px 0 !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  max-width: 420px;
+}
+
+.str-chat__channel-preview-container {
+  border-radius: 8px !important;
+  margin: 1px 8px !important;
+  transition: background 0.15s !important;
+}
+
+.str-chat__channel-preview-container:hover {
+  background: var(--color-muted) !important;
+}
+
+.str-chat__channel-list-item--active .str-chat__channel-preview-container {
+  background: var(--color-muted) !important;
+}
+
+/* ── Unread badge — pakai warna brand ────────────────────── */
+.str-chat__channel-preview-unread-badge {
+  background-color: var(--str-chat__unread-count-bg) !important;
+  color: var(--str-chat__unread-count-color) !important;
+}
+
+/* ── Composer ─────────────────────────────────────────────── */
+.str-chat__message-composer,
+.str-chat__dropzone-root,
+.str-chat__message-composer-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.str-chat__composer {
+  background: var(--str-chat__input-bg) !important;
+  border: 1px solid var(--str-chat__input-border) !important;
+  border-radius: 12px !important;
+  transition: border-color 0.15s !important;
+}
+
+.str-chat__composer:focus-within {
+  border-color: var(--color-ring) !important;
+  /* FIX: tambah subtle ring shadow agar focus state lebih terasa */
+  box-shadow: 0 0 0 2px oklch(0.5 0.11 350 / 20%) !important;
+}
+
+/* ── Mention suggestion ───────────────────────────────────── */
+.str-chat__suggestion-list-container {
+  background: var(--color-popover) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px oklch(0 0 0 / 12%) !important;
+}
+
+.str-chat__suggestion-list-item--selected {
+  background: var(--color-muted) !important;
+}
+
+/* ── Date separator ───────────────────────────────────────── */
+.str-chat__date-separator-date {
+  background: var(--color-background) !important;
+  color: var(--color-muted-foreground) !important;
+  font-size: 11px !important;
+  border-radius: 99px !important;
+  padding: 2px 12px !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.str-chat__date-separator-line {
+  background: var(--color-border) !important;
+}
+
+/* ── Message actions ──────────────────────────────────────── */
+.str-chat__message-actions-box {
+  background: var(--color-popover) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px oklch(0 0 0 / 12%) !important;
+}
+
+.str-chat__message-actions-list-item-button {
+  color: var(--color-foreground) !important;
+  transition: background 0.12s !important;
+}
+
+.str-chat__message-actions-list-item-button:hover {
+  background: var(--color-muted) !important;
+}
+
+/* FIX: tambah warna merah untuk action destructive (Delete, dll) */
+.str-chat__message-actions-list-item-button[aria-label="Delete Message"] {
+  color: var(--color-destructive) !important;
+}
+
+/* ── Sembunyikan elemen ───────────────────────────────────── */
+.str-chat__message-actions-list-item-button[aria-label="Block User"],
+.str-chat__message-actions-list-item-button[aria-label="Unblock User"],
+.str-chat__message-options [data-testid="thread-action"] {
+  display: none !important;
+}
+
+/* ── Reaction picker ──────────────────────────────────────── */
+.str-chat__reaction-selector {
+  background: var(--color-popover) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 99px !important;
+  box-shadow: 0 4px 12px oklch(0 0 0 / 10%) !important;
+}
+
+/* ── Pinned message banner ────────────────────────────────── */
+.str-chat__pinned-message-list {
+  background: var(--color-secondary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  color: var(--color-secondary-foreground) !important;
+}
+
+/* ── Loading indicator ────────────────────────────────────── */
+.str-chat__loading-indicator-center {
+  color: var(--color-primary) !important;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+.str-chat ::-webkit-scrollbar {
+  width: 4px;
+}
+.str-chat ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.str-chat ::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
+.str-chat ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}

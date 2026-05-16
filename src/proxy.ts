@@ -23,7 +23,7 @@ export function proxy(req: NextRequest) {
   });
 
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isSetupUsernameRoute = nextUrl.pathname === "/setup-username";
+  const isSetupUsernameRoute = nextUrl.pathname === "/atur-akun";
 
   // 3. API Auth Routes - Always allowed
   if (isApiAuthRoute) {
@@ -34,7 +34,7 @@ export function proxy(req: NextRequest) {
   // Allow logged-in users to access this route (client-side will redirect if username exists)
   if (isSetupUsernameRoute) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/signin", nextUrl));
+      return NextResponse.redirect(new URL("/masuk", nextUrl));
     }
     return NextResponse.next();
   }
@@ -49,13 +49,13 @@ export function proxy(req: NextRequest) {
 
   // 6. Landing Page Redirect - logged-in users go to dashboard
   if (isLoggedIn && nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    return NextResponse.redirect(new URL("/beranda", nextUrl));
   }
 
   // 7. Private Route Protection
   // All routes are private unless they are in publicRoutes
   if (!isLoggedIn && !isPublicRoute) {
-    const loginUrl = new URL("/signin", nextUrl);
+    const loginUrl = new URL("/masuk", nextUrl);
     return NextResponse.redirect(loginUrl);
   }
 

@@ -177,6 +177,18 @@ export async function getViolationsForChannel(channelId: string) {
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
+  const requestId = channelId.replace("taaruf-", "");
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: { senderId: true, recipientId: true, mediatorId: true },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+
+  const uid = session.user.id;
+  const isAuthorized = uid === request.senderId || uid === request.recipientId || uid === request.mediatorId;
+  if (!isAuthorized) return { error: "Anda tidak memiliki akses ke channel ini." };
+
   try {
     const rows = await db
       .select({

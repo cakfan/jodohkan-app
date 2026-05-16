@@ -12,9 +12,9 @@ import { CopyrightYear } from "./copyright-year";
 function SectionDivider() {
   return (
     <div className="flex items-center justify-center py-2">
-      <div className="h-px w-16 bg-[#E8C4B8]" />
-      <div className="mx-3 text-xs text-[#E8C4B8]">✦</div>
-      <div className="h-px w-16 bg-[#E8C4B8]" />
+      <div className="h-px w-16 bg-primary/20" />
+      <div className="mx-3 text-xs text-primary/40">✦</div>
+      <div className="h-px w-16 bg-primary/20" />
     </div>
   );
 }

@@ -332,7 +332,7 @@ export function TaarufClient() {
               icon={Send}
               title="Belum ada permintaan terkirim"
               description="Anda belum mengirimkan ta'aruf ke siapapun."
-              action={{ label: "Temukan Kandidat", href: "/find" }}
+              action={{ label: "Temukan Kandidat", href: "/temukan" }}
             />
           ) : (
             sent.map((req) => (

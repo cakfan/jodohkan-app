@@ -108,7 +108,7 @@ export function getDigestEmailHtml(
       <table role="presentation" cellspacing="0" cellpadding="0" style="margin:24px 0;">
         <tr>
           <td style="border-radius:8px;background:${BRAND_GRADIENT};">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "https://jodohkan.app"}/notifications" target="_blank"
+            <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "https://jodohkan.app"}/notifikasi" target="_blank"
                style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">
               Lihat Notifikasi
             </a>

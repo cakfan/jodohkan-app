@@ -5,7 +5,7 @@ import { TaarufClient } from "./taaruf-client";
 
 async function TaarufLoader() {
   const session = await getServerSession();
-  if (!session?.user?.id) redirect("/signin");
+  if (!session?.user?.id) redirect("/masuk");
   return <TaarufClient />;
 }
 

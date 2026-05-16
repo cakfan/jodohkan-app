@@ -1248,7 +1248,7 @@ export function CVEditorForm({ initialData, isInActiveTaaruf }: CVEditorFormProp
                   setCompletedSteps((prev) => new Set(prev).add(5));
                   setIsLoading(false);
                   router.refresh();
-                  router.push("/dashboard");
+                  router.push("/beranda");
                 }}
                 disabled={isLoading}
               >

@@ -71,6 +71,20 @@
       "when": 1778791945100,
       "tag": "0009_majestic_puff_adder",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778816768878,
+      "tag": "0010_low_vance_astro",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778838157856,
+      "tag": "0011_worried_the_twelve",
+      "breakpoints": true
     }
   ]
 }

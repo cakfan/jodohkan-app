@@ -65,7 +65,7 @@ export function SetupUsernameForm() {
       }
 
       toast.success("Data berhasil disimpan!");
-      router.push("/onboarding");
+      router.push("/pengenalan");
       router.refresh();
     } catch {
       toast.error("Terjadi kesalahan teknis.");

@@ -20,7 +20,7 @@ export function LandingNavbar({ session }: LandingNavbarProps) {
       <div className="flex items-center gap-4">
         {session ? (
           <Link
-            href="/dashboard"
+            href="/beranda"
             className={cn(
               buttonVariants({ variant: "default", size: "sm" }),
               "hidden rounded-full md:inline-flex"
@@ -30,7 +30,7 @@ export function LandingNavbar({ session }: LandingNavbarProps) {
           </Link>
         ) : (
           <Link
-            href="/signin"
+            href="/masuk"
             className={cn(
               buttonVariants({ variant: "default", size: "lg" }),
               "hidden items-center rounded-full md:inline-flex"

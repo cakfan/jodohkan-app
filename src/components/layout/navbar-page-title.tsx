@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation";
 
 const pageInfo: Record<string, { title: string; description: string }> = {
-  "/dashboard": { title: "Dashboard", description: "Overview aktivitas ta'aruf Anda" },
+  "/beranda": { title: "Dashboard", description: "Overview aktivitas ta'aruf Anda" },
   "/cv/edit": { title: "CV Ta'aruf", description: "Lengkapi profil ta'aruf Anda" },
-  "/find": { title: "Temukan Pasangan", description: "Cari calon pasangan sesuai kriteria Anda" },
+  "/temukan": { title: "Temukan Pasangan", description: "Cari calon pasangan sesuai kriteria Anda" },
   "/taaruf": { title: "Ta'aruf", description: "Kelola permintaan ta'aruf masuk dan keluar" },
   "/topup": { title: "Top-Up Token", description: "Beli token untuk fitur premium" },
-  "/messages": { title: "Pesan", description: "Ruangan ta'aruf Anda" },
-  "/notifications": { title: "Notifikasi", description: "Aktivitas dan pemberitahuan terbaru" },
+  "/pesan": { title: "Pesan", description: "Ruangan ta'aruf Anda" },
+  "/notifikasi": { title: "Notifikasi", description: "Aktivitas dan pemberitahuan terbaru" },
 };
 
 export function NavbarPageTitle() {

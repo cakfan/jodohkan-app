@@ -12,7 +12,7 @@ async function OnboardingLoader() {
   const session = await getServerSession();
 
   if (!session?.user?.username) {
-    redirect("/signin");
+    redirect("/masuk");
   }
 
   const existingProfile = session.user.id
@@ -22,7 +22,7 @@ async function OnboardingLoader() {
     : null;
 
   if (existingProfile?.onboardingCompleted) {
-    redirect("/dashboard");
+    redirect("/beranda");
   }
 
   return <OnboardingForm userName={session.user.name} />;

@@ -35,27 +35,27 @@ import { getUnreadMessageCount } from "@/app/actions/stream";
 import { getUnreadNotificationCount } from "@/app/actions/notification";
 
 const candidateNavItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/beranda", icon: LayoutDashboard },
   { title: "CV Ta'aruf", url: "/cv/edit", icon: BookOpen },
-  { title: "Temukan", url: "/find", icon: Users },
+  { title: "Temukan", url: "/temukan", icon: Users },
   { title: "Ta'aruf", url: "/taaruf", icon: HeartHandshake },
-  { title: "Pesan", url: "/messages", icon: MessageSquare },
-  { title: "Notifikasi", url: "/notifications", icon: Bell },
+  { title: "Pesan", url: "/pesan", icon: MessageSquare },
+  { title: "Notifikasi", url: "/notifikasi", icon: Bell },
   { title: "Wallet", url: "/topup", icon: Wallet },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
 const adminNavItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/beranda", icon: LayoutDashboard },
   { title: "Panel Admin", url: "/admin/review", icon: Shield },
-  { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Pesan", url: "/pesan", icon: MessageSquare },
   { title: "Wallet", url: "/topup", icon: Wallet },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
 
 const mediatorNavItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Pesan", url: "/messages", icon: MessageSquare },
+  { title: "Dashboard", url: "/beranda", icon: LayoutDashboard },
+  { title: "Pesan", url: "/pesan", icon: MessageSquare },
   { title: "Wallet", url: "/topup", icon: Wallet },
   { title: "Pengaturan", url: "/settings", icon: Settings2 },
 ];
@@ -94,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       {/* Header: title kiri, toggle kanan — collapsed: hanya toggle */}
       <SidebarHeader className="flex h-[60px] flex-row items-center justify-between px-5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
-        <Link href="/dashboard" className="group-data-[collapsible=icon]:hidden">
+        <Link href="/beranda" className="group-data-[collapsible=icon]:hidden">
           <span className="font-heading text-foreground text-xl font-semibold tracking-tight">
             Jodohkan
           </span>
@@ -107,17 +107,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {navItems.map((item) => {
             const isActive =
               pathname === item.url ||
-              (pathname.startsWith(item.url + "/") && item.url !== "/dashboard");
+              (pathname.startsWith(item.url + "/") && item.url !== "/beranda");
             const showBadge =
               (item.url === "/taaruf" && pendingTaaruf > 0) ||
-              (item.url === "/messages" && unreadMessages > 0) ||
-              (item.url === "/notifications" && unreadNotif > 0);
+              (item.url === "/pesan" && unreadMessages > 0) ||
+              (item.url === "/notifikasi" && unreadNotif > 0);
             const badgeCount =
               item.url === "/taaruf"
                 ? pendingTaaruf
-                : item.url === "/messages"
+                : item.url === "/pesan"
                   ? unreadMessages
-                  : item.url === "/notifications"
+                  : item.url === "/notifikasi"
                     ? unreadNotif
                     : 0;
 

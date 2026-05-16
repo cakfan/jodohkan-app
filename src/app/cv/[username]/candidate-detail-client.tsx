@@ -214,7 +214,8 @@ export function CandidateDetailClient({
   const isOwnProfile = session?.user?.id === candidate.userId;
   const isAdmin = session?.user?.role === "admin";
   const showFullProfile = isOwnProfile || isAdmin;
-  const canRequestTaaruf = !isOwnProfile;
+  const sameGender = (session?.user as { gender?: string })?.gender === candidate.gender;
+  const canRequestTaaruf = !isOwnProfile && !sameGender;
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [taarufOpen, setTaarufOpen] = useState(false);
@@ -256,7 +257,7 @@ export function CandidateDetailClient({
       {!hideBackButton && (
         <Button
           variant="ghost"
-          onClick={() => router.push("/find")}
+          onClick={() => router.push("/temukan")}
           className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />

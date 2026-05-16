@@ -26,6 +26,12 @@ export const taarufRequest = pgTable(
     message: text("message"),
     senderRead: boolean("sender_read").default(false).notNull(),
     recipientRead: boolean("recipient_read").default(false).notNull(),
+    // Readiness nadzor
+    readinessIkhwan: timestamp("readiness_ikhwan"),
+    readinessAkhwat: timestamp("readiness_akhwat"),
+    readinessTimer: timestamp("readiness_timer"),
+    // Decision timer (after nadzor call — 7 days)
+    decisionTimer: timestamp("decision_timer"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     respondedAt: timestamp("responded_at"),

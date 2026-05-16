@@ -21,7 +21,7 @@ export default function SetupUsernamePage() {
       const { data } = await authClient.getSession();
 
       if (!data) {
-        router.push("/signin");
+        router.push("/masuk");
         return;
       }
 
@@ -48,10 +48,10 @@ export default function SetupUsernamePage() {
     <div className="bg-background selection:bg-primary/20 relative flex min-h-screen flex-col items-center justify-center p-4 transition-colors duration-500 md:p-8">
       <nav className="absolute top-4 right-4 left-4 z-50 flex items-center justify-between md:top-8 md:right-8 md:left-8">
         <a
-          href="/signin"
+          href="/masuk"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "group text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-full pl-2 transition-all"
+            "group hover:text-accent rounded-full pl-2 transition-all"
           )}
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -87,7 +87,7 @@ export default function SetupUsernamePage() {
           </div>
         </header>
 
-        <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-white/20 backdrop-blur-3xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:ring-white/5">
+        <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-xl ring-1 ring-white/20 backdrop-blur-3xl dark:ring-white/5">
           <CardHeader className="border-border/50 bg-muted/40 space-y-2 border-b px-8 pt-10 pb-8 text-center">
             <CardTitle className="text-foreground flex items-center justify-center gap-2 text-2xl font-bold tracking-tight">
               <UserPlus className="text-primary h-5 w-5" />

@@ -82,7 +82,7 @@ async function CandidateDetailView({ params }: PageProps) {
           </EmptyHeader>
           <EmptyContent>
             <Link
-              href="/find"
+              href="/temukan"
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "inline-flex items-center gap-1.5"

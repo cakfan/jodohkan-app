@@ -3,10 +3,10 @@ export const APP_CONFIG = {
   description: "Platform Ta'aruf Islami Modern",
   version: "0.1.0",
   routes: {
-    signIn: "/signin",
-    signUp: "/signup",
-    dashboard: "/dashboard",
-    onboarding: "/onboarding",
+    signIn: "/masuk",
+    signUp: "/daftar",
+    dashboard: "/beranda",
+    onboarding: "/pengenalan",
     home: "/",
   },
   socials: {

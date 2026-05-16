@@ -42,6 +42,12 @@ export const nadzorSession = pgTable(
     feedbackIkhwan: text("feedback_ikhwan"),
     feedbackAkhwat: text("feedback_akhwat"),
     mediatorNotes: text("mediator_notes"),
+    decisionIkhwan: text("decision_ikhwan", {
+      enum: ["continue", "stop"],
+    }),
+    decisionAkhwat: text("decision_akhwat", {
+      enum: ["continue", "stop"],
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

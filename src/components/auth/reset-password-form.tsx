@@ -40,7 +40,7 @@ export function ResetPasswordForm() {
   React.useEffect(() => {
     if (!token) {
       toast.error("Token reset tidak valid.");
-      router.push("/signin");
+      router.push("/masuk");
     }
   }, [token, router]);
 
@@ -61,7 +61,7 @@ export function ResetPasswordForm() {
       }
 
       toast.success("Password berhasil direset! Silakan masuk dengan password baru.");
-      router.push("/signin");
+      router.push("/masuk");
     } catch {
       toast.error("Terjadi kesalahan teknis. Silakan coba lagi.");
     } finally {

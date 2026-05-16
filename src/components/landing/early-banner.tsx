@@ -28,17 +28,15 @@ export function EarlyAccessBanner() {
   const progressPercent = (count / TOTAL_SLOTS) * 100;
 
   return (
-    <div className="flex min-h-[40px] w-full items-center bg-[#C8A96E] px-4 py-[10px]">
+    <div className="flex min-h-[40px] w-full items-center bg-accent px-4 py-[10px]">
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-1.5">
-        <span className="text-[12px] font-[500] text-[#1E0F16]">
+        <span className="text-[12px] font-medium text-accent-foreground">
           ✦ Akses Awal Terbuka — Hanya 500 Slot Pertama &nbsp;·&nbsp; {count} / {TOTAL_SLOTS} terisi
         </span>
-        <div className="h-[3px] w-full max-w-[260px] overflow-hidden rounded-full"
-          style={{ backgroundColor: "rgba(30,15,22,0.2)" }}
-        >
+        <div className="bg-accent-foreground/20 h-[3px] w-full max-w-[260px] overflow-hidden rounded-full">
           <div
-            className="h-full rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progressPercent}%`, backgroundColor: "#1E0F16" }}
+            className="h-full rounded-full transition-all duration-300 ease-out bg-accent-foreground"
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>

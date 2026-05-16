@@ -63,7 +63,7 @@ export function NavbarNotifications({
   const handleItemClick = async (n: NotificationData) => {
     if (!n.read) await markNotificationRead(n.id);
     setOpen(false);
-    router.push("/notifications");
+    router.push("/notifikasi");
   };
 
   return (
@@ -185,7 +185,7 @@ export function NavbarNotifications({
 
         {/* Footer */}
         <Link
-          href="/notifications"
+          href="/notifikasi"
           onClick={() => setOpen(false)}
           className="text-muted-foreground hover:text-foreground hover:bg-accent/30 flex items-center justify-between px-4 py-2.5 text-xs font-medium transition-colors"
         >

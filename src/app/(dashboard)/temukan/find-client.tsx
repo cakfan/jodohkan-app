@@ -122,7 +122,7 @@ export function FindClient({
     if (filters.ageMax) params.set("ageMax", String(filters.ageMax));
     if (filters.username) params.set("username", filters.username);
     const qs = params.toString();
-    router.replace(`/find${qs ? `?${qs}` : ""}`, { scroll: false });
+    router.replace(`/temukan${qs ? `?${qs}` : ""}`, { scroll: false });
 
     const result = await getCandidates(filters);
     if (result.error) {
@@ -144,7 +144,7 @@ export function FindClient({
       username: "",
     };
     setFilters(empty);
-    router.replace("/find", { scroll: false });
+    router.replace("/temukan", { scroll: false });
     setLoading(true);
     setError(undefined);
     const result = await getCandidates(empty);

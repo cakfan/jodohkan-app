@@ -19,7 +19,13 @@ export type NotificationType =
   | "nadzor_activated"
   | "nadzor_scheduled"
   | "nadzor_reminder"
-  | "nadzor_feedback";
+  | "nadzor_feedback"
+  | "nadzor_readiness_partner_ready"
+  | "nadzor_readiness_both_ready"
+  | "nadzor_readiness_cancelled"
+  | "nadzor_decision_pending"
+  | "nadzor_to_khitbah"
+  | "taaruf_completed";
 
 export interface NotificationData {
   id: string;
@@ -40,10 +46,16 @@ const notificationActionUrls: Record<NotificationType, string | null> = {
   taaruf_ended: "/taaruf",
   cv_approved: "/profile",
   cv_rejected: "/profile",
-  nadzor_activated: "/messages",
-  nadzor_scheduled: "/messages",
-  nadzor_reminder: "/messages",
-  nadzor_feedback: "/messages",
+  nadzor_activated: "/pesan",
+  nadzor_scheduled: "/pesan",
+  nadzor_reminder: "/pesan",
+  nadzor_feedback: "/pesan",
+  nadzor_readiness_partner_ready: "/pesan",
+  nadzor_readiness_both_ready: "/pesan",
+  nadzor_readiness_cancelled: "/taaruf",
+  nadzor_decision_pending: "/pesan",
+  nadzor_to_khitbah: "/pesan",
+  taaruf_completed: "/taaruf",
 };
 
 export async function createNotification(
@@ -133,7 +145,7 @@ export async function markNotificationRead(notificationId: string) {
       )
     );
 
-  revalidatePath("/notifications");
+  revalidatePath("/notifikasi");
   return { success: true };
 }
 
@@ -151,6 +163,6 @@ export async function markAllNotificationsRead() {
       )
     );
 
-  revalidatePath("/notifications");
+  revalidatePath("/notifikasi");
   return { success: true };
 }

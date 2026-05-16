@@ -56,7 +56,7 @@ export function UserSignUpForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: "/setup-username",
+        callbackURL: "/atur-akun",
       });
     } catch {
       toast.error(`Gagal mendaftar dengan ${provider}.`);
@@ -85,7 +85,7 @@ export function UserSignUpForm() {
       setIsSuccess(true);
       toast.success("Pendaftaran berhasil! Silakan cek email Anda.");
       setTimeout(() => {
-        router.push("/signin");
+        router.push("/masuk");
         router.refresh();
       }, 3000);
     } catch {
@@ -151,7 +151,7 @@ export function UserSignUpForm() {
                       type="button"
                       className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-medium transition-all duration-200 ${
                         field.value === "male"
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? "bg-accent text-accent-foreground shadow-sm"
                           : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                       }`}
                       onClick={() => field.onChange("male")}
@@ -164,7 +164,7 @@ export function UserSignUpForm() {
                       type="button"
                       className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-medium transition-all duration-200 ${
                         field.value === "female"
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? "bg-accent text-accent-foreground shadow-sm"
                           : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                       }`}
                       onClick={() => field.onChange("female")}

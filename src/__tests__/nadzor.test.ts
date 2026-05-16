@@ -1,4 +1,4 @@
-import { expect, test, describe, mock, spyOn } from "bun:test";
+import { expect, test, describe, mock } from "bun:test";
 
 describe("Nadzor Phase Transition - Auth Guard", () => {
   test("transitionToNadzorPhase should return error when no session", async () => {
@@ -20,8 +20,14 @@ describe("Nadzor Phase Transition - Auth Guard", () => {
     mock.module("@/db", () => ({
       db: {
         query: {
-          user: {
-            findFirst: async () => ({ role: "user" }),
+          taarufRequest: {
+            findFirst: async () => ({
+              id: "some-id",
+              phase: "chat",
+              senderId: "user-a",
+              recipientId: "user-b",
+              mediatorId: "mediator-1",
+            }),
           },
         },
       },
@@ -30,7 +36,7 @@ describe("Nadzor Phase Transition - Auth Guard", () => {
     const { transitionToNadzorPhase } = await import("@/app/actions/stream");
     const result = await transitionToNadzorPhase("taaruf-some-id");
 
-    expect(result).toEqual({ error: "Hanya mediator yang bisa mengaktifkan fase nadzor." });
+    expect(result).toEqual({ error: "Anda bukan mediator ta'aruf ini." });
   });
 
   test("transitionToNadzorPhase should return error when request not found", async () => {
@@ -41,9 +47,6 @@ describe("Nadzor Phase Transition - Auth Guard", () => {
     mock.module("@/db", () => ({
       db: {
         query: {
-          user: {
-            findFirst: async () => ({ role: "mediator" }),
-          },
           taarufRequest: {
             findFirst: async () => null,
           },
@@ -65,15 +68,13 @@ describe("Nadzor Phase Transition - Auth Guard", () => {
     mock.module("@/db", () => ({
       db: {
         query: {
-          user: {
-            findFirst: async () => ({ role: "mediator" }),
-          },
           taarufRequest: {
             findFirst: async () => ({
               id: "request-1",
               phase: "nadzor",
               senderId: "user-a",
               recipientId: "user-b",
+              mediatorId: "mediator-1",
             }),
           },
         },
@@ -94,15 +95,13 @@ describe("Nadzor Phase Transition - Auth Guard", () => {
     mock.module("@/db", () => ({
       db: {
         query: {
-          user: {
-            findFirst: async () => ({ role: "mediator" }),
-          },
           taarufRequest: {
             findFirst: async () => ({
               id: "request-1",
               phase: "chat",
               senderId: "user-a",
               recipientId: "user-b",
+              mediatorId: "mediator-1",
             }),
           },
         },

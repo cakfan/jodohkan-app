@@ -23,7 +23,7 @@ async function AdminReviewContent() {
   const session = await getServerSession();
 
   if (!session?.user?.id || session.user.role !== "admin") {
-    redirect("/dashboard");
+    redirect("/beranda");
   }
 
   const result = await getPendingReviews();

@@ -64,9 +64,14 @@ import {
   submitAppeal,
   reviewAppeal,
 } from "@/app/actions/adab-guard";
+import { getTaarufRequestStatus } from "@/app/actions/taaruf";
 import type { ViolationWithUser } from "@/app/actions/adab-guard";
 import { NadzorPanel } from "@/components/nadzor/nadzor-panel";
+import { ReadinessPanel } from "@/components/chat/readiness-panel";
+import { TaarufTimeline } from "@/components/chat/taaruf-timeline";
+import { StreamVideoProvider } from "@/components/stream-video-provider";
 import "stream-chat-react/dist/css/index.css";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 import "./chat-theme.css";
 
 const defaultSort = { last_updated: -1 as const };
@@ -238,7 +243,7 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
     if (result.success) {
       toast.success(isFrozen ? "Ta'aruf dibuka kembali" : "Ta'aruf diakhiri");
       if (!isFrozen) {
-        window.location.href = "/messages";
+        window.location.href = "/pesan";
       }
     } else {
       toast.error(result.error!);
@@ -362,7 +367,7 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
                     className="hover:bg-muted flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors"
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-[10px] font-medium">
+                      <div className="bg-muted text-muted-foreground dark:text-foreground/70 flex size-8 shrink-0 items-center justify-center rounded-full text-[10px] font-medium">
                         {(m.user?.name ?? "?")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
@@ -375,7 +380,7 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
                         </div>
                         <div className="flex items-center gap-1">
                           {isOwner && (
-                            <span className="bg-primary/10 text-primary inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium">
+                            <span className="bg-primary/10 text-primary dark:text-primary-foreground inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium">
                               <Crown className="size-2.5" />
                               Owner
                             </span>
@@ -401,8 +406,8 @@ function MemberPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
                         disabled={banning === m.user?.id}
                         className={`shrink-0 text-[10px] ${
                           isBanned
-                            ? "text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30"
-                            : "text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                            ? "text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
+                            : "text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
                         }`}
                       >
                         {banning === m.user?.id ? "..." : isBanned ? "Buka blokir" : "Blokir"}
@@ -791,11 +796,23 @@ function ChannelHeaderGroup({
   const phaseBadge = (() => {
     switch (phase) {
       case "nadzor":
-        return <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 text-[10px]">Nadzor</Badge>;
+        return (
+          <Badge className="bg-amber-500/10 text-[10px] text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
+            Nadzor
+          </Badge>
+        );
       case "khitbah":
-        return <Badge className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 text-[10px]">Khitbah</Badge>;
+        return (
+          <Badge className="bg-emerald-500/10 text-[10px] text-emerald-600 hover:bg-emerald-500/10">
+            Khitbah
+          </Badge>
+        );
       case "completed":
-        return <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/10 text-[10px]">Selesai</Badge>;
+        return (
+          <Badge className="bg-blue-500/10 text-[10px] text-blue-600 dark:text-blue-400 hover:bg-blue-500/10">
+            Selesai
+          </Badge>
+        );
       default:
         return null;
     }
@@ -809,7 +826,7 @@ function ChannelHeaderGroup({
       toast.error(result.error);
       setDeleting(false);
     } else {
-      window.location.href = "/messages";
+      window.location.href = "/pesan";
     }
   }, [channel]);
 
@@ -856,9 +873,9 @@ function ChannelHeaderGroup({
             </AlertDialogMedia>
             <AlertDialogTitle>Aktifkan Fase Nadzor</AlertDialogTitle>
             <AlertDialogDescription>
-              Kedua pihak telah sepakat untuk lanjut ke nadzor? Dengan mengaktifkan fase ini,
-              sesi video call nadzor akan dapat dijadwalkan. Pastikan kedua pihak sudah setuju
-              sebelum melanjutkan.
+              Kedua pihak telah sepakat untuk lanjut ke nadzor? Dengan mengaktifkan fase ini, sesi
+              video call nadzor akan dapat dijadwalkan. Pastikan kedua pihak sudah setuju sebelum
+              melanjutkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -934,6 +951,11 @@ function ChannelHeaderGroup({
           )}
         </div>
       </div>
+      {(phase === "khitbah" || phase === "completed") && (
+        <div className="border-b px-6">
+          <TaarufTimeline currentPhase={phase as "khitbah" | "completed"} />
+        </div>
+      )}
     </>
   );
 }
@@ -1005,10 +1027,12 @@ function ChannelContent() {
   const hasMessages = messages && messages.length > 0;
 
   const cd = channel?.data as Record<string, unknown> | undefined;
+  const phase = (cd?.phase as string | undefined) ?? "chat";
   const adabFreezeExpiresAt = (cd?.adab_freeze_expires_at as string | undefined) ?? null;
   const adabFreezeReason = (cd?.adab_freeze_reason as string | undefined) ?? null;
   const adabFreezePermanent = cd?.adab_freeze_permanent === true;
 
+  const [taarufDbEnded, setTaarufDbEnded] = useState(false);
   const [localFreeze, setLocalFreeze] = useState<{
     expiresAt: string | null;
     permanent: boolean;
@@ -1052,6 +1076,25 @@ function ChannelContent() {
     return () => clearInterval(id);
   }, [channel?.id, adabFreezeExpiresAt]);
 
+  useEffect(() => {
+    if (!channel?.id) return;
+    const requestId = channel.id.replace("taaruf-", "");
+    let cancelled = false;
+
+    const check = async () => {
+      const result = await getTaarufRequestStatus(requestId);
+      if (cancelled) return;
+      setTaarufDbEnded(result === null || result.status !== "accepted");
+    };
+
+    check();
+    const id = setInterval(check, 10_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [channel?.id]);
+
   function useAllowedMessageActions() {
     const { client, channel } = useChatContext();
 
@@ -1072,7 +1115,7 @@ function ChannelContent() {
   const messageActions = useAllowedMessageActions();
 
   const handleSendMessage = useCallback(
-    async (params: { message: { text?: string } }) => {
+    async (params: { message: { text?: string; quoted_message_id?: string } }) => {
       const text = params.message.text ?? "";
       const result = checkMessageContent(text);
 
@@ -1107,7 +1150,10 @@ function ChannelContent() {
       }
 
       if (channel) {
-        await channel.sendMessage({ text });
+        await channel.sendMessage({
+          text,
+          quoted_message_id: params.message.quoted_message_id,
+        });
       }
     },
     [channel, client]
@@ -1134,10 +1180,10 @@ function ChannelContent() {
         onActivityToggle={() => setActivityPanelOpen((v) => !v)}
         onNadzorPanelToggle={() => setNadzorPanelOpen((v) => !v)}
       />
-      <div className="flex min-h-0 flex-1">
-        <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 w-full flex-1">
+        <div className="flex min-h-0 w-full flex-1 flex-col">
           {isMediatorFrozen && (
-            <div className="border-primary bg-primary/10 text-primary border-l-4 px-4 py-3 text-xs">
+            <div className="border-primary bg-primary/10 text-primary dark:text-foreground border-l-4 px-4 py-3 text-xs">
               <div className="flex items-start gap-2">
                 <Shield className="mt-0.5 size-4 shrink-0" />
                 <div className="flex flex-col gap-0.5">
@@ -1145,7 +1191,7 @@ function ChannelContent() {
                     Ta&apos;aruf telah selesai. Tidak dapat mengirim pesan lagi.
                   </span>
                   {channel?.data?.freeze_reason && (
-                    <span className="text-primary/70">{channel.data.freeze_reason as string}</span>
+                    <span className="text-primary/70 dark:text-foreground/70">{channel.data.freeze_reason as string}</span>
                   )}
                 </div>
               </div>
@@ -1185,7 +1231,7 @@ function ChannelContent() {
                   {effectiveReason && (
                     <span className="text-destructive/75 text-xs">{effectiveReason}</span>
                   )}
-                  <span className="text-destructive/60 flex items-center gap-1 text-xs">
+                  <span className="text-destructive/70 flex items-center gap-1 text-xs">
                     <Lock className="size-3" />
                     Chat tidak dapat digunakan lagi
                   </span>
@@ -1193,7 +1239,14 @@ function ChannelContent() {
               </div>
             </div>
           )}
+          {!taarufDbEnded && <ReadinessPanel />}
           <PinnedMessageBanner />
+          {taarufDbEnded && (
+            <div className="border-primary bg-primary/10 text-primary dark:text-foreground flex items-center gap-2 border-l-4 px-4 py-3 text-xs">
+              <Shield className="size-4 shrink-0" />
+              <span>Ta&apos;aruf telah selesai. Tidak dapat mengirim pesan lagi.</span>
+            </div>
+          )}
           <div className="grid min-h-0 flex-1 grid-rows-[1fr_auto] overflow-x-hidden">
             <div className="min-h-0 overflow-x-hidden">
               {hasMessages ? (
@@ -1223,24 +1276,27 @@ function ChannelContent() {
                 </div>
               )}
             </div>
-            {!isMediatorFrozen && !isAdabFrozen && (
+            {!isMediatorFrozen && !isAdabFrozen && !taarufDbEnded && phase !== "nadzor" && (
               <MessageComposer overrideSubmitHandler={handleSendMessage} />
             )}
           </div>
         </div>
-        <ActivityLogPanel
-          open={activityPanelOpen}
-          onClose={() => setActivityPanelOpen(false)}
-          channelId={channel?.id ?? ""}
-          clientUserId={client?.userID ?? ""}
-          isMediator={isMediator}
-          onReviewComplete={() => setLocalFreeze(null)}
-        />
-        <NadzorPanel
-          open={nadzorPanelOpen}
-          onClose={() => setNadzorPanelOpen(false)}
-        />
-        <MemberPanel open={memberPanelOpen} onClose={() => setMemberPanelOpen(false)} />
+        {phase === "nadzor" ? (
+          <NadzorPanel open={true} onClose={() => {}} wide />
+        ) : (
+          <>
+            <ActivityLogPanel
+              open={activityPanelOpen}
+              onClose={() => setActivityPanelOpen(false)}
+              channelId={channel?.id ?? ""}
+              clientUserId={client?.userID ?? ""}
+              isMediator={isMediator}
+              onReviewComplete={() => setLocalFreeze(null)}
+            />
+            <NadzorPanel open={nadzorPanelOpen} onClose={() => setNadzorPanelOpen(false)} />
+            <MemberPanel open={memberPanelOpen} onClose={() => setMemberPanelOpen(false)} />
+          </>
+        )}
       </div>
     </div>
   );
@@ -1382,5 +1438,9 @@ export default function MessagesPage() {
     );
   }
 
-  return <ChatView client={client} tokenData={tokenData} />;
+  return (
+    <StreamVideoProvider>
+      <ChatView client={client} tokenData={tokenData} />
+    </StreamVideoProvider>
+  );
 }

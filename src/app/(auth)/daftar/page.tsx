@@ -39,7 +39,7 @@ export default function SignUpPage() {
           href="/"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "group text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-full pl-2 transition-all"
+            "group hover:text-accent rounded-full pl-2 transition-all"
           )}
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -71,8 +71,7 @@ export default function SignUpPage() {
           {/* Heading */}
           <div className="animate-fade-in-up space-y-4 opacity-0 [animation-delay:150ms]">
             <h1 className="text-4xl font-black tracking-tighter lg:text-5xl">
-              Mulai Ikhtiar{" "}
-              <span className="text-accent drop-shadow-sm">Mulia</span>
+              Mulai Ikhtiar <span className="text-accent drop-shadow-sm">Mulia</span>
             </h1>
 
             {/* Decorative line */}
@@ -82,7 +81,7 @@ export default function SignUpPage() {
               <span className="bg-secondary/60 block h-px w-12" />
             </div>
 
-            <p className="text-foreground/80 mx-auto max-w-[340px] text-lg leading-relaxed font-semibold">
+            <p className="text-foreground/80 mx-auto max-w-md text-lg leading-relaxed font-semibold">
               Daftar sekarang untuk menemukan pasangan hidup yang sevisi dan seiman.
             </p>
           </div>
@@ -90,7 +89,7 @@ export default function SignUpPage() {
 
         {/* Registration Card */}
         <div className="animate-fade-in-up opacity-0 [animation-delay:300ms]">
-          <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-[0_8px_32px_color-mix(in_oklch,var(--color-primary)_8%,transparent)] backdrop-blur-3xl dark:border-border dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <Card className="border-border/60 bg-card/70 dark:bg-card/80 dark:border-border overflow-hidden py-0 shadow-xl backdrop-blur-3xl">
             <CardHeader className="border-border/50 bg-muted/40 space-y-2 border-b px-8 pt-10 pb-8 text-center">
               <CardTitle className="text-foreground text-2xl font-bold tracking-tight">
                 Registrasi Akun
@@ -108,7 +107,7 @@ export default function SignUpPage() {
               <div className="text-foreground/70 border-border/40 flex w-full flex-wrap items-center justify-center gap-2 border-t pt-6 text-sm font-medium">
                 <span>Sudah punya akun?</span>
                 <Link
-                  href="/signin"
+                  href="/masuk"
                   className="text-primary font-bold decoration-2 underline-offset-4 transition-all duration-200 hover:underline"
                 >
                   Masuk di sini

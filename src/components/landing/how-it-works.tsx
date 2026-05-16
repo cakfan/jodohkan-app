@@ -43,7 +43,7 @@ export function HowItWorksSection() {
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
             Tahapan Ta&apos;aruf
           </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+          <p className="text-foreground/80 mx-auto max-w-2xl text-lg">
             Proses yang terstruktur dan transparan menuju pernikahan
           </p>
         </div>
@@ -58,14 +58,14 @@ export function HowItWorksSection() {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="bg-card border-primary/20 group-hover:border-primary/40 group-hover:shadow-md flex h-24 w-24 items-center justify-center rounded-2xl border shadow-sm transition-all duration-300">
-                <step.icon className="text-primary h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
+                <step.icon className="text-primary dark:text-accent h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
               </div>
 
               <div className="space-y-1 transition-colors duration-300">
-                <h3 className="text-base font-bold group-hover:text-primary transition-colors duration-300">
+                <h3 className="text-base font-bold group-hover:text-primary dark:group-hover:text-accent transition-colors duration-300">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-foreground/80 text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>

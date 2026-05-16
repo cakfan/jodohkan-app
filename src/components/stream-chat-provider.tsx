@@ -6,6 +6,7 @@ import { getStreamToken } from "@/app/actions/stream";
 
 interface TokenData {
   chatToken: string;
+  videoToken: string;
   apiKey: string;
   userId: string;
   name: string;

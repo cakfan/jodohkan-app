@@ -1,9 +1,9 @@
-# Project Structure: Pethuk Jodoh
+# Project Structure: Jodohkan
 
-> **Pethuk Jodoh** — A modern Islamic Ta'aruf (matchmaking) platform built with Next.js 16, Better Auth, Drizzle ORM, PostgreSQL, Tailwind CSS v4, and shadcn/ui components.
+> **Jodohkan** — A modern Islamic Ta'aruf (matchmaking) platform built with Next.js 16, Better Auth, Drizzle ORM, PostgreSQL, Tailwind CSS v4, and shadcn/ui components.
 
 ```
-pethuk-jodoh/
+jodohkan-app/
 ```
 
 ---
@@ -72,7 +72,7 @@ src/
 | `proxy.ts` | Next.js 16 Edge Proxy: session-based auth routing, public/private route protection, username setup flow |
 | `routes.ts` | Route definitions: publicRoutes, authRoutes, apiAuthPrefix, DEFAULT_LOGIN_REDIRECT |
 | `app/` | Next.js App Router (pages, layouts, API routes) |
-| `components/` | Reusable React components |
+| `components/` | Reusable React components (chat/, nadzor/, shared/, ui/, auth/, layout/) |
 | `config/` | Application configuration constants |
 | `db/` | Database layer (Drizzle ORM client & schema) |
 | `hooks/` | Custom React hooks |
@@ -91,6 +91,7 @@ src/app/
   page.tsx
   globals.css
   favicon.ico
+  copyright-year.tsx
   (auth)/
     signin/
     signup/
@@ -100,23 +101,26 @@ src/app/
     onboard-username/           (empty — placeholder)
   (dashboard)/
     layout.tsx                  (dashboard layout with sidebar)
-    dashboard/page.tsx          (/dashboard)
+    dashboard/page.tsx          (/beranda)
     cv/edit/                    (/cv/edit)
     temukan/                    (/temukan)
+    temukan/@modal/             (parallel route — modal detail CV)
     taaruf/                     (/taaruf)
-    messages/                   (/messages — Stream Chat integration)
+    pesan/                      (/pesan — Stream Chat + Stream Video)
+    notifikasi/                 (/notifikasi — in-app notifications)
     topup/                      (/topup — token top-up with Xendit)
     topup/success/              (/topup/success)
-    topup/failed/              (/topup/failed)
+    topup/failed/               (/topup/failed)
     admin/review/               (/admin/review — admin only)
   cv/
     [username]/                 (/cv/[username] — public)
-  onboarding/
+  pengenalan/                   (/pengenalan — onboarding pages)
   actions/
   api/
     auth/[...all]/route.ts
     token/route.ts
     webhooks/xendit/route.ts
+    notifications/send-digest/route.ts
 ```
 
 | File/Directory | Description |
@@ -131,31 +135,38 @@ src/app/
 | `(auth)/forgot-password/page.tsx` | Forgot password page with spam timer protection |
 | `(auth)/reset-password/page.tsx` | Reset password page with token validation |
 | `(auth)/onboard-username/` | Empty directory (placeholder for onboarding flow) |
-| `onboarding/page.tsx` | Onboarding page (redirects if no session or already completed) |
-| `onboarding/layout.tsx` | Onboarding layout wrapper |
-| `onboarding/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
+| `pengenalan/page.tsx` | Onboarding page → `/pengenalan` |
+| `pengenalan/layout.tsx` | Onboarding layout wrapper |
+| `pengenalan/onboarding-form.tsx` | Onboarding form (edukasi adab ta'aruf & pernyataan komitmen) |
 | `(dashboard)/layout.tsx` | Dashboard layout wrapper with sidebar; admin skips onboarding check |
-| `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview → `/dashboard` |
+| `(dashboard)/dashboard/page.tsx` | Dashboard home page with status overview → `/beranda` |
 | `(dashboard)/cv/edit/page.tsx` | CV Editor server component → `/cv/edit` |
 | `(dashboard)/cv/edit/cv-editor-form.tsx` | CV Editor multi-step form (client, 5 steps, Zod validation, partner criteria slider, locked card when published, locked when in active ta'aruf, strips cvStatus from form data) |
 | `(dashboard)/temukan/page.tsx` | Temukan Kandidat server component → `/temukan` |
 | `(dashboard)/temukan/temukan-client.tsx` | Temukan client (useSearchParams filter, sticky sidebar) |
+| `(dashboard)/temukan/@modal/(..)cv/[username]/page.tsx` | Intercepting route — modal detail CV dari halaman temukan |
+| `(dashboard)/temukan/@modal/[...catchAll]/page.tsx` | Catch-all untuk modal slot |
+| `(dashboard)/temukan/@modal/default.tsx` | Default modal slot (null) |
 | `(dashboard)/taaruf/page.tsx` | Ta'aruf request page → `/taaruf` |
 | `(dashboard)/taaruf/taaruf-client.tsx` | Ta'aruf client: tabs (Diterima/Dikirim), accept/decline actions, expiry countdown |
-| `(dashboard)/messages/page.tsx` | Stream Chat messages page: ChannelList, MessageList, MessageComposer, ChannelHeaderGroup, custom ChatAvatar (link to `/cv/[username]`) |
-| `(dashboard)/messages/chat-theme.css` | Stream Chat theme overrides mapping to shadcn design tokens |
+| `(dashboard)/notifikasi/page.tsx` | Notifikasi in-app page → `/notifikasi` |
+| `(dashboard)/pesan/page.tsx` | Stream Chat messages page: ChannelList, MessageList, MessageComposer, ChannelHeaderGroup, custom ChatAvatar (link to `/cv/[username]`), NadzorPanel, ReadinessPanel, TaarufTimeline, StreamVideoProvider wrapper |
+| `(dashboard)/pesan/chat-theme.css` | Stream Chat theme overrides mapping to shadcn design tokens |
 | `(dashboard)/admin/review/page.tsx` | Admin review panel → `/admin/review` |
 | `(dashboard)/admin/review/review-client.tsx` | Admin review client (approve/reject actions) |
 | `cv/[username]/page.tsx` | Public CV detail → `/cv/[username]` |
 | `cv/[username]/candidate-detail-client.tsx` | Public CV detail client (tabs, privacy logic via `showFullProfile` — owner/admin lihat info lengkap; tombol "Ajak Ta'aruf" dengan sheet untuk mengirim permintaan) |
 | `actions/` | Server actions |
-| `actions/stream.ts` | Stream Chat server actions: `getStreamToken()` (auth + upsert user with username/image), `createTaarufChannel()` (auto-create channel, assign mediator as `channel_moderator`, set up grant overrides, upsert users with `taaruf_user` role), `deleteTaarufChannel()` (mediator-only channel deletion) |
-| `actions/profile.ts` | Profile CRUD: `saveProfile()` (guard: block self-approval, reset to pending on edit), `getProfile()`, `reviewCv()`, `togglePublished()` (reset cvStatus to pending on unpublish) |
+| `actions/stream.ts` | Stream Chat server actions: `getStreamToken()`, `createTaarufChannel()`, `deleteTaarufChannel()`, `transitionToNadzorPhase()`, `pinMessage()`, `unpinMessage()`, `getChannelOwner()`, `banTaarufUser()`, `unbanTaarufUser()`, `freezeTaarufChannel()` |
+| `actions/profile.ts` | Profile CRUD: `saveProfile()`, `getProfile()`, `reviewCv()`, `togglePublished()` |
 | `actions/photo.ts` | Photo upload/delete (Supabase Storage + sharp blur) |
 | `actions/ktp.ts` | KTP upload/delete |
-| `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` (admin bypasses status/gender filter; strips photoUrl/ktpUrl for public) |
+| `actions/candidates.ts` | Candidate listing: `getCandidates(filters)`, `getPendingReviews()`, `getCandidateByUsername()` |
+| `actions/nadzor.ts` | Nadzor video call: `proposeNadzorSchedule()`, `respondToScheduleProposal()`, `confirmNadzorSchedule()`, `getNadzorSessionForChannel()`, `cancelNadzorSession()`, `startNadzorCall()`, `endNadzorCall()`, `logModeratorAction()`, `submitNadzorFeedback()`, `submitMediatorNotes()`, `submitNadzorDecision()`, `transitionToCompleted()` |
+| `actions/adab-guard.ts` | Adab guard: `freezeForAdab()`, `checkAdabFreeze()`, `getViolationsForChannel()`, `submitAppeal()`, `reviewAppeal()` |
+| `actions/notification.ts` | Notifications: `createNotification()`, `getNotifications()`, `markAsRead()`, `markAllAsRead()`, `getUnreadCount()` |
 | `actions/onboarding.ts` | Onboarding: `completeOnboarding()` — creates wallet with initial balance |
-| `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()` (validates published CV, 24h expiry), `respondToTaarufRequest()` (accept/decline), `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()`, `isUserInActiveTaaruf()`, `getActiveTaarufUserIds()` |
+| `actions/taaruf.ts` | Ta'aruf requests: `sendTaarufRequest()`, `respondToTaarufRequest()`, `getMySentRequests()`, `getMyIncomingRequests()`, `getTaarufRequestCounts()`, `isUserInActiveTaaruf()`, `getActiveTaarufUserIds()`, `declareNadzorReadiness()`, `cancelNadzorReadiness()`, `getNadzorReadinessStatus()` |
 | `actions/topup.ts` | Token top-up: `getWalletBalance()`, `createTopUpSession()`, `getPaymentStatus()` |
 | `api/auth/[...all]/route.ts` | Catch-all Better Auth API handler |
 | `api/token/route.ts` | Stream Chat token endpoint (`GET /api/token`) — generates chat token via server-side Stream client |
@@ -172,8 +183,16 @@ src/components/
   navbar.tsx
   nav-main.tsx
   nav-user.tsx
+  photo-upload.tsx
+  blurred-photo.tsx
+  ktp-upload.tsx
+  stream-chat-provider.tsx
+  stream-video-provider.tsx
   auth/
+  chat/
   layout/
+  nadzor/
+  shared/
   ui/
 ```
 
@@ -187,6 +206,8 @@ src/components/
 | `photo-upload.tsx` | Photo upload component with preview, upload/delete (server-side blurred version auto-generated via sharp) |
 | `blurred-photo.tsx` | Blurred photo display component (uses server-side blurred image, optional toggle to original) |
 | `ktp-upload.tsx` | KTP upload component with OCR extraction (tesseract.js) and auto-fill to CV form |
+| `stream-chat-provider.tsx` | Stream Chat client provider (initialize client, manage token/user lifecycle) |
+| `stream-video-provider.tsx` | Stream Video client provider (initialize video client, wraps messages page) |
 
 #### `src/components/auth/`
 
@@ -199,16 +220,42 @@ src/components/
 | `reset-password-form.tsx` | Reset password form with password confirmation |
 | `username-input.tsx` | Reusable username input field with availability checking |
 
+#### `src/components/chat/`
+
+| File | Description |
+| :--- | :--- |
+| `readiness-panel.tsx` | Panel di chat untuk menyatakan siap nadzor, lihat status readiness, timer 7 hari |
+| `taaruf-timeline.tsx` | Timeline visual progress ta'aruf (muncul di header chat saat fase khitbah/completed) |
+
+#### `src/components/nadzor/`
+
+| File | Description |
+| :--- | :--- |
+| `nadzor-panel.tsx` | Panel utama nadzor di sidebar chat — schedule form, agreement, video call, after call |
+| `video-call-modal.tsx` | Full-screen video call UI dengan Stream Video SDK |
+| `schedule-form.tsx` | Form ajukan jadwal sesi nadzor (date picker + time picker 09:00-15:00) |
+| `agreement-confirm.tsx` | Konfirmasi persetujuan jadwal dari kedua pihak |
+| `moderator-panel.tsx` | Panel kontrol mediator: mute audio/video, end call, audit log |
+| `wali-reminder-dialog.tsx` | Dialog "Saya sudah didampingi wali" sebelum masuk call (wajib centang untuk akhwat) |
+| `wali-banner.tsx` | Banner permanen "Pastikan akhwat didampingi wali" selama call berlangsung |
+| `after-call-form.tsx` | Form feedback setelah sesi nadzor selesai |
+
+#### `src/components/shared/`
+
+| File | Description |
+| :--- | :--- |
+| `taaruf-banner.tsx` | Global banner di bawah navbar — berubah per fase (nadzor/khitbah/completed) |
+
 #### `src/components/layout/`
 
 | File | Description |
 | :--- | :--- |
-| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/dashboard`, `/cv/edit`, `/temukan`, `/taaruf`, `/topup`, `/messages`, `/settings`, `/notifications`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Wallet `/topup`, Pesan, Pengaturan) |
+| `app-sidebar.tsx` | Sidebar with navigation — candidate nav (`/beranda`, `/cv/edit`, `/temukan`, `/taaruf`, `/topup`, `/pesan`, `/settings`, `/notifikasi`) vs admin nav (Dashboard, Panel Admin `/admin/review`, Wallet `/topup`, Pesan, Pengaturan) |
 | `nav-main.tsx` | Main sidebar navigation items |
 | `nav-user.tsx` | User section in the sidebar |
 | `navbar.tsx` | Top navbar for authenticated layouts — shows CV status pill badge (or "Ta'aruf Aktif" badge when in active ta'aruf), token balance with coin icon |
 | `navbar-page-title.tsx` | Client — `usePathname()` maps path to title+description in navbar |
-| `sidebar-header.tsx` | Sidebar logo/brand header with Pethuk Jodoh branding |
+| `sidebar-header.tsx` | Sidebar logo/brand header with Jodohkan branding |
 | `theme-toggle.tsx` | Dark/light theme toggle button |
 
 #### `src/components/ui/` — shadcn/ui Primitives
@@ -303,6 +350,7 @@ src/lib/
 | `get-server-session.ts` | Helpers: `getServerSession()` — wraps `auth.api.getSession()` with headers; `requireAuth()` — returns session or null |
 | `utils-cv-detail.ts` | `getDisplayName()` — name formatting (initials + username for public, full name for owner/admin) |
 | `stream.ts` | Stream Chat server-side client singleton (`StreamChat.getInstance(apiKey, apiSecret)`) |
+| `stream-video.ts` | Stream Video server-side client singleton (`@stream-io/node-sdk` — `StreamClient` for backend operations) |
 | `xendit.ts` | Xendit client singleton (`Invoice`), `createTopUpInvoice()`, `verifyWebhookToken()` |
 | `constants/auth.ts` | Role constants: CANDIDATE, MEDIATOR, ADMIN |
 | `constants/profile.ts` | Shared labels: `CV_STATUS_LABELS`, `MARITAL_LABELS`, `getMaritalLabel()` |
@@ -355,8 +403,11 @@ src/lib/
 | `prd.md` | Product Requirements Document |
 | `project-structure.md` | This file — project structure documentation |
 | `roadmap.md` | Project development roadmap |
+| `roadmap-ppr.md` | Partial Pre-Rendering (PPR) analysis & implementation status |
+| `alur-taaruf.md` | UI/UX flow lengkap proses ta'aruf dari awal sampai selesai |
+| `nadzor.md` | Nadzor video call spesifikasi, alur, dan database schema |
 | `taaruf.md` | Ta'aruf (Islamic matchmaking) domain knowledge / guidelines |
-| `tutorial-supabase-dashboard-2026.md` | Tutorial navigasi dashboard Supabase (API keys, Storage, CORS, RLS policies) |
+| `archive/` | Archived documents (old architecture plans, design workshops, tutorials) |
 
 ---
 
@@ -408,6 +459,7 @@ Default Next.js static assets (SVG icons, logos).
 | **Email** | Resend (for email verification) |
 | **Validation** | Zod (standalone, per-step validation in CV Editor; react-hook-form in auth forms) |
 | **Chat** | Stream Chat (`stream-chat` server SDK + `stream-chat-react` client SDK), auto-created ta'aruf channels with mediator as `channel_moderator`, custom `taaruf_user` role (no `mute-user`), grant overrides to prevent leaving |
+| **Video Call** | Stream Video (`@stream-io/video-react-sdk` client SDK + `@stream-io/node-sdk` server SDK), custom call type `"nadzor"` |
 | **Image Processing** | sharp (server-side blur: resize 200×200 + blur 50 + JPEG quality 60) |
 | **Icons** | Lucide React + HugeIcons |
 | **Code Quality** | ESLint 9, Prettier, commitlint, lint-staged, Husky |

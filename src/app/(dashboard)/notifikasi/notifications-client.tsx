@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCheck, HeartHandshake, Shield, XCircle, Clock, FileText, Rocket, Video, MessageSquare } from "lucide-react";
+import {
+  Bell,
+  CheckCheck,
+  HeartHandshake,
+  Shield,
+  XCircle,
+  Clock,
+  FileText,
+  Rocket,
+  Video,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -29,12 +40,12 @@ function getNotificationHref(notif: NotificationData): string | null {
     case "taaruf_request_received":
       return "/taaruf";
     case "taaruf_request_accepted":
-      return "/messages";
+      return "/pesan";
     case "taaruf_request_declined":
     case "taaruf_request_expired":
       return "/taaruf";
     case "taaruf_ended":
-      return "/messages";
+      return "/pesan";
     case "cv_approved":
     case "cv_rejected":
       return "/cv/edit";
@@ -42,7 +53,7 @@ function getNotificationHref(notif: NotificationData): string | null {
     case "nadzor_scheduled":
     case "nadzor_reminder":
     case "nadzor_feedback":
-      return "/messages";
+      return "/pesan";
     default:
       return null;
   }
@@ -105,8 +116,8 @@ export function NotificationsClient({
             const content = (
               <div
                 className={cn(
-                  "hover:bg-muted/50 flex items-start gap-3 rounded-xl border p-4 transition-colors",
-                  !notif.read && "border-l-primary bg-accent/30 border-l-2"
+                  "hover:bg-accent/10 flex items-start gap-3 rounded-xl border p-4 transition-colors",
+                  !notif.read && "border-l-primary bg-primary/10 border-l-2"
                 )}
               >
                 <div

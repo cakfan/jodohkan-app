@@ -7,20 +7,8 @@ import { getDigestEmailHtml } from "@/lib/email-templates/notification";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
-  const queryKey = req.nextUrl.searchParams.get("key");
-  const secret = process.env.CRON_SECRET;
 
-  if (!secret) {
-    return NextResponse.json(
-      { error: "CRON_SECRET not configured on server" },
-      { status: 500 }
-    );
-  }
-
-  const authorized =
-    authHeader === `Bearer ${secret}` || queryKey === secret;
-
-  if (!authorized) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

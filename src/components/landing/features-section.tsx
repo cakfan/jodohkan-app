@@ -35,7 +35,7 @@ export function FeaturesSection() {
           <h2 className="font-heading text-3xl font-medium tracking-tight md:text-4xl">
             Mengapa Jodohkan?
           </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+          <p className="text-foreground/80 mx-auto max-w-2xl text-lg">
             Dibangun dengan prinsip privacy first dan mengikuti kaidah
             syar&apos;i
           </p>
@@ -48,10 +48,10 @@ export function FeaturesSection() {
               className="bg-card text-card-foreground rounded-2xl border p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="bg-primary/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
-                <feature.icon className="h-6 w-6 text-primary" />
+                <feature.icon className="h-6 w-6 text-primary dark:text-accent" />
               </div>
               <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-card-foreground/80 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>

@@ -35,7 +35,7 @@ export default function NotificationsPage() {
 
 async function NotificationsContent() {
   const session = await getServerSession();
-  if (!session?.user?.id) redirect("/signin");
+  if (!session?.user?.id) redirect("/masuk");
 
   const [notifResult, unreadCount] = await Promise.all([
     getNotifications(),

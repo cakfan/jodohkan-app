@@ -63,9 +63,11 @@ Tujuan: Ta'aruf naik ke level lanjutan setelah kedua pihak merasa cocok di fase 
 | ended_by | text FK → user | Siapa yang mengakhiri (nullable) |
 | end_reason | end_reason_enum | violation \| timeout \| completed \| cancelled |
 | status | session_status_enum | scheduled \| ongoing \| completed \| cancelled \| terminated |
-| feedback_ikhwan | text | Catatan setelah sesi (nullable) |
-| feedback_akhwat | text | Catatan setelah sesi (nullable) |
+| feedback_ikhwan | text | Feedback setelah sesi dari ikhwan (nullable) |
+| feedback_akhwat | text | Feedback setelah sesi dari akhwat (nullable) |
 | mediator_notes | text | Catatan mediator (nullable) |
+| decision_ikhwan | text | `continue` \| `stop` — keputusan ikhwan setelah sesi (nullable) |
+| decision_akhwat | text | `continue` \| `stop` — keputusan akhwat setelah sesi (nullable) |
 | created_at | timestamp | NOT NULL. Default now() |
 
 > **Index**: `(channel_id, status)`, `(mediator_id, status)`, `(scheduled_at)`
@@ -186,5 +188,9 @@ Untuk skema yang scalable, kolom `result` tidak disimpan di `nadzor_session` (ka
 |-------|------|------------|
 | phase | phase_enum | chat \| nadzor \| khitbah \| completed |
 | phase_updated_at | timestamp | Kapan terakhir fase berubah |
+| readiness_ikhwan | timestamp | Kapan ikhwan menyatakan siap nadzor (nullable) |
+| readiness_akhwat | timestamp | Kapan akhwat menyatakan siap nadzor (nullable) |
+| readiness_timer | timestamp | 7 hari dari readiness pertama (nullable) |
+| decision_timer | timestamp | 7 hari dari keputusan pertama setelah nadzor (nullable) |
 
 Dengan ini, `taaruf_request.status` tetap untuk lifecycle request (pending/accepted/declined/expired/ended), sedangkan `phase` mencatat progres ta'aruf itu sendiri.

@@ -169,7 +169,7 @@ Tracking rate limit untuk endpoint sensitif (forgot password: 3 request per 5 me
   - 3 request per 5 menit per email
   - Cooldown timer 5 menit di localStorage
   - Token reset divalidasi server-side
-- Protected routes — redirect ke `/signin` jika belum login
+- Protected routes — redirect ke `/masuk` jika belum login
 - Admin skip onboarding, langsung ke dashboard
 
 **Catatan untuk agent**: Jangan modifikasi konfigurasi Better Auth tanpa memahami session handling-nya. Semua auth logic ada di `lib/auth.ts`.
@@ -424,7 +424,7 @@ const callType = "nadzor";
 
 ### 3.9 Notifikasi
 
-**In-app** (halaman `/notifications`):
+**In-app** (halaman `/notifikasi`):
 
 - Request ta'aruf baru
 - Request diterima/ditolak
@@ -535,6 +535,8 @@ components/
 - **Server component dulu**: Gunakan React Server Component sebisa mungkin, client component hanya jika butuh interaktivitas
 - **Drizzle query**: Tulis query di file terpisah dalam `lib/db/queries/`, bukan inline di komponen
 - **Environment variables**: Semua secret harus di `.env.local`, tidak pernah di-hardcode
+- **Color tokens**: Wajib pakai CSS custom properties dari `globals.css` — jangan hardcode hex/oklch. Surface (bg, card, sidebar, muted) harus netral tanpa chroma. Brand color (Mauve `#7D3E52`, Gold `#C8A96E`) hanya untuk aksen: tombol, badge, bubble chat, focus ring. Baca `docs/theme-changelog.md` untuk detail dan filosofi v2.0 Dark Neutral.
+- **Kontras WCAG**: Setiap pasangan bg/fg harus lulus AA (body text ≥4.5:1). Token aman: lihat tabel audit di `docs/theme-changelog.md`. Catatan: `muted-foreground` (3.94:1 dark) by design hanya untuk placeholder/caption — jangan pakai untuk body text.
 
 ### Testing
 
@@ -558,16 +560,20 @@ components/
 
 ### 🔲 Belum Selesai — Fase 5 (Nadzor)
 
-- [ ] Scheduling Panel — ajukan jadwal, approval kedua pihak, notifikasi mediator
-- [ ] Stream Video SDK — install `@stream-io/video-react-sdk`, custom call type `"nadzor"`
-- [ ] Video Call UI — 1-on-1 video, moderator audio-only
-- [ ] Moderator Panel — mute peserta, akhiri call, indikator pembicara
-- [ ] Wali Reminder — dialog centang sebelum call + banner selama call
-- [ ] Time Window — call hanya aktif ±15 menit dari jadwal
+- [x] DB Schema: `nadzor_session`, `nadzor_session_agreement`, `moderator_audit_log`
+- [x] Phase State: kolom `phase`, `phase_updated_at`, `mediator_id` di `taaruf_request`
+- [x] Phase Transition: mediator aktivasi nadzor, validasi readiness
+- [x] Unit Tests: test untuk transition, phase validation
+- [x] Scheduling Panel — ajukan jadwal, approval kedua pihak, notifikasi mediator
+- [x] Stream Video SDK: install `@stream-io/video-react-sdk`, custom call type `"nadzor"`
+- [x] Video Call UI — 1-on-1 video, moderator audio-only
+- [x] Moderator Panel — mute peserta, akhiri call, indikator pembicara
+- [x] Wali Reminder — dialog centang sebelum call + banner selama call
+- [ ] Time Window — call hanya aktif ±15 menit dari jadwal; moderator wajib hadir 5 menit
 - [ ] Absence Handling — auto-batal jika salah satu tidak hadir 15 menit
-- [ ] After Call — form feedback + pilihan lanjut (khitbah/stop)
-- [ ] Audit Trail — semua tindakan moderator tercatat di DB
-- [ ] Khitbah — mediator update status completed
+- [x] After Call — form feedback + pilihan lanjut (khitbah/stop)
+- [x] Audit Trail — semua tindakan moderator tercatat di DB
+- [x] Khitbah — mediator update status completed
 
 ### 🔲 Belum Selesai — Fase 6 (Polish & Launch)
 
@@ -584,9 +590,11 @@ components/
 
 1. Baca bagian yang relevan dari dokumen ini
 2. Cek `roadmap.md` untuk status terbaru
-3. Jangan ubah schema database tanpa membuat migration Drizzle
-4. Jangan hardcode warna — gunakan token CSS dari `globals.css`
-5. Jangan buat komponen spinner baru — gunakan `<Spinner>` yang sudah ada
+3. Baca `docs/alur-taaruf.md` — UI/UX flow lengkap ta'aruf dari awal sampai selesai
+4. Baca `docs/theme-changelog.md` — pahami filosofi v2.0 Dark Neutral (surface netral, brand sebagai aksen) sebelum membuat komponen baru
+5. Jangan ubah schema database tanpa membuat migration Drizzle
+6. Jangan hardcode warna — gunakan token CSS dari `globals.css`
+7. Jangan buat komponen spinner baru — gunakan `<Spinner>` yang sudah ada
 
 ### Urutan pengerjaan Fase 5 yang disarankan
 

@@ -55,7 +55,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       }
 
       toast.success("Berhasil masuk!");
-      router.push("/dashboard");
+      router.push("/beranda");
       router.refresh();
     } catch {
       toast.error("Terjadi kesalahan teknis. Silakan coba lagi.");
@@ -69,7 +69,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: "/setup-username",
+        callbackURL: "/atur-akun",
       });
     } catch {
       toast.error(`Gagal masuk dengan ${provider}.`);
@@ -111,7 +111,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 <div className="flex items-center justify-between">
                   <FormLabel>Password</FormLabel>
                   <Link
-                    href={"/forgot-password"}
+                    href={"/lupa-password"}
                     className={cn(
                       buttonVariants({ variant: "link" }),
                       "text-muted-foreground h-auto p-0 text-xs font-normal"

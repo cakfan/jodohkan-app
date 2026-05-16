@@ -112,7 +112,7 @@ describe("Email Templates", () => {
       expect(html).toContain("Ahmad mengirimkan permohonan.");
       expect(html).toContain("CV Disetujui");
       expect(html).toContain("CV Anda telah disetujui.");
-      expect(html).toContain("/notifications");
+      expect(html).toContain("/notifikasi");
       expect(html).toContain("Jodohkan");
     });
 

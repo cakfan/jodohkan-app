@@ -6,6 +6,7 @@ import { user } from "@/db/schema/auth-schema";
 import { taarufRequest } from "@/db/schema/taaruf-schema";
 import { eq, inArray } from "drizzle-orm";
 import { getStreamClient } from "@/lib/stream";
+import { getStreamVideoClient } from "@/lib/stream-video";
 import { createNotification } from "./notification";
 import { revalidatePath } from "next/cache";
 import type { Channel } from "stream-chat";
@@ -53,8 +54,15 @@ export async function getStreamToken() {
       },
     ]);
 
+    const videoClient = getStreamVideoClient();
+    const videoToken = videoClient.generateUserToken({
+      user_id: userId,
+      role: "user",
+    });
+
     return {
       chatToken: client.createToken(userId),
+      videoToken,
       apiKey: process.env.STREAM_API_KEY!,
       userId,
       name,
@@ -139,7 +147,7 @@ export async function createTaarufChannel(
 
     const ownerId = mediator?.id ?? session.user.id;
     const channel = client.channel("messaging", channelId, {
-      name: `Ta'aruf: ${getInitials(senderName)} & ${getInitials(recipientName)}`,
+      name: `${getInitials(senderName)} & ${getInitials(recipientName)}`,
       members: membersConfig,
       created_by_id: ownerId,
     });
@@ -233,14 +241,14 @@ export async function freezeTaarufChannel(channelId: string, frozen: boolean, re
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
-  const dbUser = await db.query.user.findFirst({
-    where: eq(user.id, session.user.id),
-    columns: { role: true },
+  const requestId = channelId.replace("taaruf-", "");
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: { mediatorId: true },
   });
 
-  if (dbUser?.role !== "mediator") {
-    return { error: "Hanya mediator yang bisa mengakhiri ta'aruf." };
-  }
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+  if (request.mediatorId !== session.user.id) return { error: "Anda bukan mediator ta'aruf ini." };
 
   try {
     if (frozen) {
@@ -331,30 +339,21 @@ export async function unpinMessage(channelId: string, messageId: string) {
   }
 }
 
-export async function fixExistingTaarufChannel(channelId: string) {
-  const session = await getServerSession();
-  if (!session?.user?.id) return { error: "Not authenticated" };
-
-  try {
-    await withTaarufChannel(channelId, async (channel) => {
-      await channel.watch();
-      await channel.updatePartial({
-        set: {
-          config_overrides: {
-            replies: false,
-          },
-        },
-      });
-    });
-    return { success: true };
-  } catch (e) {
-    return { error: String(e) };
-  }
-}
-
 export async function getChannelOwner(channelId: string) {
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Not authenticated" };
+
+  const requestId = channelId.replace("taaruf-", "");
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: { senderId: true, recipientId: true, mediatorId: true },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+
+  const uid = session.user.id;
+  const isAuthorized = uid === request.senderId || uid === request.recipientId || uid === request.mediatorId;
+  if (!isAuthorized) return { error: "Anda tidak memiliki akses ke channel ini." };
 
   try {
     let ownerId: string | undefined;
@@ -375,23 +374,15 @@ export async function transitionToNadzorPhase(channelId: string) {
   const session = await getServerSession();
   if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
 
-  const dbUser = await db.query.user.findFirst({
-    where: eq(user.id, session.user.id),
-    columns: { role: true },
-  });
-
-  if (dbUser?.role !== "mediator") {
-    return { error: "Hanya mediator yang bisa mengaktifkan fase nadzor." };
-  }
-
   const requestId = channelId.replace("taaruf-", "");
   const request = await db.query.taarufRequest.findFirst({
     where: eq(taarufRequest.id, requestId),
-    columns: { id: true, phase: true, senderId: true, recipientId: true },
+    columns: { id: true, phase: true, senderId: true, recipientId: true, mediatorId: true },
   });
 
   if (!request) return { error: "Ta'aruf tidak ditemukan." };
   if (request.phase !== "chat") return { error: "Fase nadzor sudah aktif." };
+  if (request.mediatorId !== session.user.id) return { error: "Anda bukan mediator ta'aruf ini." };
 
   const now = new Date();
   await db
@@ -426,40 +417,4 @@ export async function transitionToNadzorPhase(channelId: string) {
 
   revalidatePath("/", "layout");
   return { success: true };
-}
-
-export async function debugChannelGrants(channelId: string) {
-  const session = await getServerSession();
-  if (!session?.user?.id) return { error: "Not authenticated" };
-
-  try {
-    let grants: unknown;
-    let config: unknown;
-    let ownCapabilities: string[] | undefined;
-    let members: Record<string, { role: string | undefined; name: string | undefined }> = {};
-
-    await withTaarufChannel(channelId, async (channel) => {
-      await channel.watch();
-      grants = (channel.data as Record<string, unknown>)?.grants;
-      config = channel.data?.config;
-      ownCapabilities = channel.data?.own_capabilities;
-      members = channel.state?.members
-        ? Object.fromEntries(
-            Object.entries(
-              channel.state.members as Record<string, { user?: { role?: string; name?: string } }>
-            ).map(([id, m]) => [id, { role: m.user?.role, name: m.user?.name }])
-          )
-        : {};
-    });
-
-    return {
-      grants,
-      config_overrides_replies: (config as Record<string, unknown>)?.replies,
-      ownCapabilities,
-      members,
-      rawConfig: config,
-    };
-  } catch (e) {
-    return { error: String(e) };
-  }
 }

@@ -45,7 +45,7 @@ export function HeroSection({ session }: HeroSectionProps) {
 
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="space-y-4">
-          <div className="mx-auto flex w-fit animate-fade-in-up items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary [animation-delay:0ms]">
+          <div className="mx-auto flex w-fit animate-fade-in-up items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary dark:text-accent [animation-delay:0ms]">
             <Heart className="h-4 w-4 animate-pulse" />
             Platform Ta&apos;aruf Islami Terpercaya
           </div>
@@ -54,7 +54,7 @@ export function HeroSection({ session }: HeroSectionProps) {
             Jodohmu Bukan Kebetulan.
           </h1>
 
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed animate-fade-in-up [animation-delay:300ms] md:text-xl">
+          <p className="text-foreground/80 mx-auto max-w-2xl text-lg leading-relaxed animate-fade-in-up [animation-delay:300ms] md:text-xl">
             Capek kenalan yang tidak jelas arahnya? Jodohkan hadir untuk kamu
             yang serius menuju pernikahan — dengan proses yang terjaga,
             berpendamping, dan sesuai syariah.
@@ -64,7 +64,7 @@ export function HeroSection({ session }: HeroSectionProps) {
         <div className="flex animate-fade-in-up flex-col items-center justify-center gap-4 [animation-delay:500ms] sm:flex-row">
           {session ? (
             <Link
-              href="/dashboard"
+              href="/beranda"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "group gap-2 rounded-full px-8 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
@@ -76,7 +76,7 @@ export function HeroSection({ session }: HeroSectionProps) {
           ) : (
             <>
               <Link
-                href="/signup"
+                href="/daftar"
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "group gap-2 rounded-full px-8 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
@@ -86,7 +86,7 @@ export function HeroSection({ session }: HeroSectionProps) {
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
-                href="/signin"
+                href="/masuk"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
                   "group rounded-full px-8 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
@@ -99,7 +99,7 @@ export function HeroSection({ session }: HeroSectionProps) {
         </div>
 
         {!session && (
-          <p className="animate-fade-in-up text-[11px] text-muted-foreground text-center [animation-delay:600ms]">
+          <p className="animate-fade-in-up text-[11px] text-foreground/60 text-center [animation-delay:600ms]">
             Gratis · Tanpa kartu kredit · Proses diverifikasi manual
           </p>
         )}
@@ -112,9 +112,9 @@ export function HeroSection({ session }: HeroSectionProps) {
               style={{ animationDelay: `${indicator.delay}ms` }}
             >
               <div className="bg-primary/10 group-hover:bg-primary/20 group-hover:shadow-md flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300">
-                <indicator.icon className="text-primary h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                <indicator.icon className="text-primary dark:text-accent h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
               </div>
-              <span className="text-sm font-semibold group-hover:text-primary transition-colors duration-300">
+              <span className="text-sm font-semibold group-hover:text-primary dark:group-hover:text-accent transition-colors duration-300">
                 {indicator.label}
               </span>
             </div>

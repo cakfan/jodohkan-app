@@ -39,7 +39,7 @@ export default function SignInPage() {
           href="/"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "group text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-full pl-2 transition-all"
+            "group hover:text-accent rounded-full pl-2 transition-all"
           )}
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -89,7 +89,7 @@ export default function SignInPage() {
 
         {/* Auth Card */}
         <div className="animate-fade-in-up opacity-0 [animation-delay:300ms]">
-          <Card className="border-border/60 bg-card/70 dark:bg-card/80 overflow-hidden py-0 shadow-[0_20px_50px_color-mix(in_oklch,var(--color-primary)_8%,transparent)] backdrop-blur-3xl dark:border-border dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+          <Card className="border-border/60 bg-card/70 dark:bg-card/80 dark:border-border overflow-hidden py-0 shadow-xl backdrop-blur-3xl">
             <CardHeader className="border-border/50 bg-muted/40 space-y-2 border-b px-8 pt-10 pb-8 text-center">
               <CardTitle className="text-foreground text-2xl font-bold tracking-tight">
                 Masuk Akun
@@ -107,7 +107,7 @@ export default function SignInPage() {
               <div className="text-foreground/70 border-border/40 flex w-full flex-wrap items-center justify-center gap-2 border-t pt-6 text-sm font-medium">
                 <span>Belum punya akun?</span>
                 <Link
-                  href="/signup"
+                  href="/daftar"
                   className="text-primary font-bold decoration-2 underline-offset-4 transition-all duration-200 hover:underline"
                 >
                   Daftar sekarang

@@ -401,29 +401,17 @@ describe("Step 5 - Q&A Validation", () => {
 });
 
 describe("Profile Server Action - Auth Guard", () => {
-  test(
-    "getProfile should return error when no session",
-    async () => {
-      mock.module("@/lib/get-server-session", () => ({
-        getServerSession: async () => null,
-      }));
-
-      const { getProfile } = await import("@/app/actions/profile");
-      const result = await getProfile();
-
-      expect(result).toEqual({ error: "Sesi tidak ditemukan." });
-    },
-    { timeout: 15000 },
-  );
-
-  test("saveProfile should return error when no session", async () => {
+  test("should return error when no session", async () => {
     mock.module("@/lib/get-server-session", () => ({
       getServerSession: async () => null,
     }));
 
-    const { saveProfile } = await import("@/app/actions/profile");
-    const result = await saveProfile({ gender: "male" });
+    const { getProfile, saveProfile } = await import("@/app/actions/profile");
 
-    expect(result).toEqual({ error: "Sesi tidak ditemukan." });
+    const profileResult = await getProfile();
+    expect(profileResult).toEqual({ error: "Sesi tidak ditemukan." });
+
+    const saveResult = await saveProfile({ gender: "male" });
+    expect(saveResult).toEqual({ error: "Sesi tidak ditemukan." });
   });
 });

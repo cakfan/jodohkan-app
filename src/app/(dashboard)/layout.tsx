@@ -51,11 +51,11 @@ async function DashboardContent({
   const session = await getServerSession();
 
   if (!session) {
-    redirect("/signin");
+    redirect("/masuk");
   }
 
   if (!session.user.username) {
-    redirect("/setup-username");
+    redirect("/atur-akun");
   }
 
   const isAdmin = session.user.role === "admin";
@@ -68,7 +68,7 @@ async function DashboardContent({
     });
 
     if (!existingProfile?.onboardingCompleted) {
-      redirect("/onboarding");
+      redirect("/pengenalan");
     }
   }
 

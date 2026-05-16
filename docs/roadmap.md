@@ -42,7 +42,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 **Tujuan**: Implementasi fitur lupa password dengan proteksi anti-spam.
 
 - [x] Auth Config: Tambah `sendResetPassword` dengan email template (Resend).
-- [x] Rate Limiting: 3 request per 5 menit untuk `/forget-password`.
+- [x] Rate Limiting: 3 request per 5 menit untuk `/lupa-password`.
 - [x] Forgot Password Page: Form email dengan 5-menit cooldown timer (localStorage).
 - [x] Reset Password Page: Form password baru + konfirmasi dengan token validation.
 - [x] Database: Tabel `rate_limit` untuk tracking rate limit.
@@ -77,7 +77,7 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] **Welcome Message**: Pesan pembuka & aturan ta'aruf dikirim otomatis saat channel dibuat dari mediator.
 - [x] **Pin Pesan**: Mediator bisa pin lewat menu aksi pesan + banner pinned message di atas daftar pesan + tombol lepas pin.
 - [x] **Notification Core**: Notifikasi in-app untuk aktivitas penting (request ta'aruf baru, pesan baru, status verifikasi CV, pengingat jadwal).
-- [x] **Notification Page**: Halaman `/notifications` untuk melihat riwayat notifikasi.
+- [x] **Notification Page**: Halaman `/notifikasi` untuk melihat riwayat notifikasi.
 - [x] **Email Notification**: Ringkasan aktivitas atau notifikasi penting ke email via Resend (Opsional).
 
 ## 🔄 Fase 5: Nadzor — Video Call & Fase Lanjutan (Minggu 5)
@@ -89,16 +89,16 @@ Roadmap ini disusun berdasarkan PRD untuk membangun aplikasi Ta'aruf Islami yang
 - [x] Phase Transition: Mediator bisa mengaktifkan fase nadzor dari panel — validasi kedua pihak setuju.
 - [x] Unit Tests: Test untuk `transitionToNadzorPhase`, `getActiveTaarufPhase`, dan validasi enum phase.
 - [x] Scheduling Panel: Ajukan jadwal (09:00-15:00), approval dari kedua pihak via nadzor_session_agreement, auto-konfirmasi jika mediator pengaju, notifikasi ke semua pihak.
-- [ ] Stream Video SDK: Install `@stream-io/video-react-sdk`, custom call type `"nadzor"`.
-- [ ] Video Call UI: 1-on-1 video (ikhwan & akhwat), moderator join audio-only sebagai observer.
-- [ ] Moderator Panel: Tombol mute peserta (audio/video) dan akhiri call, indikator pembicara.
-- [ ] Pengingat Wali: Dialog wajib centang sebelum call dimulai + banner selama call.
-- [ ] Wali Reminder: Banner "Pastikan akhwat didampingi wali/keluarga terpercaya" (tidak bisa di-skip).
+- [x] Stream Video SDK: Install `@stream-io/video-react-sdk`, custom call type `"nadzor"`.
+- [x] Video Call UI: 1-on-1 video (ikhwan & akhwat), moderator join audio-only sebagai observer.
+- [x] Moderator Panel: Tombol mute peserta (audio/video) dan akhiri call, indikator pembicara.
+- [x] Pengingat Wali: Dialog wajib centang sebelum call dimulai + banner selama call.
+- [x] Wali Reminder: Banner "Pastikan akhwat didampingi wali/keluarga terpercaya" (tidak bisa di-skip).
 - [ ] Time Window: Call hanya aktif ±15 menit dari jadwal; moderator wajib hadir 5 menit.
-- [ ] After Call: Form feedback ikhwan/akhwat + pilihan lanjut (khitbah / stop).
+- [x] After Call: Form feedback ikhwan/akhwat + pilihan lanjut (khitbah / stop).
 - [ ] Absence Handling: Jika salah satu pihak tidak hadir 15 menit → call batal.
-- [ ] Audit Trail: Semua tindakan moderator (mute, end call) tercatat di DB.
-- [ ] Khitbah: Fase di luar aplikasi — mediator update status sebagai completed setelah dikonfirmasi.
+- [x] Audit Trail: Semua tindakan moderator (mute, end call) tercatat di DB.
+- [x] Khitbah: Fase di luar aplikasi — mediator update status sebagai completed setelah dikonfirmasi.
 
 ## 🚀 Fase 6: Polish, Testing & Launch (Minggu 6)
 

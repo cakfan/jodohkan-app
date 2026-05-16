@@ -6,6 +6,7 @@ import { taarufRequest, profile, user } from "@/db/schema";
 import { eq, and, lt, inArray, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createTaarufChannel } from "./stream";
+import { getStreamClient } from "@/lib/stream";
 import { createNotification } from "./notification";
 
 export async function isUserInActiveTaaruf(userId: string): Promise<boolean> {
@@ -99,6 +100,16 @@ export async function sendTaarufRequest(recipientUserId: string, message?: strin
 
   if (senderId === recipientUserId) {
     return { error: "Tidak dapat mengirim ta'aruf ke diri sendiri." };
+  }
+
+  const recipientUser = await db
+    .select({ gender: user.gender })
+    .from(user)
+    .where(eq(user.id, recipientUserId))
+    .then((rows) => rows[0]);
+
+  if (recipientUser && session.user.gender === recipientUser.gender) {
+    return { error: "Tidak dapat mengirim ta'aruf ke sesama jenis." };
   }
 
   const myProfile = await db.query.profile.findFirst({
@@ -397,4 +408,252 @@ export async function getTaarufRequestCounts() {
   });
 
   return { pendingIncoming: pendingIncoming ? 1 : 0 };
+}
+
+export async function getTaarufRequestStatus(requestId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return null;
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: { status: true, phase: true },
+  });
+  return request ?? null;
+}
+
+export async function declareNadzorReadiness(requestId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: {
+      id: true, phase: true, status: true,
+      senderId: true, recipientId: true, mediatorId: true,
+      readinessIkhwan: true, readinessAkhwat: true, readinessTimer: true,
+    },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+  if (request.status !== "accepted") return { error: "Ta'aruf tidak aktif." };
+  if (request.phase !== "chat") return { error: "Fase chat sudah selesai." };
+
+  const userId = session.user.id;
+  const isIkhwan = userId === request.senderId;
+  const isAkhwat = userId === request.recipientId;
+  if (!isIkhwan && !isAkhwat) return { error: "Anda bukan peserta ta'aruf ini." };
+
+  const field = isIkhwan ? "readinessIkhwan" : "readinessAkhwat";
+
+  if (isIkhwan && request.readinessIkhwan) return { error: "Anda sudah menyatakan siap." };
+  if (isAkhwat && request.readinessAkhwat) return { error: "Anda sudah menyatakan siap." };
+
+  const now = new Date();
+
+  const existingReady = isIkhwan ? request.readinessAkhwat : request.readinessIkhwan;
+  const isFirst = !existingReady;
+
+  const updateData: Record<string, unknown> = {
+    [field]: now,
+    updatedAt: now,
+  };
+
+  if (isFirst) {
+    const timerEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    updateData.readinessTimer = timerEnd;
+  }
+
+  await db
+    .update(taarufRequest)
+    .set(updateData as typeof taarufRequest.$inferInsert)
+    .where(eq(taarufRequest.id, requestId));
+
+  if (isFirst) {
+    const otherId = isIkhwan ? request.recipientId : request.senderId;
+    const timerEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await createNotification(
+      otherId,
+      "nadzor_readiness_partner_ready",
+      "Pasangan Siap untuk Nadzor",
+      `Pasangan Anda sudah menyatakan siap untuk lanjut ke sesi nadzor. Anda memiliki waktu 7 hari untuk menyatakan siap juga.`,
+      { requestId, timerEnd: timerEnd.toISOString() }
+    );
+  }
+
+  const otherReady = isIkhwan ? request.readinessAkhwat : request.readinessIkhwan;
+
+  if (otherReady) {
+    const mediatorId = request.mediatorId;
+    if (mediatorId) {
+      await createNotification(
+        mediatorId,
+        "nadzor_readiness_both_ready",
+        "Kedua Pihak Siap Nadzor",
+        "Kedua pihak sudah menyatakan siap untuk nadzor. Silakan aktivasi fase nadzor.",
+        { requestId }
+      );
+    }
+    await createNotification(
+      isIkhwan ? request.recipientId : request.senderId,
+      "nadzor_readiness_both_ready",
+      "Pasangan Juga Siap",
+      "Pasangan Anda juga sudah siap. Menunggu mediator mengaktifkan sesi nadzor.",
+      { requestId }
+    );
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true, bothReady: !!otherReady, isFirst };
+}
+
+export async function cancelNadzorReadiness(requestId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: {
+      id: true, phase: true, status: true,
+      senderId: true, recipientId: true, mediatorId: true,
+      readinessIkhwan: true, readinessAkhwat: true,
+    },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+  if (request.status !== "accepted") return { error: "Ta'aruf tidak aktif." };
+  if (request.phase !== "chat") return { error: "Fase chat sudah selesai." };
+
+  const userId = session.user.id;
+  const isIkhwan = userId === request.senderId;
+  const isAkhwat = userId === request.recipientId;
+  if (!isIkhwan && !isAkhwat) return { error: "Anda bukan peserta ta'aruf ini." };
+
+  const otherReady = isIkhwan ? request.readinessAkhwat : request.readinessIkhwan;
+  if (!otherReady) return { error: "Pasangan belum menyatakan siap." };
+
+  const now = new Date();
+  await db
+    .update(taarufRequest)
+    .set({
+      status: "ended",
+      phaseUpdatedAt: now,
+      updatedAt: now,
+    })
+    .where(eq(taarufRequest.id, requestId));
+
+  const channelId = `taaruf-${requestId}`;
+  try {
+    const streamClient = getStreamClient();
+    const channel = streamClient.channel("messaging", channelId);
+    await channel.updatePartial({
+      set: {
+        frozen: true,
+        freeze_reason: "Salah satu pihak tidak siap untuk nadzor.",
+      },
+    });
+  } catch (e) {
+    console.error("Failed to freeze channel:", e);
+  }
+
+  for (const pid of [request.senderId, request.recipientId]) {
+    await createNotification(
+      pid,
+      "taaruf_ended",
+      "Proses Ta'aruf Dihentikan",
+      userId === pid
+        ? "Anda memilih untuk tidak melanjutkan ke sesi nadzor."
+        : "Pasangan Anda tidak siap untuk nadzor. Proses ta'aruf dihentikan.",
+      { requestId }
+    );
+  }
+
+  if (request.mediatorId) {
+    await createNotification(
+      request.mediatorId,
+      "taaruf_ended",
+      "Ta'aruf Dihentikan",
+      "Salah satu pihak tidak siap untuk nadzor. Proses ta'aruf dihentikan.",
+      { requestId }
+    );
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}
+
+export async function getNadzorReadinessStatus(requestId: string) {
+  const session = await getServerSession();
+  if (!session?.user?.id) return { error: "Sesi tidak ditemukan." };
+
+  const request = await db.query.taarufRequest.findFirst({
+    where: eq(taarufRequest.id, requestId),
+    columns: {
+      id: true, phase: true, status: true,
+      senderId: true, recipientId: true,
+      readinessIkhwan: true, readinessAkhwat: true, readinessTimer: true,
+    },
+  });
+
+  if (!request) return { error: "Ta'aruf tidak ditemukan." };
+  if (request.status !== "accepted") {
+    return { ready: false, status: request.status, phase: null, ikhwanReady: false, akhwatReady: false, timerEnd: null };
+  }
+
+  const ikhwanReady = !!request.readinessIkhwan;
+  const akhwatReady = !!request.readinessAkhwat;
+  const timerEnd = request.readinessTimer;
+
+  const now = new Date();
+  if (timerEnd && now > timerEnd) {
+    const otherReady = session.user.id === request.senderId ? request.readinessAkhwat : request.readinessIkhwan;
+    const selfReady = session.user.id === request.senderId ? request.readinessIkhwan : request.readinessAkhwat;
+    if (otherReady && !selfReady) {
+      await db
+        .update(taarufRequest)
+        .set({ status: "ended", phaseUpdatedAt: now, updatedAt: now })
+        .where(eq(taarufRequest.id, requestId));
+
+      const channelId = `taaruf-${requestId}`;
+      try {
+        const streamClient = getStreamClient();
+        const channel = streamClient.channel("messaging", channelId);
+        await channel.updatePartial({
+          set: { frozen: true, freeze_reason: "Batas waktu 7 hari untuk menyatakan siap telah habis." },
+        });
+      } catch (e) {
+        console.error("Failed to freeze channel:", e);
+      }
+
+      for (const pid of [request.senderId, request.recipientId]) {
+        await createNotification(
+          pid,
+          "taaruf_ended",
+          "Batas Waktu Habis",
+          "Batas waktu 7 hari untuk menyatakan siap telah habis. Proses ta'aruf dihentikan.",
+          { requestId }
+        );
+      }
+
+      revalidatePath("/", "layout");
+      return {
+        ready: false,
+        status: "ended",
+        phase: null,
+        ikhwanReady,
+        akhwatReady,
+        timerEnd: null,
+        expired: true,
+      };
+    }
+  }
+
+  return {
+    ready: ikhwanReady && akhwatReady,
+    status: request.status,
+    phase: request.phase,
+    ikhwanReady,
+    akhwatReady,
+    timerEnd,
+    isIkhwan: session.user.id === request.senderId,
+    isAkhwat: session.user.id === request.recipientId,
+  };
 }
